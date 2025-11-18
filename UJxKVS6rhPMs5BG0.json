@@ -1,0 +1,283 @@
+{
+  "active": true,
+  "connections": {
+    "Chaque 1er du mois à 8h": {
+      "main": [
+        [
+          {
+            "node": "Get \"Paiement du loyer\" Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Récupérer les baux actifs": {
+      "main": [
+        [
+          {
+            "node": "Récupérer les locataires",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Préparer paiements": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get \"Paiement du loyer\" Database": {
+      "main": [
+        [
+          {
+            "node": "1. Récupérer les baux actifs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Récupérer les locataires": {
+      "main": [
+        [
+          {
+            "node": "3. Préparer paiements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Call '[Geston locative] Génération quittance - Statut Payé'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-30T14:20:48.504Z",
+  "id": "UJxKVS6rhPMs5BG0",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[Gestion locative] Créer paiements mensuels par bail",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 1 * *"
+            }
+          ]
+        }
+      },
+      "id": "79215a22-00fb-4183-944b-34ccd9a6e18b",
+      "name": "Chaque 1er du mois à 8h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "20102d84-a064-80f3-9e55-c3721c4e1440",
+          "mode": "list",
+          "cachedResultName": "Baux",
+          "cachedResultUrl": "https://www.notion.so/20102d84a06480f39e55c3721c4e1440"
+        },
+        "options": {}
+      },
+      "name": "1. Récupérer les baux actifs",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        -240
+      ],
+      "id": "f38510c5-9cc0-4317-bc4a-b4b6be4d2708",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const baux = $input.all();\nconst resultats = [];\n\nfor (const bail of baux) {\n  const maintenant = new Date();\n  const annee = maintenant.getFullYear();\n  const mois = String(maintenant.getMonth() + 1).padStart(2, '0');\n  const premierDuMois = `${annee}-${mois}-01`;\n\n  // 1️⃣ Essaie d’extraire le nom du logement depuis les propriétés Notion\n  let logementNom =\n    bail.json.properties?.Logement?.relation?.[0]?.name ||\n    bail.json.properties?.Logement?.title?.[0]?.plain_text ||\n    'Inconnu';\n\n  // 2️⃣ Format texte du mois\n  const moisTexte = maintenant.toLocaleDateString('fr-FR', {\n    month: 'long',\n    year: 'numeric'\n  });\n\n  // 3️⃣ Pousse le résultat formaté\n  resultats.push({\n    bail_id: bail.json.id,\n    date_mois: premierDuMois,\n    nom_paiement: `${moisTexte} - ${logementNom}`\n  });\n}\n\nreturn resultats;\n"
+      },
+      "name": "3. Préparer paiements",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1936,
+        -240
+      ],
+      "id": "8fdb8e01-6dd1-46ad-bc06-054a31bfabc2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"parent\": {\n    \"database_id\": \"{{ $('Get \\\"Paiement du loyer\\\" Database').item.json.id }}\"\n  },\n  \"properties\": {\n    \"Nom\": {\n      \"title\": [\n        {\n          \"text\": {\n            \"content\": \"Paiement {{ $('Récupérer les locataires').item.json.properties.Name.title[0].text.content }}\"\n          }\n        }\n      ]\n    },\n    \"bail\": {\n      \"relation\": [\n        {\n          \"id\": \"{{ $('1. Récupérer les baux actifs').item.json.id }}\"\n        }\n      ]\n    },\n    \"Mois\": {\n      \"date\": {\n        \"start\": \"{{ $json.date_mois }}\"\n      }\n    },\n    \"Statut\": {\n      \"select\": {\n        \"name\": \"En attente\"\n      }\n    },\n    \"Moyen de paiement\": {\n      \"select\": {\n        \"name\": \"Virement\"\n      }\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2160,
+        -240
+      ],
+      "id": "f89ec4e0-02b5-4f71-b56c-cfcd76fe7479",
+      "name": "HTTP Request",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "database",
+        "databaseId": {
+          "__rl": true,
+          "value": "29c02d84-a064-807b-8f5f-f10110646245",
+          "mode": "list",
+          "cachedResultName": "Paiement des loyers",
+          "cachedResultUrl": "https://www.notion.so/29c02d84a064807b8f5ff10110646245"
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        -240
+      ],
+      "id": "63284459-477a-484d-b9de-72bee8802d21",
+      "name": "Get \"Paiement du loyer\" Database",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.property_locataires[0] }}",
+          "mode": "id"
+        },
+        "simple": false
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        -240
+      ],
+      "id": "e541a013-d843-4377-85f9-6c18942bee51",
+      "name": "Récupérer les locataires",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "xbJf7n37691AQ4Z7",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/xbJf7n37691AQ4Z7",
+          "cachedResultName": "[Geston locative] Génération quittance - Statut Payé"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2368,
+        -240
+      ],
+      "id": "0047a22c-36dd-47c2-80fa-920025cfdb3a",
+      "name": "Call '[Geston locative] Génération quittance - Statut Payé'"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-30T14:20:48.504Z",
+      "updatedAt": "2025-10-30T14:20:48.504Z",
+      "role": "workflow:owner",
+      "workflowId": "UJxKVS6rhPMs5BG0",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": {
+    "node:Chaque 1er du mois à 8h": {
+      "recurrenceRules": []
+    }
+  },
+  "tags": [
+    {
+      "createdAt": "2025-10-31T06:04:01.796Z",
+      "updatedAt": "2025-10-31T06:04:01.796Z",
+      "id": "osqw06AguEExU7k4",
+      "name": "Gestion locative"
+    },
+    {
+      "createdAt": "2025-10-31T10:19:05.616Z",
+      "updatedAt": "2025-10-31T10:19:05.616Z",
+      "id": "TaGWjjuOGEjyibAU",
+      "name": "OK"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-05T15:59:28.161Z",
+  "versionId": "954eb56d-aaa4-4e48-a8cc-9ea537ef1627"
+}
