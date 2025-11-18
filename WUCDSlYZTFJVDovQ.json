@@ -1,0 +1,51 @@
+{
+  "active": false,
+  "connections": {},
+  "createdAt": "2025-10-24T12:21:26.609Z",
+  "id": "WUCDSlYZTFJVDovQ",
+  "isArchived": false,
+  "meta": null,
+  "name": "My workflow 7",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f2fcd2dc-bd48-4217-8407-adc11b7fe423",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-24T12:21:26.609Z",
+      "updatedAt": "2025-10-24T12:21:26.609Z",
+      "role": "workflow:owner",
+      "workflowId": "WUCDSlYZTFJVDovQ",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-24T12:21:26.609Z",
+  "versionId": "fe55c0fe-f22d-4b45-812c-4827c7e31f08"
+}
