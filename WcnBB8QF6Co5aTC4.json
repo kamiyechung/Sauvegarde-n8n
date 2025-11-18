@@ -1,0 +1,245 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "1. Récupérer articles WordPress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Récupérer articles WordPress": {
+      "main": [
+        [
+          {
+            "node": "2. Extraire IDs recettes WPRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Extraire IDs recettes WPRM": {
+      "main": [
+        [
+          {
+            "node": "3. Récupérer détails recette WPRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Récupérer détails recette WPRM": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Créer article dans Notion (lié à recette)": {
+      "main": [
+        [
+          {
+            "node": "6. Résumé import",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-27T08:21:13.182Z",
+  "id": "WcnBB8QF6Co5aTC4",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "WordPress → Notion : Articles & Recettes liés",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        112
+      ],
+      "id": "9a35e9eb-1c12-4cae-8f66-5f3a865633de",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://camille-patisserie.com/wp-json/wp/v2/posts",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5
+            }
+          }
+        }
+      },
+      "id": "fc305adf-5756-485f-90ba-e6b6c26b054f",
+      "name": "1. Récupérer articles WordPress",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const content = item.json.content?.rendered || '';\n\n  // 🧩 Capture l’ID depuis data-recipe-id=\"XXXX\"\n  const match = content.match(/data-recipe-id=[\"'](\\d+)[\"']/i);\n\n  if (match) {\n    results.push({\n      json: {\n        post_id: item.json.id,\n        post_title: item.json.title?.rendered,\n        post_url: item.json.link,\n        recipe_id: match[1]\n      }\n    });\n  }\n}\n\nreturn results;\n"
+      },
+      "id": "f634151f-c268-47b2-b444-09df1f956e85",
+      "name": "2. Extraire IDs recettes WPRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        112
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "=https://camille-patisserie.com/wp-json/wp/v2/wprm_recipe/{{ $json.recipe_id }}",
+        "options": {}
+      },
+      "id": "c9276828-f6c6-4611-82e7-c4091d4f4a91",
+      "name": "3. Récupérer détails recette WPRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        672,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": "e8bd3feaf0bf40e0a2670f89db49d891",
+        "title": "=",
+        "options": {}
+      },
+      "id": "9e5fd034-1e12-4a6a-8b99-90be28b40128",
+      "name": "5. Créer article dans Notion (lié à recette)",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        -64
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "9ba3af05-0493-4037-8fb0-f09ba1511eb4",
+      "name": "6. Résumé import",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://camille-patisserie.com/wp-json/wp/v2/wprm_recipe/{{ $json.recipe_id }}",
+        "options": {}
+      },
+      "id": "29cd2303-1776-4049-a65d-ca8c2a9d48db",
+      "name": "3. Récupérer détails recette WPRM1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        0,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "22291aea-a5c5-4e75-837b-bf57d10136fd",
+          "mode": "list",
+          "cachedResultName": "Recettes ",
+          "cachedResultUrl": "https://www.notion.so/22291aeaa5c54e75837bbf57d10136fd"
+        },
+        "title": "={{ $json.title.rendered }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Auteur WP|rich_text",
+              "textContent": "={{ $json.author }}"
+            },
+            {
+              "key": "Calories|number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        96
+      ],
+      "id": "76f11116-ca0e-45bf-b729-136004461668",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-27T08:21:13.182Z",
+      "updatedAt": "2025-10-27T08:21:13.182Z",
+      "role": "workflow:owner",
+      "workflowId": "WcnBB8QF6Co5aTC4",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-27T08:51:07.995Z",
+      "updatedAt": "2025-10-27T08:51:07.995Z",
+      "id": "1r4YFJ7ejhYpl2Kq",
+      "name": "Blog"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-08T17:16:38.626Z",
+  "versionId": "2e3efb4f-e561-4c4d-b82e-36a9f4717f5a"
+}
