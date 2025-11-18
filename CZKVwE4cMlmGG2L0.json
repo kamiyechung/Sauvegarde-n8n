@@ -1,0 +1,173 @@
+{
+  "active": false,
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-23T14:01:04.333Z",
+  "id": "CZKVwE4cMlmGG2L0",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[Gestion des factures] Extraction des factures AG1",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "ROLE :\nTu es un assistant expert en analyse de factures et en reconnaissance documentaire.\nTu reçois le contenu textuel d’un mail et d’un fichier PDF contenant une facture.\nTon objectif est d’extraire toutes les informations comptables utiles sous un format JSON strictement valide.\n\nCONTEXTE :\n\nLe mail contient parfois des informations complémentaires (texte d’envoi, références, etc.).\n\nLe PDF contient la facture avec les données officielles : fournisseur, montant, date, TVA, etc.\n\nTu dois fusionner les deux sources pour produire une fiche de données cohérente et complète.\n\nSi une donnée est absente, renvoie \"null\"\n\n{\n  \"mail_text\": \"Contenu du mail ici...\",\n  \"pdf_text\": \"Texte extrait du PDF ici...\"\n}\n\n🔹 RÈGLES :\n\nNe devine pas de données : si tu n’es pas sûr, mets \"null\".\n\nExtrais les nombres sans symbole € (ex : 1200.50).\n\nLes dates doivent être au format YYYY-MM-DD.\n\nL’objet doit être une courte phrase décrivant le bien ou service (ex : “Abonnement logiciel”, “Fournitures de bureau”).\n\nIgnore les mentions légales inutiles (mentions RGPD, conditions de vente…).\n\nNe change aucune clé JSON, ne rajoute pas de texte explicatif.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": ""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        -272
+      ],
+      "id": "c07ffba3-3f65-41b4-bd4b-56fd629588e6",
+      "name": "AI Agent",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-haiku-20240307",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 3"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        -16
+      ],
+      "id": "cbd8cbbd-9942-40cf-bfb1-e3c2d6e64643",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://195.201.118.139:3004/mcp/gmail",
+        "serverTransport": "httpStreamable",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        848,
+        32
+      ],
+      "id": "5211afe9-feb2-47f0-868a-962abe99a3cd",
+      "name": "MCP Gmail"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        -256
+      ],
+      "id": "7d8da068-c538-43de-a0fd-508b5362a436",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"fournisseur_nom\": \"\",\n  \"fournisseur_siret\": \"\",\n  \"fournisseur_email\": \"\",\n  \"numero_facture\": \"\",\n  \"date_facture\": \"\",\n  \"date_paiement\": \"\",\n  \"montant_ht\": \"\",\n  \"montant_tva\": \"\",\n  \"montant_ttc\": \"\",\n  \"taux_tva\": \"\",\n  \"objet\": \"\",\n  \"mode_paiement\": \"\",\n  \"iban\": \"\",\n  \"bic\": \"\",\n  \"devise\": \"\",\n  \"adresse_fournisseur\": \"\",\n  \"adresse_client\": \"\",\n  \"email_client\": \"\",\n  \"commentaires\": \"\"\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        -16
+      ],
+      "id": "495129e0-124a-4c2c-b91d-b24eae7a45f2",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-23T14:01:04.333Z",
+      "updatedAt": "2025-10-23T14:01:04.333Z",
+      "role": "workflow:owner",
+      "workflowId": "CZKVwE4cMlmGG2L0",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-23T19:15:39.292Z",
+  "versionId": "7212c635-4b5b-4f57-8b7c-724f23c94cda"
+}
