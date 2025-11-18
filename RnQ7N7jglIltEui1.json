@@ -1,0 +1,133 @@
+{
+  "active": false,
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-10T09:07:21.199Z",
+  "id": "RnQ7N7jglIltEui1",
+  "isArchived": true,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ee030a33-5682-498b-a761-f82efb027263",
+      "name": "When chat message received",
+      "webhookId": "43bb2c0b-22c7-40aa-a1ad-bcef5a87ec76"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        -96
+      ],
+      "id": "d8189fb5-cd0d-48a5-83b5-ec6b906c225a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        160
+      ],
+      "id": "eee4fa84-1943-4079-947a-3298f940a8cd",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        144
+      ],
+      "id": "bca55cb4-2543-4985-acf4-af7579a2a56c",
+      "name": "Simple Memory"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-10T09:07:21.199Z",
+      "updatedAt": "2025-10-10T09:07:21.199Z",
+      "role": "workflow:owner",
+      "workflowId": "RnQ7N7jglIltEui1",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-11T05:05:48.802Z",
+  "versionId": "f63174f5-c4c0-4846-8530-ebdff377a71a"
+}
