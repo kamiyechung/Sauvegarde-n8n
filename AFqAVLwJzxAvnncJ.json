@@ -1,0 +1,393 @@
+{
+  "active": false,
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent 1 : Collecteur de données Search Console",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent 2: Analyste sémantique",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent 3 : Analyste technique",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AGENT 0 : Coordinateur (Chef d'orchestre)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Agent 4A - Synthétiseur JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client Search Console": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent 1 : Collecteur de données Search Console",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AI Agent 2: Analyste sémantique",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AI Agent 3 : Analyste technique",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AGENT 0 : Coordinateur (Chef d'orchestre)",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Agent 4A - Synthétiseur JSON",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AGENT 0 : Coordinateur (Chef d'orchestre)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent 1 : Collecteur de données Search Console": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 2: Analyste sémantique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent 2: Analyste sémantique": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 3 : Analyste technique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent 3 : Analyste technique": {
+      "main": [
+        [
+          {
+            "node": "Agent 4A - Synthétiseur JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGENT 0 : Coordinateur (Chef d'orchestre)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 1 : Collecteur de données Search Console",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 4A - Synthétiseur JSON": {
+      "main": [
+        [
+          {
+            "node": "Code - Générateur Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Générateur Markdown": {
+      "main": [
+        [
+          {
+            "node": "Code - Markdown vers HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Markdown vers HTML": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-15T13:32:33.998Z",
+  "id": "AFqAVLwJzxAvnncJ",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Workflow SEO - Partie Rapport (Nodes 7-10)",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-5-haiku-20241022",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 3.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1480,
+        -416
+      ],
+      "id": "d9f24304-3f9a-4237-9e1d-29604c88c9ff",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://195.201.118.139:3007/mcp/searchconsole",
+        "serverTransport": "httpStreamable",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        1608,
+        -416
+      ],
+      "id": "b360f17a-d0b9-4c73-8e7b-7a65817760bb",
+      "name": "MCP Client Search Console"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\n\n// Date actuelle\nconst dateActuelle = now.toISOString().split('T')[0];\n\n// Il y a 3 jours (pour Search Console - délai des données)\nconst il_y_a_3_jours = new Date(now);\nil_y_a_3_jours.setDate(now.getDate() - 3);\nconst datePourSearchConsole = il_y_a_3_jours.toISOString().split('T')[0];\n\n// Début du mois actuel\nconst debutMoisActuel = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];\n\n// Il y a 30 jours\nconst il_y_a_30j = new Date(now);\nil_y_a_30j.setDate(now.getDate() - 30);\nconst il_y_a_30_jours = il_y_a_30j.toISOString().split('T')[0];\n\n// Il y a 90 jours (3 mois)\nconst il_y_a_90j = new Date(now);\nil_y_a_90j.setDate(now.getDate() - 90);\nconst il_y_a_90_jours = il_y_a_90j.toISOString().split('T')[0];\n\n// Il y a 180 jours (6 mois)\nconst il_y_a_180j = new Date(now);\nil_y_a_180j.setDate(now.getDate() - 180);\nconst il_y_a_180_jours = il_y_a_180j.toISOString().split('T')[0];\n\n// Mois précédent (début et fin)\nconst debutMoisPrecedent = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split('T')[0];\nconst finMoisPrecedent = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];\n\n// WorkflowId unique pour cette exécution\nconst workflowId = \"seo-camille-\" + now.toISOString().split('T')[0];\n\n// Session Key pour Postgres (si besoin plus tard)\nconst sessionKey = \"camille-patisserie-\" + now.toISOString().slice(0, 7); // Ex: camille-patisserie-2025-10\n\nreturn [{\n  json: {\n    // IDs\n    workflowId: workflowId,\n    sessionKey: sessionKey,\n    \n    // Dates principales\n    dateActuelle: dateActuelle,\n    datePourSearchConsole: datePourSearchConsole,\n    \n    // Périodes de référence\n    debutMoisActuel: debutMoisActuel,\n    il_y_a_30_jours: il_y_a_30_jours,\n    il_y_a_90_jours: il_y_a_90_jours,\n    il_y_a_180_jours: il_y_a_180_jours,\n    \n    // Mois précédent\n    debutMoisPrecedent: debutMoisPrecedent,\n    finMoisPrecedent: finMoisPrecedent,\n    \n    // Info lisible (pour debug)\n    infosDate: \"Aujourd'hui : \" + dateActuelle + \n               \"\\nDernière date SC : \" + datePourSearchConsole + \n               \"\\nDébut mois : \" + debutMoisActuel + \n               \"\\nIl y a 30j : \" + il_y_a_30_jours + \n               \"\\nIl y a 90j : \" + il_y_a_90_jours + \n               \"\\nIl y a 180j : \" + il_y_a_180_jours + \n               \"\\nMois précédent : du \" + debutMoisPrecedent + \" au \" + finMoisPrecedent\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -640
+      ],
+      "id": "40605809-6a17-47e2-8461-4411d2351cb4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu orchestres 4 agents pour analyser Search Console de www.camille-patisserie.com.\n\nWorkflow :\n1. Lance Agent 1 (collecte données)\n2. Lance Agents 2+3 en parallèle (analyses)\n3. Lance Agent 4A (synthèse JSON)\n4. Les données JSON sont ensuite traitées par un Code Node\n5. Email envoyé automatiquement\n\nDates : {{$json.il_y_a_180_jours}} au {{$json.datePourSearchConsole}}\n\nQuand lancé, exécute automatiquement. Informe l'utilisateur à chaque étape.",
+        "options": {
+          "batching": {}
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        64,
+        -640
+      ],
+      "id": "0751c0d4-77f8-49d9-ac62-34e866529bb0",
+      "name": "AGENT 0 : Coordinateur (Chef d'orchestre)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Collecte données Search Console pour www.camille-patisserie.com.\n\nPériode : {{$json.il_y_a_180_jours}} au {{$json.datePourSearchConsole}}\n\nRécupère via API :\n1. Métriques globales (clics, impressions, CTR, position)\n2. Top 20 requêtes (clics, impressions, CTR, position)\n3. Top 20 pages (clics, impressions, CTR, position)\n4. Comparaison 3 derniers mois vs 3 mois précédents (globales uniquement)\n5. Technique (nombres : indexées, 4xx, 5xx, CWV moyens)\n\nRetourne résumé < 2000 mots.\nPas de listes complètes d'URLs.",
+        "options": {
+          "batching": {}
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        -640
+      ],
+      "id": "bb4211e5-759a-4f04-b4fc-74c34d504f7a",
+      "name": "AI Agent 1 : Collecteur de données Search Console"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Expert SEO sémantique. Site : www.camille-patisserie.com\n\nSources : données Agent 1 (top 20 requêtes/pages).\n\nAnalyses :\n1. Opportunités position 5-20 (impressions >200, potentiel = Impr × (CTR_cible - CTR_actuel))\n2. Opportunités CTR (position ≤10, CTR -20% vs benchmark, impressions >500)\n3. Cannibalisation (même requête sur 2+ URLs, aucune <pos 10)\n4. Tendances (+50% ou -30% sur 3 mois)\n\nCTR référence : P1:31.7% P2:24.7% P3:18.7% P4:13.6% P5:9.5% P6:6.3% P7:4.9% P8:3.9% P9:3.1% P10:2.6%\n\nFormat :\n🎯 [Titre] | 📊 Actuel + Potentiel | 🔍 Cause | ✅ Action | 🔗 URLs | ⏱️ Effort\n\nScoring : Impact(0-10) : ≥1000→10, 500-999→8, 200-499→6, 100-199→4, 50-99→2\nEffort(0-10) : Meta→10, Contenu<500→8, Réécriture→6, Refonte→4\nScore = Impact×2 + Effort\n\nTop 10 par score.",
+        "options": {
+          "batching": {}
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        -640
+      ],
+      "id": "fe1f79af-0a4f-469d-8a2c-2d70f9a9499a",
+      "name": "AI Agent 2: Analyste sémantique"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Expert SEO technique. Site : www.camille-patisserie.com\n\nSources : données techniques Agent 1.\n\nAnalyses :\n1. Indexation (CRITIQUE : >50 clics non indexées | IMPORTANT : indexées avec erreurs)\n2. Crawl (4xx avec backlinks, 5xx récurrents, temps >2s)\n3. CWV (LCP >4s, CLS >0.25, INP >500ms sur pages à trafic)\n4. Mobile vs Desktop (écarts >5 positions)\n\nFormat :\n🔴 [Niveau] — Titre | 📊 X pages, perte Y clics/mois | 🔍 Cause | 🛠️ Action | 🔗 Top 5 URLs | ⏱️ Temps\n\nScoring : Impact(0-10) : Blocage>500→10, 5xx→9, 100-500→7\nUrgence(0-10) : Bloquant→10, Perte>40%→9, 20-40%→7\nScore = Impact×2 + Urgence\n\nTop 10 par score.",
+        "options": {
+          "batching": {}
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        -640
+      ],
+      "id": "5ee364c7-88b2-4e08-88d4-52459597c586",
+      "name": "AI Agent 3 : Analyste technique"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -640
+      ],
+      "id": "57f066fd-5093-409f-956d-c4f9db37e240",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "name": "Agent 4A - Synthétiseur JSON",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1472,
+        -640
+      ],
+      "id": "0826f2f9-deba-41ef-963e-8a4cb408446b"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère le JSON de l'Agent 4A\nconst data = $input.first().json;\n\n// Template Markdown\nconst rapport = `# **🎯 Rapport SEO hebdomadaire — Camille Pâtisserie**\n\n📅 Semaine du **${data.dates.debut_semaine}** au **${data.dates.fin_semaine}**  \n📊 Période d'analyse : **${data.dates.periode_analyse}** (6 mois)\n\n---\n\n## **🧭 Résumé exécutif**\n\n### Performance globale\n- **Clics :** ${data.metriques_globales.clics} (${data.metriques_globales.evol_clics_pct > 0 ? '+' : ''}${data.metriques_globales.evol_clics_pct}%)\n- **Impressions :** ${data.metriques_globales.impressions} (${data.metriques_globales.evol_impressions_pct > 0 ? '+' : ''}${data.metriques_globales.evol_impressions_pct}%)\n- **CTR moyen :** ${data.metriques_globales.ctr}% (${data.metriques_globales.evol_ctr_pp > 0 ? '+' : ''}${data.metriques_globales.evol_ctr_pp} pp)\n- **Position moyenne :** ${data.metriques_globales.position} (${data.metriques_globales.evol_position > 0 ? '+' : ''}${data.metriques_globales.evol_position})\n\n### 🔑 Insights clés de la semaine\n${data.insights_cles.map((insight, i) => `${i + 1}. ${insight}`).join('\\n')}\n\n---\n\n## **🏆 Top 5 opportunités prioritaires**\n\n| Score | Opportunité | Potentiel | Effort | Deadline |\n|-------|-------------|-----------|--------|----------|\n${data.top_5_opportunites.map(o => `| ${o.score}/30 | ${o.titre} | +${o.potentiel_clics} clics/mois | ${o.effort} | ${o.deadline} |`).join('\\n')}\n\n**💰 Gain total potentiel à 90 jours : +${data.gain_total_90j.clics} clics/mois (+${data.gain_total_90j.pourcentage}%)**\n\n---\n\n## **⚠️ Actions nécessitant une intervention urgente**\n\n| Problème | Impact | Date limite | Action à entreprendre |\n|----------|--------|-------------|----------------------|\n${data.actions_urgentes.map(a => `| ${a.probleme} | ${a.impact} | ${a.deadline} | ${a.action} |`).join('\\n')}\n\n---\n\n## **📊 Évolution des métriques clés (6 derniers mois)**\n\n| Mois | Clics | Impressions | CTR | Position |\n|------|-------|-------------|-----|----------|\n${data.evolution_6mois.map(m => `| ${m.mois} | ${m.clics} | ${m.impressions} | ${m.ctr}% | ${m.position} |`).join('\\n')}\n\n**Tendance :** ${data.tendance_generale}\n\n---\n\n## **🔍 Top 10 requêtes performantes**\n\n| # | Requête | Clics | Position | Évolution | Opportunité |\n|---|---------|-------|----------|-----------|-------------|\n${data.top_10_requetes.map(r => `| ${r.rang} | ${r.requete} | ${r.clics} | ${r.position} | ${r.evol} | ${r.opportunite} |`).join('\\n')}\n\n---\n\n## **📄 Top 10 pages performantes**\n\n| # | URL | Clics | Position | CTR | Recommandation |\n|---|-----|-------|----------|-----|----------------|\n${data.top_10_pages.map(p => `| ${p.rang} | ${p.url} | ${p.clics} | ${p.position} | ${p.ctr}% | ${p.reco} |`).join('\\n')}\n\n---\n\n## **🎯 Recommandations détaillées (Top 15)**\n\n${data.top_15_recos.map(r => `\n### **[${r.rang}] ${r.score}/30 — ${r.titre}**\n\n**Catégorie :** ${r.categorie}\n\n**📊 Analyse :**\n- Situation actuelle : ${r.situation}\n- Évolution 3 mois : ${r.evolution_3mois}\n- **Potentiel : +${r.potentiel} clics/mois (confiance : ${r.confiance})**\n\n**🔍 Diagnostic :**  \n${r.diagnostic}\n\n**✅ Action concrète :**  \n${r.action}\n\n**📝 Plan d'implémentation :**\n${r.plan.map((etape, i) => `${i + 1}. ${etape}`).join('\\n')}\n\n**🔗 URLs concernées :**\n${r.urls.map(url => `- ${url}`).join('\\n')}\n\n**📈 KPI de suivi :**\n- Métrique principale : ${r.kpi_principal}\n- Baseline : ${r.baseline}\n- Objectif 30j : ${r.objectif_30j} (+${Math.round((r.objectif_30j - r.baseline) / r.baseline * 100)}%)\n- Objectif 90j : ${r.objectif_90j} (+${Math.round((r.objectif_90j - r.baseline) / r.baseline * 100)}%)\n\n**⏱️ Implémentation :**\n- Temps : ${r.temps}\n- Délai impact : ${r.delai_impact}\n- Difficulté : ${r.difficulte === 'Facile' ? '⭐' : r.difficulte === 'Moyenne' ? '⭐⭐' : '⭐⭐⭐'} ${r.difficulte}\n\n---\n`).join('\\n')}\n\n## **🗓️ Roadmap d'action**\n\n### **🚀 Cette semaine (7 jours) — Quick Wins**\n**Objectif : +${data.gain_7j} clics/mois**\n\n${data.roadmap_7j.map((a, i) => `✅ **Action ${i + 1} :** ${a.action}  \n   ⏱️ Temps : ${a.temps} | 🎯 Gain : +${a.gain} clics`).join('\\n\\n')}\n\n---\n\n### **📅 Ce mois (30 jours)**\n**Objectif : +${data.gain_30j} clics/mois**\n\n**Semaine 2 :**\n${data.roadmap_30j.semaine_2.map(a => `- ${a.action} → +${a.gain} clics`).join('\\n')}\n\n**Semaine 3 :**\n${data.roadmap_30j.semaine_3.map(a => `- ${a.action} → +${a.gain} clics`).join('\\n')}\n\n**Semaine 4 :**\n${data.roadmap_30j.semaine_4.map(a => `- ${a.action}${a.gain > 0 ? ` → +${a.gain} clics` : ''}`).join('\\n')}\n\n---\n\n### **📆 Ce trimestre (90 jours)**\n**Objectif : +${data.gain_total_90j.clics} clics/mois**\n\n**Mois 2 :**\n${data.roadmap_90j.mois_2.map(p => `- ${p.projet} | Effort : ${p.effort} | Gain : +${p.gain} clics`).join('\\n')}\n\n**Mois 3 :**\n${data.roadmap_90j.mois_3.map(p => `- ${p.projet} | Effort : ${p.effort} | Gain : +${p.gain} clics`).join('\\n')}\n\n---\n\n## **🔧 Données techniques**\n\n### État de l'indexation\n- **Pages indexées :** ${data.technique.indexees} (${data.technique.evol_indexees})\n- **Pages exclues :** ${data.technique.exclues}\n- **Erreurs 4xx :** ${data.technique.erreurs_4xx} pages\n- **Erreurs 5xx :** ${data.technique.erreurs_5xx} pages\n\n### Core Web Vitals\n- **LCP moyen :** ${data.technique.lcp_moyen}s (cible : <2,5s) - ${data.technique.lcp_statut}\n- **CLS moyen :** ${data.technique.cls_moyen} (cible : <0,1) - ${data.technique.cls_statut}\n- **INP moyen :** ${data.technique.inp_moyen}ms (cible : <200ms) - ${data.technique.inp_statut}\n\n**Pages nécessitant optimisation :** ${data.technique.pages_optimiser} pages à fort trafic\n\n---\n\n## **📈 Analyses avancées**\n\n### Performance par type de contenu\n- **Recettes :** ${data.analyses_avancees.par_contenu.recettes.clics} clics (${data.analyses_avancees.par_contenu.recettes.pct}%) | Position moy : ${data.analyses_avancees.par_contenu.recettes.position}\n- **Pages produits :** ${data.analyses_avancees.par_contenu.produits.clics} clics (${data.analyses_avancees.par_contenu.produits.pct}%) | Position moy : ${data.analyses_avancees.par_contenu.produits.position}\n- **Blog :** ${data.analyses_avancees.par_contenu.blog.clics} clics (${data.analyses_avancees.par_contenu.blog.pct}%) | Position moy : ${data.analyses_avancees.par_contenu.blog.position}\n\n### Performance par intention\n- **Informationnelle :** ${data.analyses_avancees.par_intention.info.clics} clics | Conversion : ${data.analyses_avancees.par_intention.info.conversion}%\n- **Commerciale :** ${data.analyses_avancees.par_intention.commerce.clics} clics | Conversion : ${data.analyses_avancees.par_intention.commerce.conversion}%\n- **Transactionnelle :** ${data.analyses_avancees.par_intention.transac.clics} clics | Conversion : ${data.analyses_avancees.par_intention.transac.conversion}%\n\n### Saisonnalité détectée\n${data.analyses_avancees.saisonnalite}\n\n---\n\n## **🎲 Projection et ROI**\n\n### Prévisions de croissance\n| Période | Clics actuels | Clics projetés | Croissance |\n|---------|---------------|----------------|------------|\n${data.projections.map(p => `| ${p.periode} | ${p.baseline} | ${p.projection} | +${p.croissance}% |`).join('\\n')}\n\n### ROI estimé\n- **Taux conversion :** ${data.roi.taux_conversion}%\n- **Panier moyen :** ${data.roi.panier_moyen}€\n- **CA additionnel 90j :** ${data.roi.ca_additionnel_90j}€\n- **Investissement :** ${data.roi.investissement}€ ou jours-personne\n- **ROI :** ${data.roi.roi}\n\n---\n\n## **💬 Commentaires de l'agent SEO**\n\n${data.commentaires_ia}\n\n**Points d'attention particuliers :**\n${data.points_attention.map(p => `- ${p}`).join('\\n')}\n\n**Opportunités saisonnières à venir :**\n${data.opportunites_saisonnieres}\n\n---\n\n## **📋 Suivi de la semaine dernière**\n\n${data.suivi_semaine_precedente && data.suivi_semaine_precedente.length > 0 ? `\n| Recommandation implémentée | Résultat obtenu | Écart vs prévision |\n|---------------------------|-----------------|-------------------|\n${data.suivi_semaine_precedente.map(s => `| ${s.reco} | ${s.resultat} | ${s.ecart} |`).join('\\n')}\n` : 'Premier rapport, pas de suivi précédent'}\n\n---\n\n## **📊 Dashboard KPI**\n\n### Objectifs vs Réalisé\n| KPI | Objectif semaine | Réalisé | Statut |\n|-----|-----------------|---------|--------|\n${data.dashboard_kpi.objectifs.map(k => `| ${k.kpi} | ${k.objectif} | ${k.realise} | ${k.statut} |`).join('\\n')}\n\n### Alertes\n${data.alertes}\n\n---\n\n## **🎯 Actions immédiates pour cette semaine**\n\n**À faire absolument :**\n${data.actions_immediates.map((a, i) => `${i + 1}. ✅ ${a}`).join('\\n')}\n\n**Validations nécessaires :**\n${data.validations.map(v => `- [ ] ${v}`).join('\\n')}\n\n---\n\n### **👥 Destinataires du rapport**\n\n- 📧 camille.bideau@gmail.com\n- 📧 huguet.thomas@gmail.com\n\n---\n\n### **📎 Liens utiles**\n\n- 🔗 [Google Search Console](https://search.google.com/search-console)\n- 🔗 Dashboard n8n\n- 🔗 Historique des rapports\n\n---\n\n🧠 *Généré automatiquement par votre Agent SEO le ${data.dates.date_generation}.*  \n🔄 *Prochain rapport : ${data.dates.prochain_rapport}*  \n📧 *Questions ? Répondez à cet email.*\n`;\n\nreturn [{ json: { rapportMarkdown: rapport } }];"
+      },
+      "name": "Code - Générateur Markdown",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1824,
+        -640
+      ],
+      "id": "37d82b72-4d78-4665-9361-1058690d4005"
+    },
+    {
+      "parameters": {
+        "jsCode": "const markdown = $input.first().json.rapportMarkdown;\n\n// Fonction de conversion Markdown → HTML\nfunction markdownToHtml(md) {\n  let html = md;\n  \n  // Titres\n  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');\n  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');\n  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');\n  \n  // Gras\n  html = html.replace(/\\*\\*(.*?)\\*\\*/gim, '<strong>$1</strong>');\n  \n  // Italique\n  html = html.replace(/\\*(.*?)\\*/gim, '<em>$1</em>');\n  \n  // Liens\n  html = html.replace(/\\[(.*?)\\]\\((.*?)\\)/gim, '<a href=\"$2\">$1</a>');\n  \n  // Listes à puces\n  html = html.replace(/^\\- (.*$)/gim, '<li>$1</li>');\n  \n  // Tableaux\n  const lignes = html.split('\\n');\n  let dansTableau = false;\n  let htmlFinal = '';\n  let isFirstTableRow = true;\n  \n  for (let i = 0; i < lignes.length; i++) {\n    const ligne = lignes[i];\n    \n    if (ligne.startsWith('|')) {\n      if (!dansTableau) {\n        htmlFinal += '<table border=\"1\" cellpadding=\"10\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; margin: 20px 0;\">\\n';\n        dansTableau = true;\n        isFirstTableRow = true;\n      }\n      \n      const cellules = ligne.split('|').filter(c => c.trim());\n      \n      // Ligne de séparation (|---|---|)\n      if (ligne.includes('---')) {\n        continue;\n      }\n      \n      if (isFirstTableRow) {\n        // En-tête\n        htmlFinal += '<tr style=\"background: #34495e; color: white;\">\\n';\n        cellules.forEach(c => {\n          htmlFinal += `  <th style=\"padding: 12px; text-align: left;\">${c.trim()}</th>\\n`;\n        });\n        htmlFinal += '</tr>\\n';\n        isFirstTableRow = false;\n      } else {\n        // Ligne normale\n        htmlFinal += '<tr>\\n';\n        cellules.forEach(c => {\n          htmlFinal += `  <td style=\"padding: 10px; border-bottom: 1px solid #ddd;\">${c.trim()}</td>\\n`;\n        });\n        htmlFinal += '</tr>\\n';\n      }\n    } else {\n      if (dansTableau) {\n        htmlFinal += '</table>\\n';\n        dansTableau = false;\n      }\n      htmlFinal += ligne + '\\n';\n    }\n  }\n  \n  if (dansTableau) {\n    htmlFinal += '</table>\\n';\n  }\n  \n  // Paragraphes\n  htmlFinal = htmlFinal.replace(/\\n\\n/g, '</p><p>');\n  htmlFinal = '<p>' + htmlFinal + '</p>';\n  \n  // Nettoyage\n  htmlFinal = htmlFinal.replace(/<p><h/g, '<h');\n  htmlFinal = htmlFinal.replace(/<\\/h(\\d)><\\/p>/g, '</h$1>');\n  htmlFinal = htmlFinal.replace(/<p><table/g, '<table');\n  htmlFinal = htmlFinal.replace(/<\\/table><\\/p>/g, '</table>');\n  htmlFinal = htmlFinal.replace(/<p><ul>/g, '<ul>');\n  htmlFinal = htmlFinal.replace(/<\\/ul><\\/p>/g, '</ul>');\n  htmlFinal = htmlFinal.replace(/<p><\\/p>/g, '');\n  htmlFinal = htmlFinal.replace(/<p>---<\\/p>/g, '<hr>');\n  \n  return htmlFinal;\n}\n\nconst htmlAvecStyle = `\n<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Rapport SEO Camille Pâtisserie</title>\n    <style>\n        body {\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            line-height: 1.8;\n            color: #2c3e50;\n            max-width: 900px;\n            margin: 0 auto;\n            padding: 30px 20px;\n            background: #f8f9fa;\n        }\n        .container {\n            background: white;\n            padding: 40px;\n            border-radius: 12px;\n            box-shadow: 0 4px 20px rgba(0,0,0,0.08);\n        }\n        h1 {\n            color: #e74c3c;\n            border-bottom: 4px solid #e74c3c;\n            padding-bottom: 15px;\n            font-size: 32px;\n            margin-bottom: 10px;\n        }\n        h2 {\n            color: #34495e;\n            margin-top: 40px;\n            margin-bottom: 20px;\n            border-left: 5px solid #e74c3c;\n            padding-left: 15px;\n            font-size: 24px;\n        }\n        h3 {\n            color: #7f8c8d;\n            font-size: 18px;\n            margin-top: 25px;\n        }\n        table {\n            width: 100%;\n            border-collapse: collapse;\n            margin: 25px 0;\n            background: white;\n            border-radius: 8px;\n            overflow: hidden;\n            box-shadow: 0 2px 10px rgba(0,0,0,0.05);\n        }\n        th {\n            background: #34495e;\n            color: white;\n            padding: 15px;\n            text-align: left;\n            font-weight: 600;\n            text-transform: uppercase;\n            font-size: 13px;\n            letter-spacing: 0.5px;\n        }\n        td {\n            padding: 12px 15px;\n            border-bottom: 1px solid #ecf0f1;\n        }\n        tr:hover {\n            background: #f8f9fa;\n        }\n        tr:last-child td {\n            border-bottom: none;\n        }\n        strong {\n            color: #2c3e50;\n            font-weight: 600;\n        }\n        a {\n            color: #3498db;\n            text-decoration: none;\n        }\n        a:hover {\n            text-decoration: underline;\n        }\n        ul {\n            padding-left: 25px;\n        }\n        li {\n            margin: 8px 0;\n        }\n        hr {\n            border: none;\n            border-top: 2px solid #ecf0f1;\n            margin: 30px 0;\n        }\n        @media (max-width: 768px) {\n            body {\n                padding: 15px 10px;\n            }\n            .container {\n                padding: 20px;\n            }\n            h1 {\n                font-size: 24px;\n            }\n            table {\n                font-size: 14px;\n            }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        ${markdownToHtml(markdown)}\n    </div>\n</body>\n</html>\n`;\n\nreturn [{ json: { emailHTML: htmlAvecStyle } }];"
+      },
+      "name": "Code - Markdown vers HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        -640
+      ],
+      "id": "07f6466e-dd52-48b1-87fe-1dd768ee7e5c"
+    },
+    {
+      "parameters": {
+        "sendTo": "camille.bideau@gmail.com",
+        "subject": "Votre rapport SEO",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2272,
+        -640
+      ],
+      "id": "887abd21-7e6a-41fa-ad84-0fe51ff17ce1",
+      "name": "Send a message",
+      "webhookId": "b32e2d40-af65-41f7-81da-74312710bce2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ViGVjvmKJZeysXKZ",
+          "name": "Gmail account Camille"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-15T13:32:33.998Z",
+      "updatedAt": "2025-10-15T13:32:33.998Z",
+      "role": "workflow:owner",
+      "workflowId": "AFqAVLwJzxAvnncJ",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-22T16:59:01.281Z",
+  "versionId": "3cef3537-c167-43fc-b49d-e9b2735da495"
+}
