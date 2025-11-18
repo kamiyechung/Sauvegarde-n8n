@@ -1,0 +1,347 @@
+{
+  "active": false,
+  "connections": {
+    "Vue globale actuelle": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les données",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vue globale précédente": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les données",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Top pages actuelles": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les données",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top pages précédentes": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les données",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Top queries actuelles": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les données",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top queries précédentes": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les données",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Device actuel": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les données",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Device précédent": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les données",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge toutes les données": {
+      "main": [
+        [
+          {
+            "node": "Ajouter contexte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Vue globale actuelle",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Vue globale précédente",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Top pages actuelles",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Top pages précédentes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Top queries actuelles",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Top queries précédentes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Device actuel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Device précédent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-02T15:38:56.511Z",
+  "id": "aWPKFDVlwdh9HzRU",
+  "isArchived": false,
+  "meta": null,
+  "name": "[SEO] Collecte Search Console",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.siteUrl) }}/searchAnalytics/query",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "id": "fa0851b3-a8e9-49be-af5f-af85c58c3902",
+      "name": "Vue globale actuelle",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        0
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "ETHc0WZiRiSkkmSt",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.siteUrl) }}/searchAnalytics/query",
+        "authentication": "serviceAccount",
+        "options": {}
+      },
+      "id": "2c3e514e-2701-41ad-b92c-a05bd857a7e6",
+      "name": "Vue globale précédente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -320,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.siteUrl) }}/searchAnalytics/query",
+        "authentication": "serviceAccount",
+        "options": {}
+      },
+      "id": "5a79b51c-c56b-4c5e-b562-b06aebcef621",
+      "name": "Top pages actuelles",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.siteUrl) }}/searchAnalytics/query",
+        "authentication": "serviceAccount",
+        "options": {}
+      },
+      "id": "98bb50cf-ebb5-4f7c-9c4d-b97057a11674",
+      "name": "Top pages précédentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.siteUrl) }}/searchAnalytics/query",
+        "authentication": "serviceAccount",
+        "options": {}
+      },
+      "id": "d5d22de9-ee02-4e14-8e17-39f1a934b076",
+      "name": "Top queries actuelles",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.siteUrl) }}/searchAnalytics/query",
+        "authentication": "serviceAccount",
+        "options": {}
+      },
+      "id": "2615c13c-5129-494d-b767-429b5ede7367",
+      "name": "Top queries précédentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.siteUrl) }}/searchAnalytics/query",
+        "authentication": "serviceAccount",
+        "options": {}
+      },
+      "id": "55fe3321-5183-49b8-830e-28d3f63f6e0c",
+      "name": "Device actuel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/webmasters/v3/sites/{{ encodeURIComponent($json.siteUrl) }}/searchAnalytics/query",
+        "authentication": "serviceAccount",
+        "options": {}
+      },
+      "id": "77311fe9-ae2d-49cd-8156-2fb38caa78a2",
+      "name": "Device précédent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        1344
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "b72e6c20-0ffe-4852-ab7a-117cd9137446",
+      "name": "Merge toutes les données",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Ajouter les paramètres d'origine à toutes les données\nconst inputParams = $input.first().json;\nconst allData = $input.all();\n\nreturn allData.map(item => ({\n  json: {\n    ...item.json,\n    siteUrl: inputParams.siteUrl,\n    siteNiche: inputParams.siteNiche,\n    currentWeekStart: inputParams.currentWeekStart,\n    currentWeekEnd: inputParams.currentWeekEnd,\n    previousWeekStart: inputParams.previousWeekStart,\n    previousWeekEnd: inputParams.previousWeekEnd\n  }\n}));"
+      },
+      "id": "b8e050d4-606c-4b4d-abab-2ac542f8b557",
+      "name": "Ajouter contexte",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        160,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -928,
+        464
+      ],
+      "id": "cca5557f-a325-4bdb-8eb0-3ea5405139ea",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-02T15:38:56.511Z",
+      "updatedAt": "2025-11-02T15:38:56.511Z",
+      "role": "workflow:owner",
+      "workflowId": "aWPKFDVlwdh9HzRU",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-02T18:19:42.520Z",
+  "versionId": "c3ee7612-ef3d-41dd-ab3e-3f71b1b4e333"
+}
