@@ -1,0 +1,35 @@
+{
+  "active": false,
+  "connections": {},
+  "createdAt": "2025-10-16T08:47:17.875Z",
+  "id": "p5UnBWFLoh1ZwLP4",
+  "isArchived": true,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 6",
+  "nodes": [],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-16T08:47:17.875Z",
+      "updatedAt": "2025-10-16T08:47:17.875Z",
+      "role": "workflow:owner",
+      "workflowId": "p5UnBWFLoh1ZwLP4",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-20T16:36:53.432Z",
+  "versionId": "366d2499-a661-4f9b-899b-8314972b11be"
+}
