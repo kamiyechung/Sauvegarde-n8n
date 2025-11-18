@@ -1,0 +1,184 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-24T14:26:24.852Z",
+  "id": "GErxssteLckcQarL",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[IA Meal Planner] Extract HTML from URL list",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "e7626d52-1f56-4ce0-abb8-2a9106ce56b1",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        272,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        48
+      ],
+      "id": "2cbeb3f1-39de-447f-83a8-44a8de29bc80",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1D_94Dyh5VHV0fbf-Y3FEMvCWaydxE5KUuxaVKaHjMWg",
+          "mode": "list",
+          "cachedResultName": "Import recette IA meal planner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1D_94Dyh5VHV0fbf-Y3FEMvCWaydxE5KUuxaVKaHjMWg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Liste recette",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1D_94Dyh5VHV0fbf-Y3FEMvCWaydxE5KUuxaVKaHjMWg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        -16
+      ],
+      "id": "6d1853ce-5a73-4a1f-b51e-865084d94177",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "d8fhI2rac8ip6RZc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        -32
+      ],
+      "id": "51c4c162-040a-4d3c-92d5-9909f5d0a3d5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        192
+      ],
+      "id": "a9f107b2-ab50-4a14-b186-831d730559c6",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-24T14:26:24.852Z",
+      "updatedAt": "2025-10-24T14:26:24.852Z",
+      "role": "workflow:owner",
+      "workflowId": "GErxssteLckcQarL",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-31T06:04:59.046Z",
+      "updatedAt": "2025-10-31T06:04:59.046Z",
+      "id": "PbrMQgsYap6stkWJ",
+      "name": "IA Meal Planner"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-31T06:05:25.674Z",
+  "versionId": "4929d716-b430-42ea-a21e-456b24a00483"
+}
