@@ -1173,8 +1173,21 @@
       "recurrenceRules": []
     }
   },
-  "tags": [],
+  "tags": [
+    {
+      "createdAt": "2025-10-31T06:05:42.657Z",
+      "updatedAt": "2025-10-31T06:05:42.657Z",
+      "id": "8XqhspONwstcS8zs",
+      "name": "Administratif"
+    },
+    {
+      "createdAt": "2025-10-31T10:19:05.616Z",
+      "updatedAt": "2025-10-31T10:19:05.616Z",
+      "id": "TaGWjjuOGEjyibAU",
+      "name": "OK"
+    }
+  ],
   "triggerCount": 1,
-  "updatedAt": "2025-11-18T11:56:54.669Z",
-  "versionId": "3a4abad6-f61e-4022-95f1-8f4f045dcf71"
+  "updatedAt": "2025-11-18T11:58:45.555Z",
+  "versionId": "d93a8518-a870-4930-bb90-b5201e143be2"
 }
