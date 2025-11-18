@@ -1,0 +1,396 @@
+{
+  "active": false,
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AGENT 5 - upload de facture sur Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AGENT 1 Extraction Facture",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGENT 1 Extraction Facture": {
+      "main": [
+        [
+          {
+            "node": "AGENT 2 tag des factures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGENT 2 tag des factures": {
+      "main": [
+        [
+          {
+            "node": "AGENT 3 plan comptable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGENT 3 plan comptable": {
+      "main": [
+        [
+          {
+            "node": "AGENT 4 - création de facture Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGENT 4 - création de facture Notion": {
+      "main": [
+        [
+          {
+            "node": "AGENT 5 - upload de facture sur Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGENT 5 - upload de facture sur Notion": {
+      "main": [
+        [
+          {
+            "node": "AGENT 6 - vérification des factures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-10T09:25:58.875Z",
+  "id": "r4i0AYISxkaQEFKe",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[Gestion des factures] Orchestrateur",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 6
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        -376
+      ],
+      "id": "ebafd5b0-b39b-495f-9d78-37b66bbabe74",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2aNKP4X98xUk2i97",
+          "name": "Gmail Checkin Trust"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "43e00719-5964-4092-8d23-099d92af3e5e",
+              "leftValue": "={{ $json.labels[1].name }}",
+              "rightValue": "=Facture",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "418aa782-0a2b-48ba-8e25-412fdb2e8451",
+              "leftValue": "={{ $json.labels[2].name }}",
+              "rightValue": "Facture",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "10a6f030-ccb6-4e36-b04e-bbf0a41cf78a",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "\"facture\"",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "9baf003b-c13d-44dc-9282-007c352d20d8",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "\"invoice\"",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "7775e82c-5f6a-409c-b65b-a3595d1b54ee",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "payment",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -176,
+        -376
+      ],
+      "id": "f1f2b9fd-1f0f-4984-8a23-d679493f917a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        48,
+        -376
+      ],
+      "id": "0675910b-e564-4f90-8012-947141370ab8",
+      "name": "Get a message",
+      "webhookId": "81e2bb74-e431-41c7-8ba3-f4b95878d464",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2aNKP4X98xUk2i97",
+          "name": "Gmail Checkin Trust"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -448
+      ],
+      "id": "2250c869-adb2-4b9b-9184-4502c1d5ea3b",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "9Fh4se1qBP5Mkg5S",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/9Fh4se1qBP5Mkg5S",
+          "cachedResultName": "[Gestion des factures] Traitement de la facture"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        -448
+      ],
+      "id": "45e1f563-e9aa-41a4-b543-44ab846bca1d",
+      "name": "AGENT 1 Extraction Facture"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "9Fh4se1qBP5Mkg5S",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/9Fh4se1qBP5Mkg5S",
+          "cachedResultName": "[Gestion des factures] Traitement de la facture"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        -448
+      ],
+      "id": "c680133d-ad56-4aa1-9716-40fa8255fbbe",
+      "name": "AGENT 2 tag des factures"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "9Fh4se1qBP5Mkg5S",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/9Fh4se1qBP5Mkg5S",
+          "cachedResultName": "[Gestion des factures] Traitement de la facture"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        -448
+      ],
+      "id": "68c229f5-6465-43bb-876c-25555fd96498",
+      "name": "AGENT 3 plan comptable"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1168,
+        -448
+      ],
+      "id": "e6f6abbb-db6f-4b2c-a95a-002265b041b8",
+      "name": "AGENT 4 - création de facture Notion"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1392,
+        -376
+      ],
+      "id": "ae6a43b5-b895-4146-b8a9-1b84811c44c5",
+      "name": "AGENT 5 - upload de facture sur Notion"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1616,
+        -376
+      ],
+      "id": "3ab9cd53-7715-4ed4-83d1-61070b0bb518",
+      "name": "AGENT 6 - vérification des factures"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-10T09:25:58.875Z",
+      "updatedAt": "2025-10-10T09:25:58.875Z",
+      "role": "workflow:owner",
+      "workflowId": "r4i0AYISxkaQEFKe",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-23T14:44:27.586Z",
+  "versionId": "6061b27e-b565-46c2-b278-c0990b75fd58"
+}
