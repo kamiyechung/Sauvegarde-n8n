@@ -1,0 +1,396 @@
+{
+  "active": false,
+  "connections": {
+    "Trigger hebdo - Lundi 9h": {
+      "main": [
+        [
+          {
+            "node": "Init dates et config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init dates et config": {
+      "main": [
+        [
+          {
+            "node": "01 - Collecte Search Console",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "01 - Collecte Search Console": {
+      "main": [
+        [
+          {
+            "node": "02 - Calcul métriques",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "02 - Calcul métriques": {
+      "main": [
+        [
+          {
+            "node": "03 - IA : Analyse globale",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "04 - IA : Pages déclin",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "05 - IA : Opportunités CTR",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "06 - IA : Stratégie contenu",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "07 - IA : Device",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge toutes les analyses IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "03 - IA : Analyse globale": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les analyses IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge toutes les analyses IA": {
+      "main": [
+        [
+          {
+            "node": "08 - Formatage HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "08 - Formatage HTML": {
+      "main": [
+        [
+          {
+            "node": "09 - Export multi-canal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "04 - IA : Pages déclin": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les analyses IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "05 - IA : Opportunités CTR": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les analyses IA",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "07 - IA : Device": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les analyses IA",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "06 - IA : Stratégie contenu": {
+      "main": [
+        [
+          {
+            "node": "Merge toutes les analyses IA",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-02T15:38:40.250Z",
+  "id": "HotwxPQ946tMaMAv",
+  "isArchived": false,
+  "meta": null,
+  "name": "[SEO] Orchestrateur - Hebdo",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "118b8e33-d32d-46be-a1b6-e62229edce67",
+      "name": "Trigger hebdo - Lundi 9h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        -56
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const today = new Date();\nconst lastMonday = new Date(today);\nlastMonday.setDate(today.getDate() - ((today.getDay() + 6) % 7) - 7);\n\nconst lastSunday = new Date(lastMonday);\nlastSunday.setDate(lastMonday.getDate() + 6);\n\nconst previousMonday = new Date(lastMonday);\npreviousMonday.setDate(lastMonday.getDate() - 7);\n\nconst previousSunday = new Date(lastMonday);\npreviousSunday.setDate(lastMonday.getDate() - 1);\n\n// ⚠️ CHANGE CES VALEURS ICI ⚠️\nconst siteUrl = 'www.camille-patisserie.com'; // TON SITE\nconst siteNiche = 'patisserie'; // TA NICHE\n\nreturn [{\n  json: {\n    siteUrl: siteUrl,\n    siteNiche: siteNiche,\n    currentWeekStart: lastMonday.toISOString().split('T')[0],\n    currentWeekEnd: lastSunday.toISOString().split('T')[0],\n    previousWeekStart: previousMonday.toISOString().split('T')[0],\n    previousWeekEnd: previousSunday.toISOString().split('T')[0]\n  }\n}];"
+      },
+      "id": "c515316c-91e7-4434-b628-6b55ad1162cd",
+      "name": "Init dates et config",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -56
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "aWPKFDVlwdh9HzRU",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/aWPKFDVlwdh9HzRU",
+          "cachedResultName": "[SEO] Collecte Search Console"
+        },
+        "options": {}
+      },
+      "id": "f9f75ccb-c532-4fd2-8870-f2945cb00ae1",
+      "name": "01 - Collecte Search Console",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        384,
+        -56
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "2taM8Dtx5q06pH2E",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/2taM8Dtx5q06pH2E",
+          "cachedResultName": "[SEO] Calcul des métriques"
+        },
+        "options": {}
+      },
+      "id": "5134023d-0712-4c21-b784-930629bf8b10",
+      "name": "02 - Calcul métriques",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        -56
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "VPcH38ZL9ovcog98",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/VPcH38ZL9ovcog98",
+          "cachedResultName": "[SEO] Analyse IA - Globale"
+        },
+        "options": {}
+      },
+      "id": "48945fcc-970f-4a5d-b579-7cfbeb9b7b72",
+      "name": "03 - IA : Analyse globale",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        -464
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Av01mvgLpzvhQxPu",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Av01mvgLpzvhQxPu",
+          "cachedResultName": "[SEO] Analyse IA - Pages en déclin"
+        },
+        "options": {}
+      },
+      "id": "6058ded8-8eba-499b-ae88-70d6d4029886",
+      "name": "04 - IA : Pages déclin",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        -272
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "WSvT5OC2ERcdlsWH",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/WSvT5OC2ERcdlsWH",
+          "cachedResultName": "[SEO] Analyse IA - Opportunités CTR"
+        },
+        "options": {}
+      },
+      "id": "c52f6c58-2652-45f3-a05d-f2a419f12247",
+      "name": "05 - IA : Opportunités CTR",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RGYF1wND2pO1MbDg",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/RGYF1wND2pO1MbDg",
+          "cachedResultName": "[SEO] Analyse IA - Stratégie contenu"
+        },
+        "options": {}
+      },
+      "id": "d5a81740-0812-42f8-b94f-9ca3d8c9a35d",
+      "name": "06 - IA : Stratégie contenu",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "BU9U7t8etikHQSAi",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/BU9U7t8etikHQSAi",
+          "cachedResultName": "[SEO] Analyse IA - Device"
+        },
+        "options": {}
+      },
+      "id": "7cf17bc4-e29f-426e-8a06-ec87fbfffdd8",
+      "name": "07 - IA : Device",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "eea596fb-b6b7-462b-839f-4600cb4074f6",
+      "name": "Merge toutes les analyses IA",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1056,
+        -56
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "WORKFLOW_ID_08_FORMAT_HTML",
+        "options": {}
+      },
+      "id": "93bff797-460f-4136-9b4c-17054d87c5ea",
+      "name": "08 - Formatage HTML",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        -56
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "WORKFLOW_ID_09_EXPORT",
+        "options": {}
+      },
+      "id": "c63ec58d-3eb8-41bf-9a8a-2d968201bdfc",
+      "name": "09 - Export multi-canal",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1504,
+        -56
+      ]
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-02T15:38:40.250Z",
+      "updatedAt": "2025-11-02T15:38:40.250Z",
+      "role": "workflow:owner",
+      "workflowId": "HotwxPQ946tMaMAv",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-02T15:58:07.373Z",
+  "versionId": "3494348b-352c-4957-827d-3afa84c5fd28"
+}
