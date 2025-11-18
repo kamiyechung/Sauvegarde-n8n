@@ -1,0 +1,213 @@
+{
+  "active": false,
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 3 - Analyse technique",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 3 - Analyse technique": {
+      "main": [
+        []
+      ]
+    },
+    "If Debug Mode": {
+      "main": [
+        [
+          {
+            "node": "Debug Log - Analyse technique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Agent 3 - Analyse technique",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Agent 3 - Analyse technique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-22T13:34:51.659Z",
+  "id": "n4rSvz6TxvlLnbCD",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[SEO] Analyse technique (3 mois)",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "value": "claude-3-5-haiku-20241022",
+          "mode": "list"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "cf096af1-c3f5-4930-bd69-3d40d6bb6e91",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        224
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert SEO technique.  \nAnalyse les données Google Search Console du site www.camille-patisserie.com pour détecter les problèmes d’indexation, de performance et d’expérience utilisateur.\n\n---\n\n### Données d’entrée\nPériode : {{ $json.periode }}\nDonnées : {{ JSON.stringify($json.collecte) }}\n\n---\n\n### Objectif\nProduire un diagnostic technique clair et priorisé :\n- erreurs d’indexation,\n- performances (LCP, CLS, INP),\n- sitemaps,\n- différences mobile/desktop,\n- alertes majeures SEO.\n\n---\n\n### Analyse demandée\n\n1️⃣ **Indexation**\n- Nombre de pages non indexées, exclues, en erreur.  \n- Liste les pages concernées et la cause probable.  \n\n2️⃣ **Erreurs**\n- Erreurs 4xx et 5xx : URLs, gravité, récurrence.  \n- Classe les plus critiques en priorité haute.  \n\n3️⃣ **Performances Core Web Vitals**\n- Moyenne LCP, CLS, INP.  \n- Nombre de pages à corriger et URLs principales.  \n- Classe les métriques : bon / à améliorer / mauvais.  \n\n4️⃣ **Sitemaps**\n- Nombre de pages envoyées vs indexées.  \n- Calcul du taux d’indexation.  \n- Identifier les sitemaps à faible indexation.  \n\n5️⃣ **Mobile vs Desktop**\n- Différences de CTR et position.  \n- Liste les pages avec écart > 5 points et suggère optimisations.  \n\n6️⃣ **Synthèse**\n- Résume : état global, urgences, priorités.  \n- Classe les problèmes : critique / important / secondaire.  \n\n⚠️ Ne renvoie que du JSON.\nSi certaines sections sont vides, renvoie [].\nLes clés doivent rester : recommandations, resume. N'invente pas de datas\n\n---\n\n### Format JSON attendu\n```json\n{\n  \"indexation\": {\n    \"non_indexees\": 12,\n    \"exclues\": [\n      {\"url\": \"/contact\", \"motif\": \"Crawl currently not indexed\"},\n      {\"url\": \"/ancien-menu\", \"motif\": \"Duplicate without canonical\"}\n    ]\n  },\n  \"erreurs\": [\n    {\"type\": \"4xx\", \"count\": 8, \"urls\": [\"/produits/404-not-found\"]},\n    {\"type\": \"5xx\", \"count\": 3, \"urls\": [\"/admin/serveur-indisponible\"]}\n  ],\n  \"performances\": {\n    \"lcp\": {\"moyenne\": 4.2, \"pages_mauvaises\": 6},\n    \"cls\": {\"moyenne\": 0.32, \"pages_instables\": 3},\n    \"inp\": {\"moyenne\": 620, \"pages_lentes\": 5}\n  },\n  \"sitemaps\": {\"envoyees\": 240, \"indexees\": 190, \"taux_indexation\": 79},\n  \"mobile_vs_desktop\": [\n    {\"url\": \"/tartes-du-jour\", \"ecart\": 6},\n    {\"url\": \"/patisseries-speciales\", \"ecart\": 7}\n  ],\n  \"synthese\": {\n    \"etat_global\": \"⚠️ Risques SEO détectés\",\n    \"priorites\": [\n      \"Corriger les erreurs 4xx/5xx\",\n      \"Optimiser LCP et CLS sur mobile\",\n      \"Améliorer taux d’indexation sitemap principal\"\n    ]\n  }\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "152957f7-4278-4609-8bb4-7f7b16752d98",
+      "name": "Agent 3 - Analyse technique",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.debug === 'true' }}"
+            }
+          ]
+        }
+      },
+      "id": "159c8913-856c-44db-95e0-6749e551e6bb",
+      "name": "If Debug Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { message: '🔍 [DEBUG] Résultats analyse technique:', data: $json } }];"
+      },
+      "id": "fe02c3e9-0544-4d61-a776-747670ad848e",
+      "name": "Debug Log - Analyse technique",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"title\": \"Analyse technique SEO\",\n  \"properties\": {\n    \"indexation\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"non_indexees\": {\"type\": \"integer\"},\n        \"exclues\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"url\": {\"type\": \"string\"},\n              \"motif\": {\"type\": \"string\"}\n            }\n          }\n        }\n      }\n    },\n    \"erreurs\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"type\": {\"type\": \"string\"},\n          \"count\": {\"type\": \"integer\"},\n          \"urls\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}\n        }\n      }\n    },\n    \"performances\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"lcp\": {\"type\": \"object\"},\n        \"cls\": {\"type\": \"object\"},\n        \"inp\": {\"type\": \"object\"}\n      }\n    },\n    \"sitemaps\": {\"type\": \"object\"},\n    \"mobile_vs_desktop\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"url\": {\"type\": \"string\"},\n          \"ecart\": {\"type\": \"number\"}\n        }\n      }\n    },\n    \"synthese\": {\"type\": \"object\"}\n  },\n  \"required\": [\"synthese\", \"performances\"]\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        240
+      ],
+      "id": "02268e74-32ff-4de9-9585-dc4655552925",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "periode",
+              "type": "object"
+            },
+            {
+              "name": "sessionKey"
+            },
+            {
+              "name": "collecte",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -352,
+        -32
+      ],
+      "id": "5b71aadb-5618-49f2-90e3-764f0166114d",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-22T13:34:51.659Z",
+      "updatedAt": "2025-10-22T13:34:51.659Z",
+      "role": "workflow:owner",
+      "workflowId": "n4rSvz6TxvlLnbCD",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-31T06:04:43.680Z",
+      "updatedAt": "2025-10-31T06:04:43.680Z",
+      "id": "gtBDe47cnJQqPncf",
+      "name": "SEO"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-01T06:07:44.118Z",
+  "versionId": "4f08f126-16d0-4c5c-baea-eae3ad30d9ae"
+}
