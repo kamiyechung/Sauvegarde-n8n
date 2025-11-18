@@ -1,0 +1,680 @@
+{
+  "active": false,
+  "connections": {
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Get many threads1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many threads1": {
+      "main": [
+        [
+          {
+            "node": "Email Classification Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Classification Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file in Google Drive1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Classification Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Classification Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get threads (label: syndic)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get threads (label: syndic)1": {
+      "main": [
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Send report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize thread": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message": {
+      "main": [
+        [
+          {
+            "node": "Normalize thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-16T08:53:25.518Z",
+  "id": "9IvqmYIRKjlKvMXC",
+  "isArchived": false,
+  "meta": {
+    "templateId": "email_triage_agent_with_gmail",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[Perso Camille] Syndic v2 (optimisée)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": "=1",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -272
+      ],
+      "id": "e862ee40-7462-4d9d-b59b-aa19a340e354",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "filters": {
+          "includeSpamTrash": false,
+          "labelIds": [
+            "Label_1107215070567604782"
+          ],
+          "receivedAfter": "={{ new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString() }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        -272
+      ],
+      "id": "b51c783e-f166-40f7-ad76-dff568068326",
+      "name": "Get many threads1",
+      "webhookId": "7ad08fb3-0e7f-49d0-abf9-b71b6be7cae4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ViGVjvmKJZeysXKZ",
+          "name": "Gmail account Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CONTEXTE :\nTu es un assistant personnel chargé de suivre les échanges avec le syndic de copropriété.\n\nROLE :\nTu dois lire les mails labelisés 'syndic' de ton manager.\n\nVoici les mails à analyser\n{{ $json.snippet }}\n\nOUTIL : \nMCP Client GMAIL : tu peux utiliser le MCP Gmail pour vérifier un point dans l'historique\n\nMISSION :\n1. **Analyser tous les mails** pour comprendre ce qu’il s’est passé cette semaine.\n2. **Résumer** chaque mail en 2 à 3 lignes maximum.\n3. **Identifier les actions à faire** : tout ce qui nécessite une réponse, une validation, une décision ou un suivi.\n4. **Lister les informations importantes** : annonces, décisions, travaux, convocations, appels de fonds, etc.\n5. **Lister les documents mentionnés ou joints**.\n6. **Rédiger une synthèse générale** de la semaine, claire et concise.\n7. **Expliciter les points de blocag** lorsqu'il y a un point de blocage, explique lequel.\n8. Convertir ces données en un **rapport clair, synthétique et agréable à lire**.\n9. Utiliser des **titres, des emojis, des sections bien séparées**.\n10. Garder un **ton professionnel, concis et positif**.\n11. Le format doit être compatible pour un **envoi email en HTML** (ou Markdown).\n12. Ne pas reformuler les informations : reformate-les sans les modifier.\n\n🔒 Règles :\n- Ne pas inventer d’informations non présentes dans les mails.\n- Ne pas paraphraser inutilement : sois factuel et précis.\n- Si aucun mail ne nécessite d’action, indique : \"Aucune action requise cette semaine.\"\n- Si aucun document n’est mentionné, laisse la clé \"documents\" vide ([]).\n- Conserve le ton professionnel et neutre.\n\nTa mission :\n\n\nStructure du rapport à produire : utilise comme modèle le template \"[Template] 🏢 Rapport hebdomadaire — Syndic\n\nS'il n'existe pas de point nécessitant une action de notre part, indique-le. Si on attend une réponse (à un devis par exemple) qui concerne toute la résidence ou le bâtiment C (pas les autres bâtiments), indique le dans une rubrique à part",
+        "options": {
+          "systemMessage": "="
+        }
+      },
+      "id": "4d0e64ec-01d5-46e1-8b6d-bdfd44c24259",
+      "name": "Email Classification Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -272
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "camille.bideau@gmail.com, huguet.thomas@gmail.com",
+        "subject": "Rapport syndic",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1008,
+        -272
+      ],
+      "id": "b0fd430d-6ada-4627-84d5-fefee69ddc73",
+      "name": "Send a message1",
+      "webhookId": "4cff94ab-47b3-49e6-916a-938f7154e63d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4VGNotVfv2WoVNVJ",
+          "name": "Gmail MCP checkintrust"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "https://docs.google.com/document/d/1icZYWcHbxzPnOwAOGv27xYtJQkTRd3m4T15u6FUi8x8/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sameFolder": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Copy_In_The_Same_Folder', ``, 'boolean') }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [
+        944,
+        32
+      ],
+      "id": "492949cf-008d-4e2d-a36a-078e6427e770",
+      "name": "Copy file in Google Drive1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UGghpJdMN3bRQ9Cb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-opus-20240229",
+          "mode": "list",
+          "cachedResultName": "Claude Opus 3"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        -48
+      ],
+      "id": "aa87325e-8df3-4707-acb0-8fbc1798e84a",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "camille.bideau@gmail.com, huguet.thomas@gmail.com",
+        "subject": "Rapport syndic",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        -32
+      ],
+      "id": "273baf70-6f7b-4c31-923e-4a5123a62f16",
+      "name": "Send a message",
+      "webhookId": "4cff94ab-47b3-49e6-916a-938f7154e63d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4VGNotVfv2WoVNVJ",
+          "name": "Gmail MCP checkintrust"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "id": "7c2d078c-8a66-45ab-be03-af821c6d5699",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        768
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "10cb0c57-a9d2-43f4-9441-36dbd34d3dec",
+      "name": "Compute Window",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "filters": {
+          "includeSpamTrash": false,
+          "labelIds": [
+            "Label_1107215070567604782"
+          ],
+          "receivedAfter": "={{ $json.sinceISO }}"
+        }
+      },
+      "id": "caa5d3dd-5e31-4984-ad59-0294555583f7",
+      "name": "Get threads (label: syndic)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1488,
+        768
+      ],
+      "webhookId": "2694d966-fba1-4504-b481-3c0b51b361cd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ViGVjvmKJZeysXKZ",
+          "name": "Gmail account Camille"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "08530a81-9419-44b0-ba16-f0c2ad8940e4",
+      "name": "Normalize Threads",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        768
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "7671e460-6450-4dba-870f-975022700251",
+      "name": "Build Prompts",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-sonnet-20240229",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "id": "4dbae2e5-e6c5-49d2-9825-5ba1ee23d40e",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        2192,
+        768
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "56be68e6-f254-42e7-b6bd-e7212d993d0d",
+      "name": "Build Email HTML",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "camille.bideau@gmail.com, huguet.thomas@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "options": {}
+      },
+      "id": "46104cf4-3d6c-4359-9511-43c3c6f22265",
+      "name": "Send report",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2672,
+        768
+      ],
+      "webhookId": "612f1a78-fdc5-4fbf-99ef-cf7ff652a51b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4VGNotVfv2WoVNVJ",
+          "name": "Gmail MCP checkintrust"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "id": "ae4037cd-a20d-442d-97c4-350da1346fd9",
+      "name": "Schedule Trigger2",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "Label_1107215070567604782"
+          ],
+          "receivedAfter": "",
+          "receivedBefore": "={{ $json.lastRunAt }}"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "id": "de6cf16d-873d-4827-a05b-92ff47459687",
+      "name": "Get threads (label: syndic)1",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        464,
+        304
+      ],
+      "webhookId": "528afcdb-fd67-4eab-a0aa-fa0a4d924d22",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ViGVjvmKJZeysXKZ",
+          "name": "Gmail account Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-5-haiku-20241022",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 3.5"
+        },
+        "options": {}
+      },
+      "id": "6cb63495-db96-4f5a-83db-6dc18194674d",
+      "name": "Anthropic Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        992,
+        480
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "camille.bideau@gmail.com, huguet.thomas@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.htmlBody }}",
+        "options": {}
+      },
+      "id": "53fb4577-626a-475c-a327-196e6da6ebdb",
+      "name": "Send report1",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1616,
+        320
+      ],
+      "webhookId": "e68b3590-22dd-48c5-a2f3-8491726908a8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ViGVjvmKJZeysXKZ",
+          "name": "Gmail account Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * 🔹 Compatible avec le node \"Code\" (JavaScript sandbox)\n * 🔸 Calcule la fenêtre temporelle en se basant sur une variable d’entrée \"lastRunAt\"\n * 🔸 Si aucune donnée : prend les 14 derniers jours\n * 🔸 Met à jour \"lastRunAt\" pour la prochaine exécution\n */\n\n// On récupère éventuellement la dernière exécution depuis les données entrantes\nconst input = $input.item ? $input.item.json : {};\nconst lastRunAt = input.lastRunAt || null;\n\n// Si c’est le premier run → on prend les 14 derniers jours\nconst now = new Date();\nconst since = lastRunAt\n  ? new Date(lastRunAt)\n  : new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);\n\n// On renvoie les bornes temporelles et la nouvelle date à propager\nreturn [\n  {\n    json: {\n      sinceISO: since.toISOString(),\n      nowISO: now.toISOString(),\n      lastRunAt: now.toISOString(),\n      info: `🕓 Fenêtre calculée du ${since.toISOString()} au ${now.toISOString()}`\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        336
+      ],
+      "id": "21dcc9e7-44d9-4817-9233-9ae4a4c5ef2f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.emails_md }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        272
+      ],
+      "id": "ae2ce18f-0df6-4fe7-82ba-9b6d82c3475b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Build Email HTML — robuste aux différents formats d’IA\n * Compatible n8n 1.113+ (Code node sandbox)\n */\n\n// 1) Récupère le texte renvoyé par le modèle (Claude, OpenAI, Agent, etc.)\nfunction pickLLMText(o) {\n  if (!o || typeof o !== 'object') return '';\n  if (typeof o.text === 'string' && o.text.trim()) return o.text;\n  if (typeof o.output === 'string' && o.output.trim()) return o.output;            // Claude Agent / LangChain\n  if (typeof o.response === 'string' && o.response.trim()) return o.response;\n  if (Array.isArray(o.content)) {                                                   // Claude Messages format\n    const t = o.content.map(c => (c?.text || c?.content || '')).join('\\n').trim();\n    if (t) return t;\n  }\n  if (o.choices?.[0]?.message?.content) return o.choices[0].message.content;       // OpenAI\n  return '';\n}\n\nconst md = pickLLMText($json);\n\n// 2) Si vide, retourner un message explicite\nif (!md) {\n  return [{\n    json: {\n      subject: \"Rapport Syndic — aucun contenu\",\n      htmlBody: \"<p>Aucune donnée reçue du modèle (champ vide). Vérifie le champ <code>Messages</code> et la sortie du node IA.</p>\"\n    }\n  }];\n}\n\n// 3) Markdown → HTML minimal compatible e-mail\nfunction md2html(s) {\n  let h = s;\n  h = h.replace(/^###\\s+(.*)$/gm, '<h3>$1</h3>');\n  h = h.replace(/^##\\s+(.*)$/gm, '<h2>$1</h2>');\n  h = h.replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');\n  h = h.replace(/^- (.*)$/gm, '<li>$1</li>');\n  h = h.replace(/(<li>.*<\\/li>\\n?)+/g, m => `<ul>${m}</ul>`);\n  h = h.replace(/\\n/g, '<br>');\n  return h;\n}\nconst htmlContent = md2html(md);\n\n// 4) Récupère sinceISO (si passé en entrée) sinon fallback 7 jours\nlet sinceISO = $json.sinceISO;\nif (!sinceISO) {\n  const allIn = $input.all();\n  for (const it of allIn) {\n    if (it?.json?.sinceISO) { sinceISO = it.json.sinceISO; break; }\n  }\n}\nconst start = sinceISO ? new Date(sinceISO) : new Date(Date.now() - 7*24*60*60*1000);\nconst now = new Date();\nconst fmt = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });\nconst title = `Rapport Syndic — semaine du ${fmt(start)} au ${fmt(now)}`;\n\n// 5) Emballage HTML email\nconst htmlBody = `\n<!doctype html>\n<html>\n  <body style=\"font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#222;\">\n    <div style=\"max-width:720px;margin:0 auto;\">\n      <h1 style=\"font-size:20px;margin:0 0 12px;\">${title}</h1>\n      ${htmlContent}\n      <hr style=\"margin:16px 0;border:none;border-top:1px solid #eee;\">\n      <p style=\"font-size:12px;color:#666;\">Généré automatiquement par n8n • Label : syndic</p>\n    </div>\n  </body>\n</html>\n`;\n\nreturn [{ json: { subject: title, htmlBody } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        320
+      ],
+      "id": "1b8ee6dd-e239-4f9c-8abe-5913add7ecaa",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Normalise les mails Gmail en markdown exploitable pour l'IA.\n * Compatible n8n 1.113+ (sandbox)\n */\n\nfunction fmtDate(d) {\n  try {\n    return new Date(d).toLocaleString('fr-FR', {\n      dateStyle: 'medium',\n      timeStyle: 'short'\n    });\n  } catch {\n    return d || '';\n  }\n}\n\nconst itemsIn = $input.all();\nconst out = [];\n\nfor (const item of itemsIn) {\n  const j = item.json || {};\n  const threadId = j.id || '';\n  const snippet = (j.snippet || '').replace(/\\n+/g, ' ').trim();\n\n  let subject = '';\n  let from = '';\n  let date = '';\n\n  try {\n    const msg = (j.messages && j.messages[0]) ? j.messages[0] : null;\n    if (msg && msg.payload && msg.payload.headers) {\n      for (const h of msg.payload.headers) {\n        if (h.name === 'Subject') subject = h.value || subject;\n        if (h.name === 'From') from = h.value || from;\n        if (h.name === 'Date') date = h.value || date;\n      }\n    }\n  } catch {}\n\n  if (!snippet && !subject) continue;\n\n  out.push({\n    threadId,\n    subject: subject || '(Sans objet)',\n    from: from || '(Expéditeur inconnu)',\n    date: date ? fmtDate(date) : '',\n    snippet\n  });\n}\n\n// construit un markdown simple\nconst lines = ['### Mails syndic détectés'];\nfor (const m of out) {\n  lines.push(`- **Sujet**: ${m.subject}`);\n  lines.push(`  - **De**: ${m.from}`);\n  if (m.date) lines.push(`  - **Date**: ${m.date}`);\n  if (m.snippet) lines.push(`  - **Contenu**: ${m.snippet}`);\n}\n\nreturn [{\n  json: {\n    emails_md: lines.join('\\n'),\n    threads_meta: out\n  }\n}];\nreturn [{\n  json: {\n    system: `Tu es un assistant chargé de synthétiser les échanges avec le syndic de copropriété.\n\nObjectif :\n- Résume chaque mail en 3 lignes max : la personne qui lit le résumé doit tout comprendre de la situation\n- Liste les actions à suivre (réponse, validation, décision, suivi)\n- Liste les documents mentionnés\n- Termine par une synthèse claire\n- Si plusieurs emails traitent du même sujet, résume dans un seul \"thread\"\n\nRègles :\n- Ne rien inventer\n- Ton professionnel, neutre et factuel\n- Si aucune action : indique \"Aucune action requise cette semaine\"\n\nFormat Markdown (compatible email HTML) :\n## 📬 Résumés\n- ...\n\n## 🧾 Actions à suivre\n- ...\n\n## 📎 Documents\n- ...\n\n## 🧩 Synthèse générale\n...`,\n\n    user: `Voici les mails reçus du syndic cette semaine :\n\n${$json.emails_md || 'Aucun mail trouvé.'}`\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        368
+      ],
+      "id": "4c2ae3c2-6c97-4a17-a68a-31310b455f6e",
+      "name": "Normalize thread"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": "={\n  \"payload\": {\n    \"mimeType\": \"multipart/alternative\",\n    \"parts\": [\n      {\n        \"mimeType\": \"text/plain\",\n        \"body\": { \"data\": \"U29tZSB0ZXh0IGhlcmU=\" }\n      },\n      {\n        \"mimeType\": \"text/html\",\n        \"body\": { \"data\": \"PGh0bWw+...\" }\n      }\n    ]\n  }\n}\n",
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        656,
+        400
+      ],
+      "id": "e148f258-8fec-4b0e-9e0e-47d6a8f43624",
+      "name": "Get a message",
+      "webhookId": "e87cf8ea-4235-4327-ad0d-dc0c9dd24fcc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ViGVjvmKJZeysXKZ",
+          "name": "Gmail account Camille"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-16T08:53:25.518Z",
+      "updatedAt": "2025-10-16T08:53:25.518Z",
+      "role": "workflow:owner",
+      "workflowId": "9IvqmYIRKjlKvMXC",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-12T19:30:34.886Z",
+  "versionId": "fa7cdf8e-ac0e-41f8-b04a-89fe4614a448"
+}
