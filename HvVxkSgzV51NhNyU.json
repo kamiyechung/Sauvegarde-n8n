@@ -1,0 +1,732 @@
+{
+  "active": false,
+  "connections": {
+    "Démarrage manuel": {
+      "main": [
+        [
+          {
+            "node": "3. Récupérer données WPRM",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "1. Récupérer tous les posts WP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Récupérer données WPRM": {
+      "main": [
+        [
+          {
+            "node": "7a. Créer dans Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Transformer les données": {
+      "main": [
+        []
+      ]
+    },
+    "5. Chercher si existe déjà": {
+      "main": [
+        [
+          {
+            "node": "6. Existe dans Notion ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Existe dans Notion ?": {
+      "main": [
+        [
+          {
+            "node": "7b. Mettre à jour dans Notion",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "8. Fusionner les résultats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7b. Mettre à jour dans Notion": {
+      "main": [
+        [
+          {
+            "node": "8. Fusionner les résultats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Fusionner les résultats": {
+      "main": [
+        [
+          {
+            "node": "9. Résumé final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7a. Créer dans Notion": {
+      "main": [
+        []
+      ]
+    },
+    "1. Récupérer tous les posts WP": {
+      "main": [
+        [
+          {
+            "node": "2. Filtrer les posts avec WPRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Fusionner les résultats1": {
+      "main": [
+        [
+          {
+            "node": "9. Résumé final1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7b. Mettre à jour dans Notion1": {
+      "main": [
+        [
+          {
+            "node": "8. Fusionner les résultats1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Existe dans Notion ?1": {
+      "main": [
+        [
+          {
+            "node": "7b. Mettre à jour dans Notion1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Chercher si existe déjà1": {
+      "main": [
+        [
+          {
+            "node": "6. Existe dans Notion ?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Transformer les données1": {
+      "main": [
+        [
+          {
+            "node": "5. Chercher si existe déjà1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Récupérer données WPRM1": {
+      "main": [
+        [
+          {
+            "node": "4. Transformer les données1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Filtrer les posts avec WPRM": {
+      "main": [
+        [
+          {
+            "node": "3. Récupérer données WPRM1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-03T09:19:39.116Z",
+  "id": "HvVxkSgzV51NhNyU",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Sync WPRM Recipes → Notion (Corrigé)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1aa7040c-14be-45e3-b74e-97109e5ccdd3",
+      "name": "Démarrage manuel",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1408,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://camille-patisserie.com/wp-json/wp/v2/wprm_recipe/",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5
+            }
+          }
+        }
+      },
+      "id": "86c83d76-9bea-4492-bcf4-0bc0ee398e59",
+      "name": "3. Récupérer données WPRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1184,
+        96
+      ],
+      "notes": "Récupère les données complètes de la recette WPRM"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine les données WordPress et WPRM\nconst item = $input.item;\nconst wpData = item.json;\nconst wprmData = item.json;\n\n// Fonction helper pour convertir les dates WordPress en format Notion\nfunction formatDateForNotion(dateString) {\n  if (!dateString) return null;\n  try {\n    const date = new Date(dateString);\n    return date.toISOString();\n  } catch (e) {\n    return null;\n  }\n}\n\n// Fonction pour extraire l'URL de l'image featured\nfunction getFeaturedImageUrl(wpData) {\n  try {\n    return wpData._embedded?.['wp:featuredmedia']?.[0]?.source_url || null;\n  } catch (e) {\n    return null;\n  }\n}\n\n// Fonction pour extraire les catégories\nfunction getCategories(wpData) {\n  try {\n    const terms = wpData._embedded?.['wp:term'] || [];\n    const categories = terms.flat().filter(t => t.taxonomy === 'category');\n    return categories.map(c => c.name);\n  } catch (e) {\n    return [];\n  }\n}\n\n// Fonction pour extraire les tags\nfunction getTags(wpData) {\n  try {\n    const terms = wpData._embedded?.['wp:term'] || [];\n    const tags = terms.flat().filter(t => t.taxonomy === 'post_tag');\n    return tags.map(t => t.name);\n  } catch (e) {\n    return [];\n  }\n}\n\n// Fonction pour calculer le nombre de mots\nfunction countWords(html) {\n  if (!html) return 0;\n  const text = html.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\n  return text.split(' ').length;\n}\n\n// Fonction pour formater les ingrédients en JSON\nfunction formatIngredients(ingredients) {\n  if (!ingredients || !Array.isArray(ingredients)) return null;\n  return JSON.stringify(ingredients);\n}\n\n// Fonction pour formater les instructions en JSON\nfunction formatInstructions(instructions) {\n  if (!instructions || !Array.isArray(instructions)) return null;\n  return JSON.stringify(instructions);\n}\n\n// Fonction pour mapper la difficulté WPRM vers Notion\nfunction mapDifficulty(wprmDifficulty) {\n  const mapping = {\n    'easy': 'Facile',\n    'medium': 'Moyenne',\n    'hard': 'Difficile'\n  };\n  return mapping[wprmDifficulty?.toLowerCase()] || null;\n}\n\n// Fonction pour formater le résumé de la recette\nfunction formatSummary(summary) {\n  if (!summary) return null;\n  // Nettoyer le HTML\n  return summary.replace(/<[^>]*>/g, '').trim();\n}\n\n// Construction de l'objet pour Notion\nconst notionData = {\n  // Identification\n  \"ID WordPress\": wpData.id,\n  \"Name\": wpData.title?.rendered || \"Sans titre\",\n  \"Slug WordPress\": wpData.slug,\n  \"URL WordPress\": wpData.link,\n  \"Featured Image URL\": getFeaturedImageUrl(wpData),\n  \n  // Dates\n  \"date:Date création WP:start\": formatDateForNotion(wpData.date),\n  \"date:Date création WP:is_datetime\": 1,\n  \"date:Date modification WP:start\": formatDateForNotion(wpData.modified),\n  \"date:Date modification WP:is_datetime\": 1,\n  \"date:Date publication:start\": wpData.status === 'publish' ? formatDateForNotion(wpData.date) : null,\n  \"date:Date publication:is_datetime\": 1,\n  \"date:Dernière synchro:start\": new Date().toISOString(),\n  \"date:Dernière synchro:is_datetime\": 1,\n  \n  // Statut\n  \"Statut WP\": wpData.status,\n  \"Statut\": wpData.status === 'publish' ? 'Publié' : 'À optimiser',\n  \n  // Contenu\n  \"Contenu original\": wpData.content?.rendered || null,\n  \"Nombre de mots\": countWords(wpData.content?.rendered),\n  \"Nombre commentaires\": wpData.comment_count || 0,\n  \n  // Taxonomies\n  \"Catégories WP\": getCategories(wpData),\n  \"Tags WP\": getTags(wpData),\n  \n  // Auteur\n  \"Auteur WP\": wpData._embedded?.author?.[0]?.name || null,\n  \n  // Données WPRM de la recette\n  \"Résumé recette\": formatSummary(wprmData.recipe?.summary),\n  \"Ingrédients JSON\": formatIngredients(wprmData.recipe?.ingredients),\n  \"Instructions JSON\": formatInstructions(wprmData.recipe?.instructions),\n  \n  // Temps\n  \"Temps préparation\": wprmData.recipe?.prep_time || null,\n  \"Temps cuisson\": wprmData.recipe?.cook_time || null,\n  \"Temps repos\": wprmData.recipe?.total_time ? \n    (wprmData.recipe.total_time - (wprmData.recipe.prep_time || 0) - (wprmData.recipe.cook_time || 0)) : null,\n  \n  // Portions\n  \"Nombre portions\": wprmData.recipe?.servings || null,\n  \"Type portion\": wprmData.recipe?.servings_unit || null,\n  \n  // Difficulté\n  \"Difficulté\": mapDifficulty(wprmData.recipe?.difficulty),\n  \n  // Cuisine\n  \"Cuisine\": wprmData.recipe?.cuisine || null,\n  \n  // Nutrition (si disponible)\n  \"Calories\": wprmData.recipe?.nutrition?.calories || null,\n  \"Protéines\": wprmData.recipe?.nutrition?.protein || null,\n  \"Glucides\": wprmData.recipe?.nutrition?.carbohydrates || null,\n  \"Lipides\": wprmData.recipe?.nutrition?.fat || null,\n  \"Lipides saturés\": wprmData.recipe?.nutrition?.saturated_fat || null,\n  \"Cholestérol\": wprmData.recipe?.nutrition?.cholesterol || null,\n  \"Sodium\": wprmData.recipe?.nutrition?.sodium || null,\n  \"Potassium\": wprmData.recipe?.nutrition?.potassium || null,\n  \"Fibres\": wprmData.recipe?.nutrition?.fiber || null,\n  \"Sucre\": wprmData.recipe?.nutrition?.sugar || null,\n  \"Vitamine A\": wprmData.recipe?.nutrition?.vitamin_a || null,\n  \"Vitamine C\": wprmData.recipe?.nutrition?.vitamin_c || null,\n  \"Calcium\": wprmData.recipe?.nutrition?.calcium || null,\n  \"Fer\": wprmData.recipe?.nutrition?.iron || null,\n  \n  // Notes et avis\n  \"Note moyenne\": wprmData.recipe?.rating?.average || null,\n  \"Nombre avis\": wprmData.recipe?.rating?.count || null,\n  \"Notes recette\": wprmData.recipe?.notes || null,\n  \n  // URL vidéo\n  \"URL vidéo\": wprmData.recipe?.video?.url || wprmData.recipe?.video_embed || null,\n  \n  // Langue par défaut\n  \"Langue\": \"FR\",\n  \n  // Schema.org\n  \"Schema.org injecté\": wprmData.recipe ? \"__YES__\" : \"__NO__\"\n};\n\nreturn [{ json: notionData }];"
+      },
+      "id": "1a674bcb-4086-42f9-8fc4-9627550bc9a1",
+      "name": "4. Transformer les données",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1408,
+        416
+      ],
+      "notes": "Transforme et mappe les données WP+WPRM vers le format Notion"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "text": "={{ $json.title.rendered }}",
+        "simple": false,
+        "options": {}
+      },
+      "id": "c2dbddb4-4427-4541-90d1-79279e15044e",
+      "name": "5. Chercher si existe déjà",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        256
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      },
+      "notes": "Vérifie si la recette existe déjà dans Notion via l'ID WordPress"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-exists",
+              "leftValue": "={{$json.id}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "54f61a13-9b48-4f52-9c37-f8aadd7eaa82",
+      "name": "6. Existe dans Notion ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -720,
+        304
+      ],
+      "notes": "Route selon que la recette existe ou non"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$('5. Chercher si existe déjà').item.json.id}}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Date modification WP"
+            },
+            {
+              "key": "Dernière synchro"
+            },
+            {
+              "key": "Statut WP",
+              "selectValue": "={{$json[\"Statut WP\"]}}"
+            },
+            {
+              "key": "Contenu original"
+            },
+            {
+              "key": "Nombre de mots",
+              "numberValue": "={{$json[\"Nombre de mots\"]}}"
+            },
+            {
+              "key": "Nombre commentaires",
+              "numberValue": "={{$json[\"Nombre commentaires\"]}}"
+            },
+            {
+              "key": "Featured Image URL",
+              "urlValue": "={{$json[\"Featured Image URL\"]}}"
+            },
+            {
+              "key": "Ingrédients JSON"
+            },
+            {
+              "key": "Instructions JSON"
+            },
+            {
+              "key": "Note moyenne",
+              "numberValue": "={{$json[\"Note moyenne\"]}}"
+            },
+            {
+              "key": "Nombre avis",
+              "numberValue": "={{$json[\"Nombre avis\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d12f1882-42b1-4ca6-ac3b-61375d7259f0",
+      "name": "7b. Mettre à jour dans Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        240
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      },
+      "notes": "Met à jour l'entrée existante avec les nouvelles données"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "summary-created",
+              "name": "created",
+              "value": "={{$('7a. Créer dans Notion').itemMatching($itemIndex).json.id ? 1 : 0}}",
+              "type": "number"
+            },
+            {
+              "id": "summary-updated",
+              "name": "updated",
+              "value": "={{$('7b. Mettre à jour dans Notion').itemMatching($itemIndex).json.id ? 1 : 0}}",
+              "type": "number"
+            },
+            {
+              "id": "summary-total",
+              "name": "recipe_name",
+              "value": "={{$json.Name}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "51288106-81d8-498b-ae65-eedae18e3308",
+      "name": "8. Fusionner les résultats",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -288,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "total-created",
+              "name": "total_created",
+              "value": "={{$input.all().reduce((sum, item) => sum + (item.json.created || 0), 0)}}",
+              "type": "number"
+            },
+            {
+              "id": "total-updated",
+              "name": "total_updated",
+              "value": "={{$input.all().reduce((sum, item) => sum + (item.json.updated || 0), 0)}}",
+              "type": "number"
+            },
+            {
+              "id": "total-processed",
+              "name": "total_processed",
+              "value": "={{$input.all().length}}",
+              "type": "number"
+            },
+            {
+              "id": "sync-date",
+              "name": "sync_date",
+              "value": "={{new Date().toISOString()}}",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "=Synchronisation terminée : {{$input.all().reduce((sum, item) => sum + (item.json.created || 0), 0)}} créées, {{$input.all().reduce((sum, item) => sum + (item.json.updated || 0), 0)}} mises à jour",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dced4c3d-5c54-46e9-95ab-9fcdcf7d9e73",
+      "name": "9. Résumé final",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        96
+      ],
+      "notes": "Affiche un résumé de la synchronisation"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"parent\": {\n    \"type\": \"database_id\",\n    \"database_id\": \"62f832d8-3c0b-4abd-a4a9-76f0e0b3f5e9\"\n  },\n  \"properties\": {\n    \"Name\": {\n      \"title\": [\n        {\n          \"text\": {\n            \"content\": \"{{ $json.title.rendered }}\"\n          }\n        }\n      ]\n    },\n    \"ID WordPress\": {\n      \"number\": {{ $json.id }}\n    },\n    \"Slug WordPress\": {\n      \"rich_text\": [\n        {\n          \"text\": {\n            \"content\": \"{{ $json.slug }}\"\n          }\n        }\n      ]\n    },\n    \"URL WordPress\": {\n      \"url\": \"{{ $json.link }}\"\n    },\n    \"Featured Image URL\": {\n      \"url\": \"{{ $json._links['wp:featuredmedia'][0].href }}\"\n    },\n    \"Date création WP\": {\n      \"date\": {\n        \"start\": \"{{ $json.date }}\"\n      }\n    },\n    \"Date modification WP\": {\n      \"date\": {\n        \"start\": \"{{ $json.modified }}\"\n      }\n    },\n    \"Statut WP\": {\n      \"select\": {\n        \"name\": \"{{ $json.status }}\"\n      }\n    },\n    \"Statut\": {\n      \"select\": {\n        \"name\": \"{{ $json.recipe.post_status }}\"\n      }\n    },\n    \"Contenu original\": {\n      \"rich_text\": [\n        {\n          \"text\": {\n            \"content\": \"\"\n          }\n        }\n      ]\n    },\n    \"Nombre de mots\": {\n      \"number\": {{$json['Nombre de mots']}}\n    },\n    \"Nombre commentaires\": {\n      \"number\": {{$json['Nombre commentaires']}}\n    },\n    \"Catégories WP\": {\n      \"multi_select\": {{$json['Catégories WP'].map(c => ({name: c}))}}\n    },\n    \"Tags WP\": {\n      \"multi_select\": {{$json['Tags WP'].map(t => ({name: t}))}}\n    },\n    \"Auteur WP\": {\n      \"rich_text\": [\n        {\n          \"text\": {\n            \"content\": \"{{$json['Auteur WP']}}\"\n          }\n        }\n      ]\n    },\n    \"Résumé recette\": {\n      \"rich_text\": [\n        {\n          \"text\": {\n            \"content\": \"{{$json['Résumé recette'].substring(0, 2000)}}\"\n          }\n        }\n      ]\n    },\n    \"Ingrédients JSON\": {\n      \"rich_text\": [\n        {\n          \"text\": {\n            \"content\": \"{{$json['Ingrédients JSON'].substring(0, 2000)}}\"\n          }\n        }\n      ]\n    },\n    \"Instructions JSON\": {\n      \"rich_text\": [\n        {\n          \"text\": {\n            \"content\": \"{{$json['Instructions JSON'].substring(0, 2000)}}\"\n          }\n        }\n      ]\n    },\n    \"Temps préparation\": {\n      \"number\": {{$json['Temps préparation']}}\n    },\n    \"Temps cuisson\": {\n      \"number\": {{$json['Temps cuisson']}}\n    },\n    \"Temps repos\": {\n      \"number\": {{$json['Temps repos']}}\n    },\n    \"Nombre portions\": {\n      \"number\": {{$json['Nombre portions']}}\n    },\n    \"Type portion\": {\n      \"rich_text\": [\n        {\n          \"text\": {\n            \"content\": \"{{$json['Type portion']}}\"\n          }\n        }\n      ]\n    },\n    \"Difficulté\": {\n      \"select\": {\n        \"name\": \"{{$json.Difficulté}}\"\n      }\n    },\n    \"Cuisine\": {\n      \"select\": {\n        \"name\": \"{{$json.Cuisine}}\"\n      }\n    },\n    \"Calories\": {\n      \"number\": {{$json.Calories}}\n    },\n    \"Protéines\": {\n      \"number\": {{$json.Protéines}}\n    },\n    \"Glucides\": {\n      \"number\": {{$json.Glucides}}\n    },\n    \"Lipides\": {\n      \"number\": {{$json.Lipides}}\n    },\n    \"Lipides saturés\": {\n      \"number\": {{$json['Lipides saturés']}}\n    },\n    \"Cholestérol\": {\n      \"number\": {{$json.Cholestérol}}\n    },\n    \"Sodium\": {\n      \"number\": {{$json.Sodium}}\n    },\n    \"Potassium\": {\n      \"number\": {{$json.Potassium}}\n    },\n    \"Fibres\": {\n      \"number\": {{$json.Fibres}}\n    },\n    \"Sucre\": {\n      \"number\": {{$json.Sucre}}\n    },\n    \"Vitamine A\": {\n      \"number\": {{$json['Vitamine A']}}\n    },\n    \"Vitamine C\": {\n      \"number\": {{$json['Vitamine C']}}\n    },\n    \"Calcium\": {\n      \"number\": {{$json.Calcium}}\n    },\n    \"Fer\": {\n      \"number\": {{$json.Fer}}\n    },\n    \"Note moyenne\": {\n      \"number\": {{$json['Note moyenne']}}\n    },\n    \"Nombre avis\": {\n      \"number\": {{$json['Nombre avis']}}\n    },\n    \"Notes recette\": {\n      \"rich_text\": [\n        {\n          \"text\": {\n            \"content\": \"{{$json['Notes recette'].substring(0, 2000)}}\"\n          }\n        }\n      ]\n    },\n    \"URL vidéo\": {\n      \"url\": \"{{$json['URL vidéo']}}\"\n    },\n    \"Langue\": {\n      \"select\": {\n        \"name\": \"FR\"\n      }\n    },\n    \"Schema.org injecté\": {\n      \"checkbox\": {{$json['Schema.org injecté'] === '__YES__'}}\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -992,
+        -48
+      ],
+      "id": "e37f545d-8fed-4ef6-a1e5-bf46daa067b7",
+      "name": "HTTP Request",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"parent\": {\n    \"type\": \"database_id\",\n    \"database_id\": \"62f832d8-3c0b-4abd-a4a9-76f0e0b3f5e9\"\n  },\n  \"properties\": {\n    \"Name\": {\n      \"title\": [{\n        \"text\": { \"content\": $json.Name || \"Sans titre\" }\n      }]\n    },\n    \"ID WordPress\": {\n      \"number\": $json[\"ID WordPress\"]\n    },\n    \"Slug WordPress\": $json[\"Slug WordPress\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Slug WordPress\"] }\n      }]\n    } : undefined,\n    \"URL WordPress\": $json[\"URL WordPress\"] ? {\n      \"url\": $json[\"URL WordPress\"]\n    } : undefined,\n    \"Featured Image URL\": $json[\"Featured Image URL\"] ? {\n      \"url\": $json[\"Featured Image URL\"]\n    } : undefined,\n    \"Date création WP\": $json[\"date:Date création WP:start\"] ? {\n      \"date\": { \"start\": $json[\"date:Date création WP:start\"] }\n    } : undefined,\n    \"Date modification WP\": $json[\"date:Date modification WP:start\"] ? {\n      \"date\": { \"start\": $json[\"date:Date modification WP:start\"] }\n    } : undefined,\n    \"Date publication\": $json[\"date:Date publication:start\"] ? {\n      \"date\": { \"start\": $json[\"date:Date publication:start\"] }\n    } : undefined,\n    \"Dernière synchro\": $json[\"date:Dernière synchro:start\"] ? {\n      \"date\": { \"start\": $json[\"date:Dernière synchro:start\"] }\n    } : undefined,\n    \"Statut WP\": $json[\"Statut WP\"] ? {\n      \"select\": { \"name\": $json[\"Statut WP\"] }\n    } : undefined,\n    \"Statut\": $json.Statut ? {\n      \"select\": { \"name\": $json.Statut }\n    } : undefined,\n    \"Contenu original\": $json[\"Contenu original\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Contenu original\"].substring(0, 2000) }\n      }]\n    } : undefined,\n    \"Nombre de mots\": $json[\"Nombre de mots\"] ? {\n      \"number\": $json[\"Nombre de mots\"]\n    } : undefined,\n    \"Catégories WP\": $json[\"Catégories WP\"]?.length > 0 ? {\n      \"multi_select\": $json[\"Catégories WP\"].map(c => ({ name: c }))\n    } : undefined,\n    \"Tags WP\": $json[\"Tags WP\"]?.length > 0 ? {\n      \"multi_select\": $json[\"Tags WP\"].map(t => ({ name: t }))\n    } : undefined,\n    \"Auteur WP\": $json[\"Auteur WP\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Auteur WP\"] }\n      }]\n    } : undefined,\n    \"Résumé recette\": $json[\"Résumé recette\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Résumé recette\"].substring(0, 2000) }\n      }]\n    } : undefined,\n    \"Ingrédients JSON\": $json[\"Ingrédients JSON\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Ingrédients JSON\"].substring(0, 2000) }\n      }]\n    } : undefined,\n    \"Instructions JSON\": $json[\"Instructions JSON\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Instructions JSON\"].substring(0, 2000) }\n      }]\n    } : undefined,\n    \"Temps préparation\": $json[\"Temps préparation\"] ? {\n      \"number\": $json[\"Temps préparation\"]\n    } : undefined,\n    \"Temps cuisson\": $json[\"Temps cuisson\"] ? {\n      \"number\": $json[\"Temps cuisson\"]\n    } : undefined,\n    \"Temps repos\": $json[\"Temps repos\"] ? {\n      \"number\": $json[\"Temps repos\"]\n    } : undefined,\n    \"Nombre portions\": $json[\"Nombre portions\"] ? {\n      \"number\": $json[\"Nombre portions\"]\n    } : undefined,\n    \"Type portion\": $json[\"Type portion\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Type portion\"] }\n      }]\n    } : undefined,\n    \"Difficulté\": $json.Difficulté ? {\n      \"select\": { \"name\": $json.Difficulté }\n    } : undefined,\n    \"Cuisine\": $json.Cuisine ? {\n      \"select\": { \"name\": $json.Cuisine }\n    } : undefined,\n    \"Calories\": $json.Calories ? { \"number\": $json.Calories } : undefined,\n    \"Protéines\": $json.Protéines ? { \"number\": $json.Protéines } : undefined,\n    \"Glucides\": $json.Glucides ? { \"number\": $json.Glucides } : undefined,\n    \"Lipides\": $json.Lipides ? { \"number\": $json.Lipides } : undefined,\n    \"Lipides saturés\": $json[\"Lipides saturés\"] ? { \"number\": $json[\"Lipides saturés\"] } : undefined,\n    \"Cholestérol\": $json.Cholestérol ? { \"number\": $json.Cholestérol } : undefined,\n    \"Sodium\": $json.Sodium ? { \"number\": $json.Sodium } : undefined,\n    \"Potassium\": $json.Potassium ? { \"number\": $json.Potassium } : undefined,\n    \"Fibres\": $json.Fibres ? { \"number\": $json.Fibres } : undefined,\n    \"Sucre\": $json.Sucre ? { \"number\": $json.Sucre } : undefined,\n    \"Vitamine A\": $json[\"Vitamine A\"] ? { \"number\": $json[\"Vitamine A\"] } : undefined,\n    \"Vitamine C\": $json[\"Vitamine C\"] ? { \"number\": $json[\"Vitamine C\"] } : undefined,\n    \"Calcium\": $json.Calcium ? { \"number\": $json.Calcium } : undefined,\n    \"Fer\": $json.Fer ? { \"number\": $json.Fer } : undefined,\n    \"Note moyenne\": $json[\"Note moyenne\"] ? { \"number\": $json[\"Note moyenne\"] } : undefined,\n    \"Nombre avis\": $json[\"Nombre avis\"] ? { \"number\": $json[\"Nombre avis\"] } : undefined,\n    \"Notes recette\": $json[\"Notes recette\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Notes recette\"].substring(0, 2000) }\n      }]\n    } : undefined,\n    \"URL vidéo\": $json[\"URL vidéo\"] ? { \"url\": $json[\"URL vidéo\"] } : undefined,\n    \"Langue\": { \"select\": { \"name\": \"FR\" } },\n    \"Schema.org injecté\": {\n      \"checkbox\": $json[\"Schema.org injecté\"] === \"__YES__\"\n    }\n  }\n}) }}",
+        "options": {}
+      },
+      "id": "d6ccc97a-7131-4a00-a892-1779593817f8",
+      "name": "7a. Créer dans Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -464,
+        -16
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.camille-patisserie.com/wp-json/wp/v2/posts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "options": {
+          "pagination": {}
+        }
+      },
+      "id": "8f50c1cf-7d0d-431f-8d8d-8f228e18c815",
+      "name": "1. Récupérer tous les posts WP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1168,
+        352
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "4HwGaxXsrPGFcqPs",
+          "name": "Wordpress account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst totalCreated = items.filter(i => i.json.created === 1).length;\nconst totalUpdated = items.filter(i => i.json.updated === 1).length;\nconst totalProcessed = items.length;\n\nreturn [{\n  json: {\n    total_created: totalCreated,\n    total_updated: totalUpdated,\n    total_processed: totalProcessed,\n    sync_date: new Date().toISOString(),\n    message: `Synchronisation terminée : ${totalCreated} créées, ${totalUpdated} mises à jour sur ${totalProcessed} recettes`\n  }\n}];"
+      },
+      "id": "9efcb415-6fcf-4a2c-8170-6752caffd741",
+      "name": "9. Résumé final1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "created",
+              "name": "created",
+              "value": "={{$itemIndex >= 0 && $('7a. Créer dans Notion').all().length > $itemIndex ? 1 : 0}}",
+              "type": "number"
+            },
+            {
+              "id": "updated",
+              "name": "updated",
+              "value": "={{$itemIndex >= 0 && $('7b. Mettre à jour dans Notion1').all().length > $itemIndex ? 1 : 0}}",
+              "type": "number"
+            },
+            {
+              "id": "name",
+              "name": "recipe_name",
+              "value": "={{$json.Name}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b51de6c7-8b7e-4f04-a389-2f4a69d78240",
+      "name": "8. Fusionner les résultats1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        272,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/pages/{{$('5. Chercher si existe déjà1').item.json.id}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"properties\": {\n    \"Date modification WP\": $json[\"date:Date modification WP:start\"] ? {\n      \"date\": { \"start\": $json[\"date:Date modification WP:start\"] }\n    } : undefined,\n    \"Dernière synchro\": $json[\"date:Dernière synchro:start\"] ? {\n      \"date\": { \"start\": $json[\"date:Dernière synchro:start\"] }\n    } : undefined,\n    \"Statut WP\": $json[\"Statut WP\"] ? {\n      \"select\": { \"name\": $json[\"Statut WP\"] }\n    } : undefined,\n    \"Contenu original\": $json[\"Contenu original\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Contenu original\"].substring(0, 2000) }\n      }]\n    } : undefined,\n    \"Nombre de mots\": $json[\"Nombre de mots\"] ? {\n      \"number\": $json[\"Nombre de mots\"]\n    } : undefined,\n    \"Featured Image URL\": $json[\"Featured Image URL\"] ? {\n      \"url\": $json[\"Featured Image URL\"]\n    } : undefined,\n    \"Ingrédients JSON\": $json[\"Ingrédients JSON\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Ingrédients JSON\"].substring(0, 2000) }\n      }]\n    } : undefined,\n    \"Instructions JSON\": $json[\"Instructions JSON\"] ? {\n      \"rich_text\": [{\n        \"text\": { \"content\": $json[\"Instructions JSON\"].substring(0, 2000) }\n      }]\n    } : undefined,\n    \"Note moyenne\": $json[\"Note moyenne\"] ? { \"number\": $json[\"Note moyenne\"] } : undefined,\n    \"Nombre avis\": $json[\"Nombre avis\"] ? { \"number\": $json[\"Nombre avis\"] } : undefined\n  }\n}) }}",
+        "options": {}
+      },
+      "id": "57e9f5c3-e7d2-423c-84e1-56d6f28ff07c",
+      "name": "7b. Mettre à jour dans Notion1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        64,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "exists",
+              "leftValue": "={{$('5. Chercher si existe déjà1').item.json.id}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fa84ba1c-609d-4bb2-beac-10e69a63e536",
+      "name": "6. Existe dans Notion ?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "search"
+      },
+      "id": "32a40154-0421-456d-9271-e9bf08cf6a29",
+      "name": "5. Chercher si existe déjà1",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine les données WordPress et WPRM\nconst item = $input.item;\nconst wpPost = item.json.post;\nconst wprmRecipe = item.json.recipe || item.json;\n\n// Fonctions helper\nfunction formatDateForNotion(dateString) {\n  if (!dateString) return null;\n  try {\n    return new Date(dateString).toISOString();\n  } catch (e) {\n    return null;\n  }\n}\n\nfunction getFeaturedImageUrl(post) {\n  try {\n    return post._embedded?.['wp:featuredmedia']?.[0]?.source_url || null;\n  } catch (e) {\n    return null;\n  }\n}\n\nfunction getCategories(post) {\n  try {\n    const terms = post._embedded?.['wp:term'] || [];\n    return terms.flat()\n      .filter(t => t.taxonomy === 'category')\n      .map(c => c.name);\n  } catch (e) {\n    return [];\n  }\n}\n\nfunction getTags(post) {\n  try {\n    const terms = post._embedded?.['wp:term'] || [];\n    return terms.flat()\n      .filter(t => t.taxonomy === 'post_tag')\n      .map(t => t.name);\n  } catch (e) {\n    return [];\n  }\n}\n\nfunction countWords(html) {\n  if (!html) return 0;\n  const text = html.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\n  return text.split(' ').filter(w => w.length > 0).length;\n}\n\nfunction cleanHtml(html) {\n  if (!html) return null;\n  return html.replace(/<[^>]*>/g, '').replace(/\\s+/g, ' ').trim();\n}\n\nfunction mapDifficulty(wprmDifficulty) {\n  const mapping = {\n    'easy': 'Facile',\n    'facile': 'Facile',\n    'medium': 'Moyenne',\n    'moyenne': 'Moyenne',\n    'hard': 'Difficile',\n    'difficile': 'Difficile'\n  };\n  if (!wprmDifficulty) return null;\n  return mapping[wprmDifficulty.toString().toLowerCase()] || null;\n}\n\nfunction mapCuisine(wprmCuisine) {\n  const mapping = {\n    'française': 'Française',\n    'french': 'Française',\n    'italienne': 'Italienne',\n    'italian': 'Italienne',\n    'américaine': 'Américaine',\n    'american': 'Américaine',\n    'britannique': 'Britannique',\n    'british': 'Britannique'\n  };\n  if (!wprmCuisine) return null;\n  const cuisine = wprmCuisine.toString().toLowerCase();\n  return mapping[cuisine] || 'Autre';\n}\n\n// Extraire les données de la recette WPRM\nconst recipe = wprmRecipe.recipe || wprmRecipe;\n\n// Construction de l'objet pour Notion\nconst notionData = {\n  // Identification\n  \"ID WordPress\": wpPost.id,\n  \"Name\": wpPost.title?.rendered || recipe.name || \"Sans titre\",\n  \"Slug WordPress\": wpPost.slug,\n  \"URL WordPress\": wpPost.link,\n  \"Featured Image URL\": getFeaturedImageUrl(wpPost),\n  \n  // Dates\n  \"date:Date création WP:start\": formatDateForNotion(wpPost.date),\n  \"date:Date création WP:is_datetime\": 1,\n  \"date:Date modification WP:start\": formatDateForNotion(wpPost.modified),\n  \"date:Date modification WP:is_datetime\": 1,\n  \"date:Date publication:start\": wpPost.status === 'publish' ? formatDateForNotion(wpPost.date) : null,\n  \"date:Date publication:is_datetime\": 1,\n  \"date:Dernière synchro:start\": new Date().toISOString(),\n  \"date:Dernière synchro:is_datetime\": 1,\n  \n  // Statut\n  \"Statut WP\": wpPost.status,\n  \"Statut\": wpPost.status === 'publish' ? 'Publié' : 'À optimiser',\n  \n  // Contenu\n  \"Contenu original\": wpPost.content?.rendered || null,\n  \"Nombre de mots\": countWords(wpPost.content?.rendered),\n  \n  // Taxonomies\n  \"Catégories WP\": getCategories(wpPost),\n  \"Tags WP\": getTags(wpPost),\n  \n  // Auteur\n  \"Auteur WP\": wpPost._embedded?.author?.[0]?.name || null,\n  \n  // Données WPRM de la recette\n  \"Résumé recette\": cleanHtml(recipe.summary) || cleanHtml(wpPost.excerpt?.rendered),\n  \"Ingrédients JSON\": recipe.ingredients ? JSON.stringify(recipe.ingredients) : null,\n  \"Instructions JSON\": recipe.instructions ? JSON.stringify(recipe.instructions) : null,\n  \n  // Temps (en minutes)\n  \"Temps préparation\": recipe.prep_time || recipe.prepTime || null,\n  \"Temps cuisson\": recipe.cook_time || recipe.cookTime || null,\n  \"Temps repos\": recipe.rest_time || recipe.restTime || null,\n  \n  // Portions\n  \"Nombre portions\": recipe.servings || recipe.yield || null,\n  \"Type portion\": recipe.servings_unit || recipe.servingsUnit || recipe.yieldUnit || null,\n  \n  // Difficulté et cuisine\n  \"Difficulté\": mapDifficulty(recipe.difficulty),\n  \"Cuisine\": mapCuisine(recipe.cuisine),\n  \n  // Nutrition\n  \"Calories\": recipe.nutrition?.calories || null,\n  \"Protéines\": recipe.nutrition?.protein || null,\n  \"Glucides\": recipe.nutrition?.carbohydrates || null,\n  \"Lipides\": recipe.nutrition?.fat || null,\n  \"Lipides saturés\": recipe.nutrition?.saturated_fat || recipe.nutrition?.saturatedFat || null,\n  \"Cholestérol\": recipe.nutrition?.cholesterol || null,\n  \"Sodium\": recipe.nutrition?.sodium || null,\n  \"Potassium\": recipe.nutrition?.potassium || null,\n  \"Fibres\": recipe.nutrition?.fiber || recipe.nutrition?.fibre || null,\n  \"Sucre\": recipe.nutrition?.sugar || null,\n  \"Vitamine A\": recipe.nutrition?.vitamin_a || recipe.nutrition?.vitaminA || null,\n  \"Vitamine C\": recipe.nutrition?.vitamin_c || recipe.nutrition?.vitaminC || null,\n  \"Calcium\": recipe.nutrition?.calcium || null,\n  \"Fer\": recipe.nutrition?.iron || null,\n  \n  // Notes et avis\n  \"Note moyenne\": recipe.rating?.average || recipe.rating || null,\n  \"Nombre avis\": recipe.rating?.count || recipe.ratingCount || null,\n  \"Notes recette\": cleanHtml(recipe.notes) || null,\n  \n  // URL vidéo\n  \"URL vidéo\": recipe.video?.url || recipe.video_url || recipe.videoUrl || recipe.video || null,\n  \n  // Langue\n  \"Langue\": \"FR\",\n  \n  // Schema.org\n  \"Schema.org injecté\": recipe.id || recipe.name ? \"__YES__\" : \"__NO__\"\n};\n\nconsole.log('Données transformées pour:', notionData.Name);\nreturn [{ json: notionData }];"
+      },
+      "id": "1f325a91-7738-4215-b832-c8a5545afac1",
+      "name": "4. Transformer les données1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -544,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.WORDPRESS_URL}}/wp-json/wp-recipe-maker/v1/recipe/{{$json.wprm_recipe_ids[0]}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "49cb5763-d522-43c4-9f2a-e8c8c64419e1",
+      "name": "3. Récupérer données WPRM1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -736,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrait les posts qui contiennent des recettes WPRM\nconst items = $input.all();\nconst postsWithRecipes = [];\n\nfor (const item of items) {\n  const post = item.json;\n  const content = post.content?.rendered || '';\n  \n  // Chercher les shortcodes WPRM [wprm-recipe id=\"xxx\"]\n  const wprmPattern = /\\[wprm-recipe\\s+id=\"(\\d+)\"\\]/g;\n  const matches = [...content.matchAll(wprmPattern)];\n  \n  if (matches.length > 0) {\n    const recipeIds = matches.map(m => m[1]);\n    \n    postsWithRecipes.push({\n      json: {\n        post: post,\n        wprm_recipe_ids: recipeIds,\n        has_wprm_recipe: true\n      }\n    });\n  }\n}\n\nconsole.log(`Trouvé ${postsWithRecipes.length} posts avec recettes WPRM`);\nreturn postsWithRecipes;"
+      },
+      "id": "b4b401c3-3a35-4df5-b8fa-d5ad6786099c",
+      "name": "2. Filtrer les posts avec WPRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -944,
+        528
+      ]
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-03T09:19:39.116Z",
+      "updatedAt": "2025-11-03T09:19:39.116Z",
+      "role": "workflow:owner",
+      "workflowId": "HvVxkSgzV51NhNyU",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-27T08:51:07.995Z",
+      "updatedAt": "2025-10-27T08:51:07.995Z",
+      "id": "1r4YFJ7ejhYpl2Kq",
+      "name": "Blog"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-04T07:18:28.374Z",
+  "versionId": "cf0d43d8-b206-42e5-822b-449791f5483e"
+}
