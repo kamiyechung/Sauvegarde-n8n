@@ -1,0 +1,161 @@
+{
+  "active": false,
+  "connections": {
+    "When called by another workflow": {
+      "main": [
+        [
+          {
+            "node": "Export Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Formater message Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formater message Slack": {
+      "main": [
+        [
+          {
+            "node": "Envoyer Slack (optionnel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-02T15:55:15.141Z",
+  "id": "fZPBRwWIjBAfXmzN",
+  "isArchived": false,
+  "meta": null,
+  "name": "[SEO] Export multi-canal",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "0c91f277-9af8-450e-bc01-ea98f1a10393",
+      "name": "When called by another workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1CZzCyU5dpa6Rj0MsQsCZ25BRPKqidLbWPAILc5NyCZI",
+          "mode": "list",
+          "cachedResultName": "reporting camille-patisserie",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CZzCyU5dpa6Rj0MsQsCZ25BRPKqidLbWPAILc5NyCZI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Report",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CZzCyU5dpa6Rj0MsQsCZ25BRPKqidLbWPAILc5NyCZI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "1b0d8e41-f007-475a-8e80-f1e69ad0f406",
+      "name": "Export Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        -288
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "d8fhI2rac8ip6RZc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Préparer un message Slack condensé\nconst data = $json.data;\n\nconst clicksEmoji = parseFloat(data.global.variations.clicks) >= 0 ? '📈' : '📉';\nconst impressionsEmoji = parseFloat(data.global.variations.impressions) >= 0 ? '📈' : '📉';\n\nlet alertsText = '';\nif (data.alerts.length > 0) {\n  alertsText = '\\n\\n*Alertes :*\\n' + data.alerts.map(a => `• ${a}`).join('\\n');\n}\n\nconst slackMessage = `📊 *Rapport SEO Hebdomadaire*\n\n*Site :* ${data.siteUrl}\n*Période :* ${data.period.current}\n\n*Métriques clés :*\n${clicksEmoji} Clicks : *${data.global.current.clicks.toLocaleString('fr-FR')}* (${data.global.variations.clicks}%)\n${impressionsEmoji} Impressions : *${data.global.current.impressions.toLocaleString('fr-FR')}* (${data.global.variations.impressions}%)\n📊 CTR : *${data.global.current.ctr}%* (${data.global.variations.ctr}%)\n📍 Position : *${data.global.current.position}* (${data.global.variations.position})\n${alertsText}\n\n*Quick Stats :*\n• ${data.pagesInDecline.length} page(s) en forte baisse\n• ${data.pagesInGrowth.length} page(s) en forte hausse\n• ${data.lowCTROpportunities.length} opportunité(s) CTR\n\n📧 Rapport complet envoyé par email`;\n\nreturn [{\n  json: {\n    text: slackMessage,\n    channel: '#seo-reports', // CHANGE ICI\n    username: 'SEO Bot',\n    icon_emoji: ':chart_with_upwards_trend:'\n  }\n}];"
+      },
+      "id": "c6ba5afc-b974-47e3-a726-77cfea187101",
+      "name": "Formater message Slack",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "id": "f56e6e92-1b8e-4710-b9e4-76ec3c5f1f5e",
+      "name": "Envoyer Slack (optionnel)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        -192
+      ],
+      "webhookId": "86dae37c-cbc4-4425-a677-ec6cd85cdf7e",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "camille.bideau@gmail.com",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        -32
+      ],
+      "id": "6e56b245-23d3-4896-9a5d-3c45227e73ee",
+      "name": "Send a message",
+      "webhookId": "8e7fccf6-5120-4ce0-9dfb-0e6fa98dd187",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4VGNotVfv2WoVNVJ",
+          "name": "Gmail MCP checkintrust"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-02T15:55:15.141Z",
+      "updatedAt": "2025-11-02T15:55:15.141Z",
+      "role": "workflow:owner",
+      "workflowId": "fZPBRwWIjBAfXmzN",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-02T15:55:15.141Z",
+  "versionId": "868f3e04-7da3-4982-9e2f-3a4de11f30a6"
+}
