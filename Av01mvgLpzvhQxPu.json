@@ -1,0 +1,181 @@
+{
+  "active": false,
+  "connections": {
+    "When called by another workflow": {
+      "main": [
+        [
+          {
+            "node": "A des données ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A des données ?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message si pas de données",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message si pas de données": {
+      "main": [
+        [
+          {
+            "node": "Formater sortie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-02T15:45:18.614Z",
+  "id": "Av01mvgLpzvhQxPu",
+  "isArchived": false,
+  "meta": null,
+  "name": "[SEO] Analyse IA - Pages en déclin",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "24a25301-bb23-4768-a10f-c6978d8233fe",
+      "name": "When called by another workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.pagesInDecline.length }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "e16003ea-b8ec-42a9-8d11-1b939b36236a",
+      "name": "A des données ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{\n  json: {\n    type: 'declining_pages',\n    analysis: 'Aucune page en forte baisse cette semaine. C\\'est une bonne nouvelle !',\n    metadata: {\n      siteUrl: $input.first().json.siteUrl,\n      siteNiche: $input.first().json.siteNiche,\n      period: $input.first().json.period\n    }\n  }\n}];"
+      },
+      "id": "aa070b66-bfdd-4fdf-ab1f-1dfbe62981d3",
+      "name": "Message si pas de données",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        512,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const input = $input.first().json;\nconst aiResponse = input.content?.[0]?.text || input.response || input.analysis;\n\nreturn [{\n  json: {\n    type: 'declining_pages',\n    analysis: aiResponse,\n    pagesCount: input.pagesInDecline?.length || 0,\n    metadata: {\n      siteUrl: input.siteUrl,\n      siteNiche: input.siteNiche,\n      period: input.period\n    }\n  }\n}];"
+      },
+      "id": "1cd3314a-9247-4322-a579-648b063e6c65",
+      "name": "Formater sortie",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        -416
+      ],
+      "id": "b7e2c657-349e-41ea-a0ae-41eaf85f4cde",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        -240
+      ],
+      "id": "a6ad8d7b-d141-4617-8b1d-e17af73730f3",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-02T15:45:18.614Z",
+      "updatedAt": "2025-11-02T15:45:18.614Z",
+      "role": "workflow:owner",
+      "workflowId": "Av01mvgLpzvhQxPu",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-02T15:45:18.614Z",
+  "versionId": "ca4894aa-657d-4d06-aa12-39331cfa8ee3"
+}
