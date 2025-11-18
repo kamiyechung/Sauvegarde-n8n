@@ -1,0 +1,40 @@
+{
+  "active": false,
+  "connections": {},
+  "createdAt": "2025-10-25T06:47:15.473Z",
+  "id": "SdphMMtFKXI4odKO",
+  "isArchived": false,
+  "meta": null,
+  "name": "[Blog] Correction des liens",
+  "nodes": [],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-25T06:47:15.473Z",
+      "updatedAt": "2025-10-25T06:47:15.473Z",
+      "role": "workflow:owner",
+      "workflowId": "SdphMMtFKXI4odKO",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-27T08:51:07.995Z",
+      "updatedAt": "2025-10-27T08:51:07.995Z",
+      "id": "1r4YFJ7ejhYpl2Kq",
+      "name": "Blog"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-27T08:51:20.074Z",
+  "versionId": "9bc1d4e2-3cd5-4364-a2a6-e21f723f93b6"
+}
