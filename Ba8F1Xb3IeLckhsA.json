@@ -1,0 +1,491 @@
+{
+  "active": false,
+  "connections": {
+    "Démarrage manuel": {
+      "main": [
+        [
+          {
+            "node": "1. Récupérer recettes à traduire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Récupérer recettes à traduire": {
+      "main": [
+        [
+          {
+            "node": "2. Extraire les champs à traduire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Extraire les champs à traduire": {
+      "main": [
+        [
+          {
+            "node": "3. Traduire avec Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Traduire avec Claude": {
+      "main": [
+        [
+          {
+            "node": "4. Parser la traduction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Parser la traduction": {
+      "main": [
+        [
+          {
+            "node": "5. Créer le post WordPress EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Créer le post WordPress EN": {
+      "main": [
+        [
+          {
+            "node": "6. Créer la recette WPRM EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Créer la recette WPRM EN": {
+      "main": [
+        [
+          {
+            "node": "7. Lier la recette au post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7. Lier la recette au post": {
+      "main": [
+        [
+          {
+            "node": "8. Lier avec WPML (optionnel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Lier avec WPML (optionnel)": {
+      "main": [
+        [
+          {
+            "node": "9. Mettre à jour Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "9. Mettre à jour Notion": {
+      "main": [
+        [
+          {
+            "node": "10. Formater le résultat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-03T10:16:14.216Z",
+  "id": "Ba8F1Xb3IeLckhsA",
+  "isArchived": false,
+  "meta": null,
+  "name": "Traduire recettes Notion → WordPress",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "610ff46b-3c67-46da-a300-1d465f0d1705",
+      "name": "Démarrage manuel",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "898d628c-c2fb-4d78-9ebe-aed4558aeef9",
+          "mode": "list",
+          "cachedResultName": "Articles",
+          "cachedResultUrl": "https://www.notion.so/898d628cc2fb4d789ebeaed4558aeef9"
+        },
+        "limit": 5,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "options": {}
+      },
+      "id": "a1afef1e-d175-4f27-8bf8-c8ccf9687d17",
+      "name": "1. Récupérer recettes à traduire",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      },
+      "notes": "Récupère les recettes FR marquées pour traduction"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "recipe-id",
+              "name": "notion_page_id",
+              "value": "={{$json.id}}",
+              "type": "string"
+            },
+            {
+              "id": "recipe-name",
+              "name": "recipe_name_fr",
+              "value": "={{$json.properties.Name.title[0].plain_text}}",
+              "type": "string"
+            },
+            {
+              "id": "resume",
+              "name": "resume_fr",
+              "value": "={{$json.properties['Résumé recette']?.rich_text[0]?.plain_text || ''}}",
+              "type": "string"
+            },
+            {
+              "id": "ingredients",
+              "name": "ingredients_json_fr",
+              "value": "={{$json.properties['Ingrédients JSON']?.rich_text[0]?.plain_text || ''}}",
+              "type": "string"
+            },
+            {
+              "id": "instructions",
+              "name": "instructions_json_fr",
+              "value": "={{$json.properties['Instructions JSON']?.rich_text[0]?.plain_text || ''}}",
+              "type": "string"
+            },
+            {
+              "id": "notes",
+              "name": "notes_fr",
+              "value": "={{$json.properties['Notes recette']?.rich_text[0]?.plain_text || ''}}",
+              "type": "string"
+            },
+            {
+              "id": "wordpress-id",
+              "name": "wordpress_id_fr",
+              "value": "={{$json.properties['ID WordPress']?.number}}",
+              "type": "number"
+            },
+            {
+              "id": "meta-title",
+              "name": "title_meta_fr",
+              "value": "={{$json.properties['Title meta']?.rich_text[0]?.plain_text || ''}}",
+              "type": "string"
+            },
+            {
+              "id": "meta-desc",
+              "name": "description_meta_fr",
+              "value": "={{$json.properties['Description meta']?.rich_text[0]?.plain_text || ''}}",
+              "type": "string"
+            },
+            {
+              "id": "target-lang",
+              "name": "target_language",
+              "value": "EN",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ea097581-5568-482c-99e9-5b14badd6b27",
+      "name": "2. Extraire les champs à traduire",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4000,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": `Tu es un traducteur expert spécialisé en recettes de cuisine. Tu dois traduire cette recette du français vers l'anglais en respectant ces règles :\n\n1. Traduis UNIQUEMENT le texte, garde la structure JSON intacte\n2. Pour les ingrédients : traduis les noms mais garde les quantités exactes\n3. Pour les instructions : traduis les étapes en gardant la numérotation\n4. Utilise un ton professionnel mais accessible\n5. Respecte les termes culinaires anglais standards\n6. Ne traduis PAS les noms propres\n\nVoici les données à traduire :\n\n## TITRE\n${$json.recipe_name_fr}\n\n## RÉSUMÉ\n${$json.resume_fr}\n\n## INGRÉDIENTS (JSON)\n${$json.ingredients_json_fr}\n\n## INSTRUCTIONS (JSON)\n${$json.instructions_json_fr}\n\n## NOTES\n${$json.notes_fr}\n\n## TITLE META (SEO)\n${$json.title_meta_fr}\n\n## DESCRIPTION META (SEO)\n${$json.description_meta_fr}\n\nRéponds UNIQUEMENT avec un JSON structuré comme ceci (sans markdown, sans backticks) :\n{\n  \"title\": \"titre traduit\",\n  \"summary\": \"résumé traduit\",\n  \"ingredients_json\": \"JSON des ingrédients traduits\",\n  \"instructions_json\": \"JSON des instructions traduites\",\n  \"notes\": \"notes traduites\",\n  \"title_meta\": \"title meta traduit\",\n  \"description_meta\": \"description meta traduite\"\n}`\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "3b074b4f-bf48-4f3a-a3aa-5c015deb70c2",
+      "name": "3. Traduire avec Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        608,
+        0
+      ],
+      "notes": "Utilise Claude pour traduire tous les champs"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extraire la réponse de Claude et parser le JSON\nconst item = $input.item;\nconst claudeResponse = item.json.content[0].text;\n\n// Nettoyer la réponse (enlever les backticks markdown si présents)\nlet cleanedResponse = claudeResponse\n  .replace(/```json\\n?/g, '')\n  .replace(/```\\n?/g, '')\n  .trim();\n\n// Parser le JSON\ntry {\n  const translation = JSON.parse(cleanedResponse);\n  \n  // Retourner les données traduites avec les infos originales\n  return [{\n    json: {\n      // IDs et références\n      notion_page_id: item.json.notion_page_id,\n      wordpress_id_fr: item.json.wordpress_id_fr,\n      target_language: item.json.target_language,\n      \n      // Données traduites\n      title_en: translation.title,\n      summary_en: translation.summary,\n      ingredients_json_en: translation.ingredients_json,\n      instructions_json_en: translation.instructions_json,\n      notes_en: translation.notes,\n      title_meta_en: translation.title_meta,\n      description_meta_en: translation.description_meta,\n      \n      // Slug généré à partir du titre traduit\n      slug_en: translation.title\n        .toLowerCase()\n        .normalize('NFD')\n        .replace(/[\\u0300-\\u036f]/g, '')\n        .replace(/[^a-z0-9]+/g, '-')\n        .replace(/^-+|-+$/g, '')\n    }\n  }];\n  \n} catch (error) {\n  console.error('Erreur parsing JSON:', error);\n  console.error('Réponse Claude:', cleanedResponse);\n  \n  return [{\n    json: {\n      error: true,\n      error_message: error.message,\n      claude_response: cleanedResponse\n    }\n  }];\n}"
+      },
+      "id": "de17c385-ba74-4b37-acdb-460e798e6bb7",
+      "name": "4. Parser la traduction",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.WORDPRESS_URL}}/wp-json/wp/v2/posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"{{ $json.title_en }}\",\n  \"slug\": \"{{ $json.slug_en }}\",\n  \"content\": \"[wprm-recipe id=\\\"EN_TEMP\\\"]\",\n  \"excerpt\": \"{{ $json.summary_en }}\",\n  \"status\": \"draft\",\n  \"meta\": {\n    \"_yoast_wpseo_title\": \"{{ $json.title_meta_en }}\",\n    \"_yoast_wpseo_metadesc\": \"{{ $json.description_meta_en }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "a9341821-9e35-438e-9163-672ab4bf61a4",
+      "name": "5. Créer le post WordPress EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1008,
+        0
+      ],
+      "notes": "Crée le post WordPress en anglais"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.WORDPRESS_URL}}/wp-json/wp-recipe-maker/v1/recipe",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ \n  const ingredients = JSON.parse($json.ingredients_json_en);\n  const instructions = JSON.parse($json.instructions_json_en);\n  \n  JSON.stringify({\n    \"name\": $json.title_en,\n    \"summary\": $json.summary_en,\n    \"ingredients\": ingredients,\n    \"instructions\": instructions,\n    \"notes\": $json.notes_en\n  })\n}}",
+        "options": {}
+      },
+      "id": "b47c5773-81e4-4aa9-9029-ede8adccdc94",
+      "name": "6. Créer la recette WPRM EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        0
+      ],
+      "notes": "Crée la recette WPRM avec les données traduites"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.WORDPRESS_URL}}/wp-json/wp/v2/posts/{{$('5. Créer le post WordPress EN').item.json.id}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": \"[wprm-recipe id=\\\"{{ $json.id }}\\\"]\"\n}",
+        "options": {}
+      },
+      "id": "aaf615c2-e0ce-455c-a5ef-e7d8bd6f9d92",
+      "name": "7. Lier la recette au post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1408,
+        0
+      ],
+      "notes": "Met à jour le post avec l'ID de la recette WPRM"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.WORDPRESS_URL}}/wp-json/wpml/v1/posts/{{$('5. Créer le post WordPress EN').item.json.id}}/translations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"language\": \"en\",\n  \"original_post_id\": {{ $json.wordpress_id_fr }}\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "6028410e-ca45-4982-b312-f980556a738b",
+      "name": "8. Lier avec WPML (optionnel)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        0
+      ],
+      "notes": "Si vous utilisez WPML, lie les versions FR/EN"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$json.notion_page_id}}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Version EN",
+              "urlValue": "={{$('5. Créer le post WordPress EN').item.json.link}}"
+            },
+            {
+              "key": "Statut",
+              "selectValue": "Publié"
+            },
+            {
+              "key": "Type action"
+            },
+            {
+              "key": "Notes validation"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1832eefa-2a7c-409f-9650-545955569094",
+      "name": "9. Mettre à jour Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        0
+      ],
+      "notes": "Met à jour la page Notion avec le lien EN"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "recipe-name",
+              "name": "recipe_name",
+              "value": "={{$json.title_en}}",
+              "type": "string"
+            },
+            {
+              "id": "url-fr",
+              "name": "url_fr",
+              "value": "={{$env.WORDPRESS_URL}}/{{$json.wordpress_id_fr}}",
+              "type": "string"
+            },
+            {
+              "id": "url-en",
+              "name": "url_en",
+              "value": "={{$('5. Créer le post WordPress EN').item.json.link}}",
+              "type": "string"
+            },
+            {
+              "id": "wprm-id",
+              "name": "wprm_recipe_id_en",
+              "value": "={{$('6. Créer la recette WPRM EN').item.json.id}}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2ac4a842-a742-4c91-af7f-10be52bbdd7f",
+      "name": "10. Formater le résultat",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2000,
+        0
+      ]
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-03T10:16:14.216Z",
+      "updatedAt": "2025-11-03T10:16:14.216Z",
+      "role": "workflow:owner",
+      "workflowId": "Ba8F1Xb3IeLckhsA",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-27T08:51:07.995Z",
+      "updatedAt": "2025-10-27T08:51:07.995Z",
+      "id": "1r4YFJ7ejhYpl2Kq",
+      "name": "Blog"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-04T07:18:37.754Z",
+  "versionId": "390c467a-7009-435e-b961-c6bfd6aa5cdf"
+}
