@@ -1,0 +1,931 @@
+{
+  "active": false,
+  "connections": {
+    "SEO analyst": {
+      "main": [
+        [
+          {
+            "node": "Markdown to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "SEO analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to JSON": {
+      "main": [
+        [
+          {
+            "node": "Split Out to Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get sitemap XML": {
+      "main": [
+        [
+          {
+            "node": "Convert to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Enforce Order - Positions Last",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Get Page GSC Status",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Page GSC Stats",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Google Analytics Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown to HTML": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Output With AI Input",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Sort For Testing Purposes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Page GSC Stats": {
+      "main": [
+        [
+          {
+            "node": "Merge Status and Stats",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Split Out to Table": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Page GSC Status": {
+      "main": [
+        [
+          {
+            "node": "Merge Status and Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Globals - CHANGE ME!": {
+      "main": [
+        [
+          {
+            "node": "Get sitemap XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Status and Stats": {
+      "main": [
+        [
+          {
+            "node": "SEO analyst",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait to Comply with API Limits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Google Analytics Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Status and Stats",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Sort For Testing Purposes": {
+      "main": [
+        [
+          {
+            "node": "Limit for Testing Purposes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Only Valuable Columns": {
+      "main": [
+        [
+          {
+            "node": "Change to HTML table for sending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit for Testing Purposes": {
+      "main": [
+        [
+          {
+            "node": "Enforce Order - Positions Last",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge AI Output With AI Input": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enforce Order - Positions Last": {
+      "main": [
+        [
+          {
+            "node": "Keep Only Valuable Columns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait to Comply with API Limits": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Output With AI Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change to HTML table for sending": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Globals - CHANGE ME!",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "SEO analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email with Full report": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2025-11-12T08:21:40.679Z",
+  "id": "EHj6R0OcfIbzkd5r",
+  "isArchived": false,
+  "meta": null,
+  "name": "Google Search Console and Analytics Analysis with AI Optimizations",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "c6261468-15a8-434b-841d-f8eb9cdbefb2",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1702a081-a3ae-4ef4-b2dc-591405b7bbb9",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1792,
+        304
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "content": "## Get Google Data and Push It Through AI",
+        "height": 640,
+        "width": 1620
+      },
+      "id": "ff99eef4-33bd-477d-bbdf-312892083788",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1664,
+        176
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "f1b1e9fc-a5b5-46bc-861d-054551a27175",
+      "name": "Enforce Order - Positions Last",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2016,
+        -64
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "loc",
+        "options": {}
+      },
+      "id": "254a10f2-5948-4a44-b0a7-596704f09afc",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1120,
+        112
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "content": "## Get All Pages From Sitemap",
+        "height": 320,
+        "width": 880
+      },
+      "id": "34fd07ce-d027-49fc-bf75-e05d91fd59c8",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -64
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Globals - CHANGE ME!').item.json.sitemap_url }}",
+        "options": {}
+      },
+      "id": "4371dc60-fcfd-41cb-b26c-f2063df9a058",
+      "name": "Get sitemap XML",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        448,
+        112
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "956e264e-d10a-438b-bf8b-507ccb6e8e60",
+      "name": "Convert to JSON",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        672,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "urlset.url",
+        "options": {}
+      },
+      "id": "b2dd9cc0-36b5-4ee2-8894-ad90ffba3117",
+      "name": "Split Out to Table",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        896,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "id": "5a4cf617-25ae-4266-bcec-c19915b5a3c0",
+      "name": "Limit for Testing Purposes",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        1568,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "7cd5a667-098a-42ce-803c-f00f5b3721a3",
+      "name": "Wait to Comply with API Limits",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2816,
+        144
+      ],
+      "webhookId": "51b5aeba-6be7-45d4-97fd-4e5cb5a8401b",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "be81885f-3f27-4edd-985d-8dd98908a197",
+              "name": "sitemap_url",
+              "type": "string",
+              "value": "https://camille-patisserie.com/post-sitemap1.xml"
+            },
+            {
+              "id": "c1f4c9ba-9222-4757-a89e-0d67af1d3944",
+              "name": "search_console_selector",
+              "type": "string",
+              "value": "https://camille-patisserie.com/"
+            },
+            {
+              "id": "9c57f9cc-1e94-4174-b622-7533c7776bee",
+              "name": "analysis_start_date",
+              "type": "string",
+              "value": "={{ $now.minus(30,'days').format('yyyy-MM-dd') }}"
+            },
+            {
+              "id": "51dd8171-2300-4574-9c71-56793127bf4a",
+              "name": "analysis_end_date",
+              "type": "string",
+              "value": "={{ $now.format('yyyy-MM-dd') }}"
+            },
+            {
+              "id": "5e09cf25-80d9-44fe-9cf3-e2517bcfc6e6",
+              "name": "analytics_selector_id",
+              "type": "number",
+              "value": "={{ 297804911 }} "
+            },
+            {
+              "id": "5befd844-afe6-44c9-8ecd-c2741d838b19",
+              "name": "report_receiver",
+              "type": "string",
+              "value": "camille.bideau@gmail.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d1dfd684-cd99-43a5-9ee0-f7709de08c9e",
+      "name": "Globals - CHANGE ME!",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        112
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "inspectionUrl",
+              "value": "={{ $json.loc }}"
+            },
+            {
+              "name": "siteUrl",
+              "value": "={{ $('Globals - CHANGE ME!').first().json.search_console_selector }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "04d3d7bc-f55b-4587-8fb1-222b13ac7117",
+      "name": "Get Page GSC Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2016,
+        144
+      ],
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "J06FwdJPTL9kHpV2",
+          "name": "Search console Camille"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "=POST",
+        "url": "={{ \"https://www.googleapis.com/webmasters/v3/sites/\" +\nencodeURIComponent($(\"Globals - CHANGE ME!\").first().json.search_console_selector) +\n\"/searchAnalytics/query\" }}\n\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={\n  \"startDate\": \"2025-10-01\",\n  \"endDate\": \"2025-11-12\",\n  \"dimensions\": [\"page\"],\n  \"dimensionFilterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"dimension\": \"page\",\n          \"operator\": \"equals\",\n          \"expression\": \"https://camille-patisserie.com/recette-patisserie/petit-dejeuner-gouter/sauce-caramel-sel-de-guerande/\"\n        }\n      ]\n    }\n  ],\n  \"rowLimit\": 10\n}\n",
+        "options": {}
+      },
+      "id": "d11c3c11-8c2b-4505-a38f-0de02e0b386f",
+      "name": "Get Page GSC Stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2016,
+        368
+      ],
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "J06FwdJPTL9kHpV2",
+          "name": "Search console Camille"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "=loc",
+        "options": {}
+      },
+      "id": "183ca795-2021-44f1-8a7a-a047edb09f6e",
+      "name": "Merge Status and Stats",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2240,
+        368
+      ],
+      "typeVersion": 3.2,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "propertyId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Globals - CHANGE ME!').first().json.analytics_selector_id }}"
+        },
+        "dateRange": "custom",
+        "startDate": "={{ $('Globals - CHANGE ME!').first().json.analysis_start_date }}",
+        "endDate": "={{ $('Globals - CHANGE ME!').first().json.analysis_end_date }}",
+        "metricsGA4": {
+          "metricValues": [
+            {},
+            {
+              "listName": "screenPageViews"
+            },
+            {
+              "listName": "userEngagementDuration"
+            }
+          ]
+        },
+        "dimensionsGA4": {
+          "dimensionValues": [
+            {
+              "listName": "pageLocation"
+            }
+          ]
+        },
+        "returnAll": true,
+        "additionalFields": {
+          "dimensionFiltersUI": {
+            "filterExpressions": {
+              "expression": {
+                "stringFilter": [
+                  {
+                    "listName": "pageLocation",
+                    "value": "={{ $json.loc }}",
+                    "caseSensitive": false
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "id": "73eff30c-1d85-4ad8-8112-3de0f17fb5ed",
+      "name": "Get Google Analytics Data",
+      "type": "n8n-nodes-base.googleAnalytics",
+      "position": [
+        2016,
+        560
+      ],
+      "typeVersion": 2,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleAnalyticsOAuth2": {
+          "id": "xIVUR3Nuc5ozWOYZ",
+          "name": "Google Analytics account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Make HTTP request to get page data so you can further analyze page for SEO optimizations",
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "id": "965c5019-3ab9-4b03-852c-2007f8ede166",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2720,
+        688
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {},
+      "id": "de01fbf0-63fc-4ce9-bfc8-d199a4108704",
+      "name": "Merge AI Output With AI Input",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3040,
+        496
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output }}",
+        "destinationKey": "output",
+        "options": {}
+      },
+      "id": "82c25013-fa38-4fbe-af94-8ce8ceccc158",
+      "name": "Markdown to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        2816,
+        448
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a86e547-b789-4319-886f-b06120967d64",
+              "name": "loc",
+              "type": "string",
+              "value": "={{ $json.loc }}"
+            },
+            {
+              "id": "8ba00cd3-e45a-439f-b703-8a42dd0628fa",
+              "name": "inspectionResult.indexStatusResult.coverageState",
+              "type": "string",
+              "value": "={{ $json.inspectionResult.indexStatusResult.coverageState }}"
+            },
+            {
+              "id": "b83dc435-cbb1-4dc3-8c7e-3af41201dbfe",
+              "name": "output",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true,
+          "dotNotation": false
+        }
+      },
+      "id": "57b78bc6-4e16-421f-b01b-4224eeb5e810",
+      "name": "Keep Only Valuable Columns",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2240,
+        -64
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "convertToHtmlTable",
+        "options": {}
+      },
+      "id": "654241fc-e6e2-4ec0-9546-4523a2393daa",
+      "name": "Change to HTML table for sending",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        2528,
+        -64
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Globals - CHANGE ME!').first().json['report_receiver'] }}",
+        "toEmail": "={{ $('Globals - CHANGE ME!').first().json['report_receiver'] }}",
+        "subject": "Your Analysis Is Complete",
+        "html": "=<h2>Analysis is complete</h2>\n{{ $json.table }}\n\n",
+        "options": {}
+      },
+      "id": "2abcf750-73e4-47aa-9afc-01fbe3bcafb5",
+      "name": "Send Email with Full report",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        2816,
+        -160
+      ],
+      "webhookId": "843191c3-c853-43c1-9523-4661654fb58e",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "type": "random"
+      },
+      "id": "56942b27-5544-4e13-85e4-2c9abaf782c6",
+      "name": "Sort For Testing Purposes",
+      "type": "n8n-nodes-base.sort",
+      "position": [
+        1344,
+        112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Limit for Testing",
+        "height": 320,
+        "width": 440,
+        "color": 6
+      },
+      "id": "ee479dc9-dbfc-423a-8e60-e70a875d3566",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1296,
+        -64
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Setup Me First",
+        "height": 320,
+        "color": 4
+      },
+      "id": "36902091-866c-4434-bab8-22b225042b4c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -64
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Get Email Report",
+        "height": 260,
+        "width": 1340,
+        "color": 3
+      },
+      "id": "d71fa374-79a9-4049-bb0a-e8bb532bac27",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1808,
+        -160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "- sitemap_url - self exlpainatory\n- search_console_selector - for example \"sc-domain:sailingbyte.com\" but can be URL aswell- depends on how did you set up your search console\n- analysis_start_date and analysis_end_date - date range for analytics, by default last 30 days\n- analytics_selector_id - ID of Google Analytics setup, it is a large integer, you can find it in analytics url preceeded with letter \"p\", ex (your number is where there are X's): https://analytics.google.com/analytics/web/#/pXXXXXXXXX/reports/intelligenthome\n- report_receiver - email which will receive report ",
+        "height": 320,
+        "width": 380,
+        "color": 4
+      },
+      "id": "ce9dba5e-ca00-49f0-89b9-0172f2ff3b35",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        -64
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are professional SEO analyst and improver. You will receive in input data from Google Analytics and Google Search Console. Delivered data will be for single page.\n\nBased on this data, your task is to propose improvements, that are very specific to this page, and which will impact this web page positively. \n\nGeneral Data Evaluation:\n- How to get more users on this specific page\n- How to engage users more on this specific page\n- Analyze page itself for improvements\n- Look for potential issues in Google Analytics and Google Search Console data\n- Look for potential issues on website itself\n\nTechnical Evaluation:\n- Critical Fixes – Issues requiring immediate attention and resolution.\n- High-Impact Solutions – Simple adjustments that deliver significant results.\n- Enhancement Possibilities – Initiatives demanding greater investment but providing valuable long-term gains.\n\nContent Evaluation:\n- Keyword Strategy Assessment – Determine core and supporting search terms, evaluate keyword concentration levels, and examine strategic keyword positioning throughout the content.\n- Content Quality Review – Analyze the material's comprehensiveness, precision, and alignment with intended audience needs and expectations.\n- Accessibility and Clarity Analysis – Measure content comprehension difficulty through established readability frameworks including Flesch-Kincaid educational level, Flesch Reading Ease score, and Gunning-Fog complexity index.\n\nYou can add other improvement ideas, but they must be very specific to given page, no generalizations.\n\nWebsite is: {{ $json.pageLocation }}\n\nGoogle Analytics data is:\n- total users: {{ $json.totalUsers ?? 0}}\n- screen page views: {{ $json.screenPageViews ?? 0 }}\n- user engagement duration: {{ $json.userEngagementDuration ?? 0 }}\n\nGoogle Search Console data is:\n{{ $json.rows[0].toJsonString() }}\n\nIndexing status is as follows:\n{{ $json.inspectionResult.toJsonString() }}",
+        "options": {}
+      },
+      "id": "eab4dd9a-bf1a-42b3-89c3-85b0fedecfd3",
+      "name": "SEO analyst",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2464,
+        448
+      ],
+      "typeVersion": 2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        2512,
+        720
+      ],
+      "id": "e05c9262-39f3-42ca-ada7-9e7eff19817b",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Globals - CHANGE ME!').first().json['report_receiver'] }}",
+        "subject": "Your Analysis Is Complete",
+        "message": "=<h2>Analysis is complete</h2> {{ $json.table }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3024,
+        -64
+      ],
+      "id": "fb177aa9-cbf3-41be-a468-25fb219b00a0",
+      "name": "Send a message",
+      "webhookId": "1a03b4ce-3927-408b-95fa-42dd4ea850ec",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4VGNotVfv2WoVNVJ",
+          "name": "Gmail MCP checkintrust"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {
+    "Get Google Analytics Data": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      },
+      {
+        "json": {
+          "name": "Second item",
+          "code": 2
+        }
+      }
+    ]
+  },
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-12T08:21:40.679Z",
+      "updatedAt": "2025-11-12T08:21:40.679Z",
+      "role": "workflow:owner",
+      "workflowId": "EHj6R0OcfIbzkd5r",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-12T16:38:14.808Z",
+  "versionId": "1faefd19-f91b-4861-b606-f2879495e9d6"
+}
