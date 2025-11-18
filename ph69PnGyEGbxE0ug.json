@@ -1,0 +1,246 @@
+{
+  "active": false,
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 4A - Synthèse JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Debug Mode": {
+      "main": [
+        [
+          {
+            "node": "Debug Log - Synthèse finale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 4A - Synthèse JSON": {
+      "main": [
+        []
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Agent 4A - Synthèse JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template rapport": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent 4A - Synthèse JSON",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent 4A - Synthèse JSON",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-22T13:36:13.215Z",
+  "id": "ph69PnGyEGbxE0ug",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "SEO - Synthèse + Envoi du rapport (3 mois)",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "value": "claude-3-5-haiku-20241022",
+          "mode": "list"
+        },
+        "options": {
+          "temperature": 0.9
+        }
+      },
+      "id": "7a664e09-8867-479b-9531-af370330a9bf",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        224
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un consultant SEO senior.  \nTa mission : générer un **rapport HTML complet, clair et professionnel**, destiné à être envoyé par email à Camille Pâtisserie : camille.bideau@gmail.com\n\nLe rapport doit être structuré et lisible comme un **vrai reporting client** (grande lisibilité, emoji discrets, couleur, et mise en forme propre).  \nLe ton doit être **positif, professionnel et orienté amélioration**.\n\n---\n\n### 🔍 Données d’entrée\nPériode : {{ $json.periode.debut }} → {{ $json.periode.fin }}\n\nAnalyse sémantique :\n{{ JSON.stringify($json.analyse_semantique) }}\n\nAnalyse technique :\n{{ JSON.stringify($json.analyse_technique) }}\n\n---\n\n### 💡 Instructions de rédaction\n1. **Structure le rapport** avec les sections suivantes :  \n   - 📊 Synthèse globale  \n   - 🔍 Analyse sémantique  \n   - ⚙️ Analyse technique  \n   - 🎯 Recommandations stratégiques  \n   - 🗓️ Plan d’action hebdomadaire  \n   - 🔜 Prochain suivi  \n\n2. **Inclue les pages concernées** dans chaque partie dès qu’elles sont présentes dans les données :\n   - Liste toutes les **pages 404, 500, non indexées, lentes** ou **à optimiser**.  \n   - Présente-les sous forme de liste à puces indentée, avec URLs en clair.  \n   - Exemple :\n     ```\n     8 erreurs 404 détectées :\n     - /produits/ancien-menu/\n     - /collections-supprimees/\n     - /blog/article-archive/\n     ```\n\n3. **Typographie HTML améliorée :**\n   - Police : Arial ou Helvetica, taille de base 16px.  \n   - Titres 20–24px, sous-titres 18px.  \n   - Couleurs douces (#2A9D8F, #E76F51, #264653).  \n   - Espacements généreux entre sections (30px mini).  \n\n4. **Utilise les émojis comme repères visuels** mais de façon élégante (un seul par titre).\n\n5. **Mets en gras les chiffres et indicateurs clés**.  \n\n---\n\n### 📬 Format de sortie attendu (HTML propre)\n\n```html\n<html>\n  <body style=\"font-family:Arial,Helvetica,sans-serif; background:#ffffff; color:#222; padding:40px;\">\n    <div style=\"max-width:800px; margin:auto; background:#fff; padding:40px; border-radius:12px; box-shadow:0 3px 12px rgba(0,0,0,0.08);\">\n\n      <h1 style=\"font-size:26px; color:#E76F51; margin-bottom:5px;\">🍰 Rapport SEO Hebdomadaire</h1>\n      <h2 style=\"font-size:18px; color:#2A9D8F; margin-top:0;\">www.camille-patisserie.com</h2>\n      <p style=\"font-size:15px; color:#666;\">Période : <strong>{{ $json.periode.debut }} → {{ $json.periode.fin }}</strong></p>\n\n      <hr style=\"border:none; border-top:2px solid #eee; margin:30px 0;\">\n\n      <h3 style=\"color:#264653; font-size:20px;\">📊 Synthèse globale</h3>\n      <p style=\"font-size:16px; line-height:1.7;\">Résume la tendance générale du site (amélioration, stabilité ou régression). Mentionne les signaux positifs et les axes de vigilance.</p>\n\n      <h3 style=\"color:#264653; font-size:20px;\">🔍 Analyse sémantique</h3>\n      <ul style=\"font-size:16px; line-height:1.7;\">\n        <li><strong>Opportunités détectées :</strong></li>\n        <ul>\n          <li>“Tarte aux pommes” — CTR : 10.8%, Position : 5.6 → <em>Optimiser le titre et la meta-description</em></li>\n          <li>“Mousse au chocolat blanc” — CTR : 26.7%, Position : 1.3 → <em>Créer du contenu connexe pour consolider</em></li>\n        </ul>\n      </ul>\n\n      <h3 style=\"color:#264653; font-size:20px;\">⚙️ Analyse technique</h3>\n      <ul style=\"font-size:16px; line-height:1.7;\">\n        <li><strong>Erreurs détectées :</strong></li>\n        <ul>\n          <li>8 erreurs 404 :</li>\n          <ul>\n            <li>/produits/ancien-menu/</li>\n            <li>/collections-supprimees/</li>\n            <li>/blog/article-archive/</li>\n          </ul>\n          <li>3 erreurs 500 :</li>\n          <ul>\n            <li>/commande/paiement/</li>\n            <li>/catalogue/system-error/</li>\n          </ul>\n        </ul>\n        <li><strong>Pages non indexées :</strong> 12</li>\n        <li><strong>Performances :</strong> LCP : <strong>4.2s</strong> · CLS : <strong>0.32</strong> · INP : <strong>620ms</strong></li>\n        <li><strong>Écarts mobile vs desktop :</strong> détectés sur <em>tartes et entremets</em></li>\n      </ul>\n\n      <h3 style=\"color:#E63946; font-size:20px;\">🎯 Recommandations stratégiques</h3>\n      <ul style=\"font-size:16px; line-height:1.7;\">\n        <li>💥 Haute priorité : Corriger les 8 erreurs 404 sur les pages à forte autorité</li>\n        <li>⚙️ Moyenne priorité : Optimiser le poids des images et la vitesse mobile</li>\n        <li>🌱 Opportunité : Développer du contenu autour des desserts de saison</li>\n      </ul>\n\n      <h3 style=\"color:#264653; font-size:20px;\">🗓️ Plan d’action hebdomadaire</h3>\n      <ol style=\"font-size:16px; line-height:1.7;\">\n        <li>Audit et correction des pages 404</li>\n        <li>Optimisation des métadonnées pour “tarte aux pommes”</li>\n        <li>Création de nouveaux contenus sur les desserts printaniers</li>\n      </ol>\n\n      <h3 style=\"color:#2A9D8F; font-size:20px;\">🔜 Prochain suivi</h3>\n      <p style=\"font-size:16px; line-height:1.7;\">Nouvelle analyse prévue dans <strong>2 semaines</strong>.<br>Rapport généré automatiquement via votre assistant SEO 🤖</p>\n    </div>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "id": "66770065-b912-473e-8cca-8b831ae60ddf",
+      "name": "Agent 4A - Synthèse JSON",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.debug === 'true' }}"
+            }
+          ]
+        }
+      },
+      "id": "e1654fe8-a2e6-4121-b4fe-7251f558cc72",
+      "name": "If Debug Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { message: '✅ [DEBUG] Rapport synthétisé et email envoyé.', data: $json } }];"
+      },
+      "id": "608b3d10-3cce-4203-b13c-a55f9ab11639",
+      "name": "Debug Log - Synthèse finale",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        160,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "periode",
+              "type": "object"
+            },
+            {
+              "name": "sessionKey"
+            },
+            {
+              "name": "debug",
+              "type": "boolean"
+            },
+            {
+              "name": "analyse_semantique",
+              "type": "object"
+            },
+            {
+              "name": "analyse_technique",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        16
+      ],
+      "id": "3728e0b0-dc44-4674-a833-8968f33f7486",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1714ImcYi-AHG0Z0g892tYUwlXRk0T5VWBi-ecBHXE0M",
+          "mode": "list",
+          "cachedResultName": "🎯 Rapport SEO hebdomadaire — Camille Pâtisserie",
+          "cachedResultUrl": "https://docs.google.com/document/d/1714ImcYi-AHG0Z0g892tYUwlXRk0T5VWBi-ecBHXE0M/edit?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "id": "90164647-afcb-492c-bbb2-6aaf78a7d902",
+      "name": "Template rapport",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [
+        368,
+        240
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UGghpJdMN3bRQ9Cb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://195.201.118.139:3002/mcp/gmail",
+        "serverTransport": "httpStreamable",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        240
+      ],
+      "id": "4042ec71-ec12-498a-9903-e39332162de5",
+      "name": "MCP Client Gmail"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-22T13:36:13.215Z",
+      "updatedAt": "2025-10-22T13:36:13.215Z",
+      "role": "workflow:owner",
+      "workflowId": "ph69PnGyEGbxE0ug",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-22T17:15:03.405Z",
+  "versionId": "1188d1d9-ccf4-4996-a961-0cc3eff2f36c"
+}
