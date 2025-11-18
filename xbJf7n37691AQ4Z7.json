@@ -1,0 +1,561 @@
+{
+  "active": true,
+  "connections": {
+    "Préparer données": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remplacer balises": {
+      "main": [
+        [
+          {
+            "node": "Exporter PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exporter PDF": {
+      "main": [
+        [
+          {
+            "node": "Uploader Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Uploader Drive": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Récupérer Bail": {
+      "main": [
+        [
+          {
+            "node": "Locataire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Locataire": {
+      "main": [
+        [
+          {
+            "node": "Logement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logement": {
+      "main": [
+        [
+          {
+            "node": "Préparer données",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Remplacer balises",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Récupérer Bail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-27T08:51:38.955Z",
+  "id": "xbJf7n37691AQ4Z7",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[Geston locative] Génération quittance - Statut Payé",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// ---------- Dates & Mois ----------\nconst now = new Date();\nconst moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);\nconst dernierJour = new Date(now.getFullYear(), now.getMonth() + 1, 0);\n\nconst mois = [\n  'janvier','février','mars','avril','mai','juin',\n  'juillet','août','septembre','octobre','novembre','décembre'\n];\n\n// Mois actuel (ex: \"Novembre\")\nconst moisActuel = mois[now.getMonth()].charAt(0).toUpperCase() + mois[now.getMonth()].slice(1);\n\n// ---------- Utilitaires ----------\nconst getRichText = (prop) =>\n  prop?.rich_text?.[0]?.plain_text ??\n  prop?.rich_text?.[0]?.text?.content ??\n  '';\n\nconst getTitle = (prop) =>\n  prop?.title?.[0]?.plain_text ??\n  prop?.title?.[0]?.text?.content ??\n  '';\n\nconst formatMontant = (val) => (Number(val) || 0).toFixed(2).replace('.', ',');\n\n// ---------- Entrées n8n ----------\nconst bailPage       = $node[\"Récupérer Bail\"]?.json ?? {};\nconst locatairePage  = $node[\"Locataire\"]?.json ?? {};\n\n// Logement : accepte soit items bruts Notion, soit items .json\nconst items = $input.all();\nconst logementPage = (Array.isArray(items) && items.length > 0)\n  ? (items[0].json ?? items[0])\n  : {};\n\n// ---------- Proprio ----------\nconst nomProprietaire = 'Huguet Camille';\nconst adresseProprietaire = '8 rue Leyla Zana 93000 Bobigny';\n\n// ---------- Dates texte ----------\nconst dateDebut = `1er ${mois[moisCourant.getMonth()]} ${moisCourant.getFullYear()}`;\nconst dateFin = `${dernierJour.getDate()} ${mois[moisCourant.getMonth()]} ${moisCourant.getFullYear()}`;\nconst dateSignature = `${now.getDate()} ${mois[now.getMonth()]} ${now.getFullYear()}`;\n\n// ---------- Montants depuis Notion (nouvelle structure .properties) ----------\nconst p = bailPage?.properties ?? {};\nconst loyerNumber   = p?.[\"Montant du loyer HC\"]?.number;\nconst chargesNumber = p?.[\"Montant des charges\"]?.number;\n\n// Fallback sur anciennes clés si tu en as encore besoin\nconst montantLoyer   = (typeof loyerNumber === 'number' ? loyerNumber : bailPage.property_montant_du_loyer_hc || 0);\nconst montantCharges = (typeof chargesNumber === 'number' ? chargesNumber : bailPage.property_montant_des_charges || 0);\nconst montantTotal   = (Number(montantLoyer) || 0) + (Number(montantCharges) || 0);\n\n// ---------- Liens Notion ----------\nconst lienBail = p?.[\"lien du bail\"]?.rich_text?.[0]?.text?.content || '';\n\n// ---------- Locataire (nouvelle structure .properties) ----------\nconst locProps = locatairePage?.properties ?? {};\nconst nomLocataire = getTitle(locProps?.Name);\nconst adresseLocataire = getRichText(locProps?.Address);\nconst lienStockage = locProps?.[\"Lien de stockage des documents\"]?.url || '';\n\n// ---------- Logement (nouvelle structure fournie) ----------\nconst logProps = logementPage?.properties ?? {};\nconst adresseLogement = getRichText(logProps?.Adresse);\nconst nomLogement = getTitle(logProps?.Name);\n\n// ---------- Sortie ----------\nreturn [\n  {\n    json: {\n      nom_proprietaire: nomProprietaire,\n      adresse_proprietaire: adresseProprietaire,\n\n      nom_logement: nomLogement,\n      adresse_logement: adresseLogement,\n\n      nom_locataire: nomLocataire,\n      adresse_locataire: adresseLocataire,\n\n      montant_total:   formatMontant(montantTotal),\n      montant_loyer:   formatMontant(montantLoyer),\n      montant_charges: formatMontant(montantCharges),\n\n      date_debut: dateDebut,\n      date_fin: dateFin,\n      date_signature: dateSignature,\n\n      lien_stockage: lienStockage,\n      lien_bail: lienBail,\n\n      mois_actuel: moisActuel,\n      // Conserve l'underscore si tu l'utilises en nom de fichier\n      mois_annee: `${mois[moisCourant.getMonth()]}_${moisCourant.getFullYear()}`\n    }\n  }\n];\n"
+      },
+      "id": "1c96eb1f-cb07-4f4d-97bf-a9a051f01bf7",
+      "name": "Préparer données",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        912,
+        -256
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "simple": false,
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "nom_proprietaire",
+              "replaceText": "={{ $('Préparer données').item.json.nom_proprietaire }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "nom_locataire",
+              "replaceText": "={{ $('Préparer données').item.json.nom_locataire }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "adresse_locataire",
+              "replaceText": "={{ $('Préparer données').item.json.adresse_locataire }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "date_debut",
+              "replaceText": "={{ $('Préparer données').item.json.date_debut }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "date_fin",
+              "replaceText": "={{ $('Préparer données').item.json.date_fin }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "montant_loyer",
+              "replaceText": "={{ $('Préparer données').item.json.montant_loyer }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": " montant_charges",
+              "replaceText": "={{ $('Préparer données').item.json.montant_charges }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "date_signature",
+              "replaceText": "={{ $('Préparer données').item.json.date_signature }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "montant_total",
+              "replaceText": "={{ $('Préparer données').item.json.montant_total }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "adresse_logement",
+              "replaceText": "={{ $('Préparer données').item.json.adresse_logement }}"
+            }
+          ]
+        }
+      },
+      "id": "355791b1-dac4-4d3d-9b40-fa3be5cdeb36",
+      "name": "Remplacer balises",
+      "type": "n8n-nodes-base.googleDocs",
+      "position": [
+        1360,
+        -256
+      ],
+      "typeVersion": 2,
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "3NgouyuPBDBXrK8H",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $('Copy file').item.json.id }}/export?mimeType=application/pdf",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {}
+      },
+      "id": "e9771266-3f57-45cd-87c4-bc89929611fd",
+      "name": "Exporter PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1584,
+        -256
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UGghpJdMN3bRQ9Cb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=Quittance loyer {{ $('Locataire').item.json.properties.Name.title[0].text.content }} {{ $('Préparer données').item.json.mois_actuel }} 2025",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Locataire').item.json.properties['Lien de stockage des documents'].url }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "id": "1637d0ea-e6a8-48a0-9f5d-6b3e095f56dc",
+      "name": "Uploader Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1808,
+        -256
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UGghpJdMN3bRQ9Cb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.properties.bail.relation[0].id }}",
+          "mode": "id"
+        },
+        "simple": false
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        -256
+      ],
+      "id": "5dbc5255-7b2b-4c0c-aaac-407c91ca8bad",
+      "name": "Récupérer Bail",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.properties.Locataires.relation[0].id }}",
+          "mode": "id"
+        },
+        "simple": false
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        -256
+      ],
+      "id": "96f62d4f-1948-4565-99e1-7be7f639cd36",
+      "name": "Locataire",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Récupérer Bail').item.json.properties.Logement.relation[0].id }}",
+          "mode": "id"
+        },
+        "simple": false
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -256
+      ],
+      "id": "dc28a714-15ba-4070-bb37-bdd00c1f858c",
+      "name": "Logement",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1ZXbJIoVjvae2ghwT10cqdryO9WHaLJYvizVImeLwsEk",
+          "mode": "list",
+          "cachedResultName": "Modèle quittance de loyer ",
+          "cachedResultUrl": "https://docs.google.com/document/d/1ZXbJIoVjvae2ghwT10cqdryO9WHaLJYvizVImeLwsEk/edit?usp=drivesdk"
+        },
+        "name": "=Quittance loyer {{ $('Locataire').item.json.properties.Name.title[0].text.content }} {{ $json.mois_actuel }} 2025",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1136,
+        -256
+      ],
+      "id": "beab2f88-517e-4581-89b5-be0bc216bd4e",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UGghpJdMN3bRQ9Cb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Uploader Drive').item.json.name }}",
+        "message": "=Bonjour,\n\nSuite au règlement du loyer au {{ $('Logement').item.json.properties.Adresse.rich_text[0].text.content }}, je vous prie de trouver la quittance du mois de {{ $('Préparer données').item.json.mois_actuel }} :  {{ $('Uploader Drive').item.json.webContentLink }}\n\nEn vous souhaitant bonne réception,\n\nCordialement,\n\nCamille HUGUET",
+        "options": {
+          "sendTo": "={{ $('Locataire').item.json.properties.Email.rich_text[0].text.content }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2256,
+        -256
+      ],
+      "id": "de5795da-d760-4be9-b9e4-785890d1e2e7",
+      "name": "Create a draft",
+      "webhookId": "a09203e8-744e-4991-9004-e49f9275b654",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ViGVjvmKJZeysXKZ",
+          "name": "Gmail account Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Get many database pages').item.json.id }}",
+          "mode": "id"
+        },
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Lien quittance|url",
+              "urlValue": "={{ $json.webViewLink }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2032,
+        -256
+      ],
+      "id": "baddb312-2d8d-49b7-baa3-f5f45440968a",
+      "name": "Update a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -256
+      ],
+      "id": "3e4d49fe-d707-4d92-a745-311725cf6387",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "29c02d84-a064-807b-8f5f-f10110646245",
+          "mode": "list",
+          "cachedResultName": "Paiement des loyers",
+          "cachedResultUrl": "https://www.notion.so/29c02d84a064807b8f5ff10110646245"
+        },
+        "limit": 5,
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        -256
+      ],
+      "id": "bbf6c73c-c3eb-4807-a98c-66924a944c82",
+      "name": "Get many database pages",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        32,
+        -432
+      ],
+      "id": "adb0f06d-288d-4e36-af88-797e39df4f22",
+      "name": "Loop Over Items"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-27T08:51:38.955Z",
+      "updatedAt": "2025-10-27T08:51:38.955Z",
+      "role": "workflow:owner",
+      "workflowId": "xbJf7n37691AQ4Z7",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": {
+    "node:Déclencheur Notion": {
+      "lastTimeChecked": "2025-11-05T15:57:00.000Z",
+      "possibleDuplicates": [
+        "29d02d84-a064-8142-9c1a-d566c54bf8f7"
+      ]
+    }
+  },
+  "tags": [
+    {
+      "createdAt": "2025-10-31T06:04:01.796Z",
+      "updatedAt": "2025-10-31T06:04:01.796Z",
+      "id": "osqw06AguEExU7k4",
+      "name": "Gestion locative"
+    },
+    {
+      "createdAt": "2025-10-31T10:19:05.616Z",
+      "updatedAt": "2025-10-31T10:19:05.616Z",
+      "id": "TaGWjjuOGEjyibAU",
+      "name": "OK"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-08T17:11:12.150Z",
+  "versionId": "d771ee60-0eb4-4b37-9114-c49e06af633d"
+}
