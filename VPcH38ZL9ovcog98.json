@@ -1,0 +1,132 @@
+{
+  "active": false,
+  "connections": {
+    "When called by another workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Formater sortie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-02T15:41:03.346Z",
+  "id": "VPcH38ZL9ovcog98",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[SEO] Analyse IA - Globale",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "adfa6ab7-b41a-47d1-89ab-b200c7b29410",
+      "name": "When called by another workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const input = $input.first().json;\nconst aiResponse = input.content?.[0]?.text || input.response || 'Analyse non disponible';\n\nreturn [{\n  json: {\n    type: 'global',\n    analysis: aiResponse,\n    metadata: {\n      siteUrl: input.siteUrl,\n      siteNiche: input.siteNiche,\n      period: input.period\n    }\n  }\n}];"
+      },
+      "id": "2b611dd3-3d4c-4033-89b5-d4d503d1e99d",
+      "name": "Formater sortie",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        544,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        -48
+      ],
+      "id": "491fbf06-6c58-4b02-be46-225cbeff3d36",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        192
+      ],
+      "id": "1685c0ae-4e73-408f-b441-02524daedc41",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-02T15:41:03.346Z",
+      "updatedAt": "2025-11-02T15:41:03.346Z",
+      "role": "workflow:owner",
+      "workflowId": "VPcH38ZL9ovcog98",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-02T15:41:03.346Z",
+  "versionId": "bac44cf9-618b-4f52-98c2-13201bee616a"
+}
