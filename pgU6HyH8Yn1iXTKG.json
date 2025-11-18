@@ -1,0 +1,286 @@
+{
+  "active": false,
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REGLEMENT ANC N° 2014-03 RELATIF AU PLAN COMPTABLE GENERAL": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-23T19:38:03.216Z",
+  "id": "pgU6HyH8Yn1iXTKG",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[Gestion des factures] Attribution du compte comptable AG3",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant expert en comptabilité française et en intégration Notion.\n\n---\n\n### 🎯 OBJECTIF :\nÀ partir des données enrichies d'une facture (catégorie, type de dépense, projet, etc.),\nassocie la bonne ligne de compte comptable issue du plan comptable général (PCG).\n\nTu dois :\n1. Identifier le compte comptable correspondant dans la base Notion “Plan comptable”.\n2. Retourner son ID Notion et son libellé exact.\n3. Si aucune correspondance n'existe, proposer un nouveau libellé (`new_compte_label`)\nbasé sur la logique du PCG (ex. “615000 – Entretien et réparations”, “606300 – Fournitures non stockables”, etc.).\n\n---\n\n### 🔹 BASE NOTION :\nPlan comptable : https://www.notion.so/20902d84a06480da8d0de8ff87dab9ac?v=20902d84a0648024a250000c70d373fb  \nChaque ligne contient :\n- `Nom du compte` (ex : “606300 - Fournitures non stockables”)\n- `Catégorie`\n- `Type de dépense`\n\n---\n\n### 🔹 ENTRÉE :\nVoici les données disponibles :\n```json\n{\n  \"categorie_label\": \"Abonnements logiciels\",\n  \"type_depense\": \"Charges externes\",\n  \"projet\": \"Checkin Trust\"\n}\n\n\n🔹 INSTRUCTIONS :\n\nAnalyse la catégorie et le type de dépense pour trouver le compte le plus cohérent.\n\nUtilise la correspondance la plus proche dans la base Notion (ex : “Logiciels” → “615600 - Maintenance informatique”).\n\nSi rien ne correspond, crée un new_compte_label conforme à la logique du PCG (ex. même famille 606 / 615 / 622...).\n\nNe renvoie aucun texte libre hors du JSON.\n\n📘 RÉFÉRENCE COMPTABLE :\n\nEn cas de doute sur le classement d'une dépense, tu peux t'appuyer sur le document officiel du Plan Comptable Général :\nRèglement ANC n° 2014-03 relatif au plan comptable général, consultable ici :\nhttps://drive.google.com/file/d/1Fbn01NumZedTS1kza4o3tnc5ZG1xFC_f/view?usp=sharing\n\nCe document sert de base pour la logique d'affectation des comptes (classes 6 et 7 notamment).\n\n🔹 SORTIE ATTENDUE :\n\nRenvoie un JSON strictement valide :\n\n{\n  \"compte_id\": \"\",\n  \"compte_label\": \"\",\n  \"new_compte_label\": \"\"\n}\n\n\ncompte_id : ID Notion si trouvé\n\ncompte_label : libellé du compte trouvé (ou le plus proche)\n\nnew_compte_label : proposition de création si aucune correspondance exacte\n\n🔹 EXEMPLE :\n\nEntrée :\n\n{\n  \"categorie_label\": \"Abonnements logiciels\",\n  \"type_depense\": \"Charges externes\"\n}\n\n\nSortie :\n\n{\n  \"compte_id\": \"e2e2d84a-a064-80a4-a34f-b87a112bc100\",\n  \"compte_label\": \"615600 - Maintenance informatique\",\n  \"new_compte_label\": \"\"\n}\n\n\nCas sans correspondance :\n\n{\n  \"compte_id\": null,\n  \"compte_label\": null,\n  \"new_compte_label\": \"606800 - Autres fournitures\"\n}\n\n\n---\n\nSouhaites-tu que je t’enchaîne directement avec le **prompt + output parser de l’Agent 4** (celui qui crée automatiquement la page “Facture” dans Notion avec toutes les infos précédentes + le PDF) ?  \n→ Ce serait la dernière brique avant l’upload de pièce jointe (Agent 5).",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a helpful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -272
+      ],
+      "id": "cc85a853-7cc1-4c3a-ac50-aec6e6961d60",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-haiku-20240307",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 3"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        -16
+      ],
+      "id": "e5312b59-48b3-4b5d-8dfa-625ccd52b472",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://195.201.118.139:3001/mcp/notion",
+        "serverTransport": "httpStreamable",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        -16
+      ],
+      "id": "bdfbd672-8442-470e-b049-1ec12900be64",
+      "name": "MCP Notion"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://195.201.118.139:3004/mcp/gmail",
+        "serverTransport": "httpStreamable",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        -16
+      ],
+      "id": "4ee9bfa5-9ecd-48c8-ac09-c32471e418a8",
+      "name": "MCP Gmail"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        -256
+      ],
+      "id": "e4dc9aaa-1a43-4e1d-8058-381122a210b1",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"Agent 3 Output Schema\",\n  \"description\": \"Schéma de sortie pour l'agent 3 - Attribution du compte comptable\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"compte_id\": {\n      \"type\": [\"string\", \"null\"],\n      \"description\": \"ID Notion du compte comptable correspondant, si trouvé\"\n    },\n    \"compte_label\": {\n      \"type\": [\"string\", \"null\"],\n      \"description\": \"Libellé du compte comptable trouvé dans la base Notion (ex : '606300 - Fournitures non stockables')\"\n    },\n    \"new_compte_label\": {\n      \"type\": [\"string\", \"null\"],\n      \"description\": \"Proposition de libellé de compte comptable conforme au PCG, si aucun compte existant n’a été trouvé\"\n    }\n  },\n  \"required\": [\n    \"compte_id\",\n    \"compte_label\",\n    \"new_compte_label\"\n  ],\n  \"additionalProperties\": false,\n  \"examples\": [\n    {\n      \"compte_id\": \"e2e2d84a-a064-80a4-a34f-b87a112bc100\",\n      \"compte_label\": \"615600 - Maintenance informatique\",\n      \"new_compte_label\": null\n    },\n    {\n      \"compte_id\": null,\n      \"compte_label\": null,\n      \"new_compte_label\": \"606800 - Autres fournitures\"\n    }\n  ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        -48
+      ],
+      "id": "77c30b9f-3d9f-4585-ab1a-f86b9342d194",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "20602d84-a064-8088-b347-c551e67db5ce",
+          "mode": "list",
+          "cachedResultName": "PCG",
+          "cachedResultUrl": "https://www.notion.so/20602d84a0648088b347c551e67db5ce"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -272
+      ],
+      "id": "6994e9b1-de79-4843-9d8f-e7b51a166733",
+      "name": "Get many database pages",
+      "credentials": {
+        "notionApi": {
+          "id": "AubRSNG8Bg4OpEMd",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://drive.google.com/file/d/1Fbn01NumZedTS1kza4o3tnc5ZG1xFC_f/view?usp=sharing",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [
+        1152,
+        80
+      ],
+      "id": "1573339f-038d-4a29-bb61-a31e990f91fc",
+      "name": "REGLEMENT ANC N° 2014-03 RELATIF AU PLAN COMPTABLE GENERAL",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UGghpJdMN3bRQ9Cb",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-23T19:38:03.216Z",
+      "updatedAt": "2025-10-23T19:38:03.216Z",
+      "role": "workflow:owner",
+      "workflowId": "pgU6HyH8Yn1iXTKG",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-31T06:05:42.657Z",
+      "updatedAt": "2025-10-31T06:05:42.657Z",
+      "id": "8XqhspONwstcS8zs",
+      "name": "Administratif"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-31T06:05:44.648Z",
+  "versionId": "d055e7e2-e53f-48b2-97ea-5c1fe42cf68e"
+}
