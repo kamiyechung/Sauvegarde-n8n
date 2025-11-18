@@ -1,0 +1,70 @@
+{
+  "active": false,
+  "connections": {
+    "When called by another workflow": {
+      "main": [
+        [
+          {
+            "node": "Calculer toutes les métriques",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-02T15:40:05.489Z",
+  "id": "2taM8Dtx5q06pH2E",
+  "isArchived": false,
+  "meta": null,
+  "name": "[SEO] Calcul des métriques",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "ec4666c6-5e4a-455e-9fce-5c4f5b71c914",
+      "name": "When called by another workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const items = $input.all();\n\n// Helper pour calculer les totaux\nfunction calculateTotals(rows) {\n  if (!rows || rows.length === 0) return { clicks: 0, impressions: 0, ctr: 0, position: 0 };\n  \n  const totals = rows.reduce((acc, row) => {\n    acc.clicks += row.clicks || 0;\n    acc.impressions += row.impressions || 0;\n    return acc;\n  }, { clicks: 0, impressions: 0 });\n  \n  totals.ctr = totals.impressions > 0 ? (totals.clicks / totals.impressions * 100) : 0;\n  totals.position = rows.reduce((acc, row) => acc + (row.position || 0), 0) / (rows.length || 1);\n  \n  return totals;\n}\n\n// Helper pour calculer la variation\nfunction calculateVariation(current, previous) {\n  if (previous === 0) return current > 0 ? 100 : 0;\n  return ((current - previous) / previous * 100);\n}\n\n// Extraire le contexte\nconst context = items[0].json;\nconst siteUrl = context.siteUrl;\nconst siteNiche = context.siteNiche;\nconst currentWeekStart = context.currentWeekStart;\nconst currentWeekEnd = context.currentWeekEnd;\nconst previousWeekStart = context.previousWeekStart;\nconst previousWeekEnd = context.previousWeekEnd;\n\n// Parse des données - chercher dans les réponses HTTP\nlet globalCurrentData, globalPreviousData;\nlet pagesCurrentRows = [], pagesPreviousRows = [];\nlet queriesCurrentRows = [], queriesPreviousRows = [];\nlet deviceCurrentRows = [], devicePreviousRows = [];\n\nitems.forEach(item => {\n  if (item.json.body && item.json.response) {\n    const body = typeof item.json.body === 'string' ? JSON.parse(item.json.body) : item.json.body;\n    const response = typeof item.json.response === 'string' ? JSON.parse(item.json.response) : item.json.response;\n    \n    if (!body.dimensions) return;\n    \n    const dimension = body.dimensions[0];\n    const startDate = body.startDate;\n    const rows = response.rows || [];\n    \n    // Global\n    if (dimension === 'date') {\n      if (startDate === currentWeekStart) {\n        globalCurrentData = calculateTotals(rows);\n      } else if (startDate === previousWeekStart) {\n        globalPreviousData = calculateTotals(rows);\n      }\n    }\n    \n    // Pages\n    if (dimension === 'page') {\n      if (startDate === currentWeekStart) {\n        pagesCurrentRows = rows;\n      } else if (startDate === previousWeekStart) {\n        pagesPreviousRows = rows;\n      }\n    }\n    \n    // Queries\n    if (dimension === 'query') {\n      if (startDate === currentWeekStart) {\n        queriesCurrentRows = rows;\n      } else if (startDate === previousWeekStart) {\n        queriesPreviousRows = rows;\n      }\n    }\n    \n    // Device\n    if (dimension === 'device') {\n      if (startDate === currentWeekStart) {\n        deviceCurrentRows = rows;\n      } else if (startDate === previousWeekStart) {\n        devicePreviousRows = rows;\n      }\n    }\n  }\n});\n\n// Defaults si pas de données\nglobalCurrentData = globalCurrentData || { clicks: 0, impressions: 0, ctr: 0, position: 0 };\nglobalPreviousData = globalPreviousData || { clicks: 0, impressions: 0, ctr: 0, position: 0 };\n\n// Créer un map des pages précédentes\nconst pagesPreviousMap = {};\npagesPreviousRows.forEach(row => {\n  pagesPreviousMap[row.keys[0]] = row;\n});\n\n// Comparer les pages\nconst pagesComparison = pagesCurrentRows.map(currentRow => {\n  const page = currentRow.keys[0];\n  const previousRow = pagesPreviousMap[page] || { clicks: 0, impressions: 0, ctr: 0, position: 0 };\n  \n  return {\n    page: page,\n    clicks: currentRow.clicks,\n    clicksPrevious: previousRow.clicks,\n    clicksVariation: calculateVariation(currentRow.clicks, previousRow.clicks),\n    impressions: currentRow.impressions,\n    impressionsPrevious: previousRow.impressions,\n    impressionsVariation: calculateVariation(currentRow.impressions, previousRow.impressions),\n    ctr: currentRow.ctr * 100,\n    ctrPrevious: previousRow.ctr * 100,\n    ctrVariation: calculateVariation(currentRow.ctr, previousRow.ctr),\n    position: currentRow.position,\n    positionPrevious: previousRow.position,\n    positionVariation: currentRow.position - previousRow.position\n  };\n}).sort((a, b) => b.clicks - a.clicks);\n\n// Créer un map des queries précédentes\nconst queriesPreviousMap = {};\nqueriesPreviousRows.forEach(row => {\n  queriesPreviousMap[row.keys[0]] = row;\n});\n\n// Comparer les queries\nconst queriesComparison = queriesCurrentRows.map(currentRow => {\n  const query = currentRow.keys[0];\n  const previousRow = queriesPreviousMap[query] || { clicks: 0, impressions: 0, ctr: 0, position: 0 };\n  \n  return {\n    query: query,\n    clicks: currentRow.clicks,\n    clicksPrevious: previousRow.clicks,\n    clicksVariation: calculateVariation(currentRow.clicks, previousRow.clicks),\n    impressions: currentRow.impressions,\n    impressionsPrevious: previousRow.impressions,\n    impressionsVariation: calculateVariation(currentRow.impressions, previousRow.impressions),\n    ctr: currentRow.ctr * 100,\n    ctrPrevious: previousRow.ctr * 100,\n    ctrVariation: calculateVariation(currentRow.ctr, previousRow.ctr),\n    position: currentRow.position,\n    positionPrevious: previousRow.position,\n    positionVariation: currentRow.position - previousRow.position\n  };\n}).sort((a, b) => b.clicks - a.clicks);\n\n// Comparer devices\nconst devicePreviousMap = {};\ndevicePreviousRows.forEach(row => {\n  devicePreviousMap[row.keys[0]] = row;\n});\n\nconst deviceComparison = deviceCurrentRows.map(currentRow => {\n  const device = currentRow.keys[0];\n  const previousRow = devicePreviousMap[device] || { clicks: 0, impressions: 0, ctr: 0, position: 0 };\n  \n  return {\n    device: device,\n    clicks: currentRow.clicks,\n    clicksPrevious: previousRow.clicks,\n    clicksVariation: calculateVariation(currentRow.clicks, previousRow.clicks),\n    impressions: currentRow.impressions,\n    impressionsPrevious: previousRow.impressions,\n    impressionsVariation: calculateVariation(currentRow.impressions, previousRow.impressions),\n    ctr: currentRow.ctr * 100,\n    ctrPrevious: previousRow.ctr * 100,\n    ctrVariation: calculateVariation(currentRow.ctr, previousRow.ctr),\n    position: currentRow.position,\n    positionPrevious: previousRow.position,\n    positionVariation: currentRow.position - previousRow.position\n  };\n});\n\n// Identifier les alertes\nconst alerts = [];\n\nconst clicksVar = calculateVariation(globalCurrentData.clicks, globalPreviousData.clicks);\nconst impressionsVar = calculateVariation(globalCurrentData.impressions, globalPreviousData.impressions);\n\nif (clicksVar < -20) {\n  alerts.push(`🚨 ALERTE : Baisse des clicks de ${clicksVar.toFixed(1)}%`);\n}\n\nif (impressionsVar < -20) {\n  alerts.push(`⚠️ Baisse des impressions de ${impressionsVar.toFixed(1)}%`);\n}\n\n// Pages en forte baisse\nconst pagesInDecline = pagesComparison.filter(p => p.clicksVariation < -50 && p.clicks > 10).slice(0, 15);\nif (pagesInDecline.length > 0) {\n  alerts.push(`📉 ${pagesInDecline.length} page(s) en forte baisse de clicks (>50%)`);\n}\n\n// Pages en forte hausse\nconst pagesInGrowth = pagesComparison.filter(p => p.clicksVariation > 100 && p.clicks > 10).slice(0, 15);\nif (pagesInGrowth.length > 0) {\n  alerts.push(`📈 ${pagesInGrowth.length} page(s) en forte hausse de clicks (>100%)`);\n}\n\n// Opportunités : requêtes avec beaucoup d'impressions mais peu de clicks\nconst lowCTROpportunities = queriesComparison.filter(q => \n  q.impressions > 100 && \n  q.ctr < 2 && \n  q.position < 20\n).slice(0, 15);\n\n// Requêtes qui perdent des positions\nconst positionLosers = queriesComparison.filter(q => \n  q.clicks > 5 && \n  q.positionVariation > 3\n).sort((a, b) => b.clicks - a.clicks).slice(0, 15);\n\n// Nouvelles requêtes qui performent\nconst newWinners = queriesComparison.filter(q => \n  q.clicks > 5 && \n  q.clicksVariation > 200\n).slice(0, 15);\n\nreturn [{\n  json: {\n    reportDate: new Date().toISOString().split('T')[0],\n    siteUrl: siteUrl,\n    siteNiche: siteNiche,\n    period: {\n      current: `${currentWeekStart} au ${currentWeekEnd}`,\n      previous: `${previousWeekStart} au ${previousWeekEnd}`,\n      currentWeekStart: currentWeekStart,\n      currentWeekEnd: currentWeekEnd,\n      previousWeekStart: previousWeekStart,\n      previousWeekEnd: previousWeekEnd\n    },\n    global: {\n      current: {\n        clicks: Math.round(globalCurrentData.clicks),\n        impressions: Math.round(globalCurrentData.impressions),\n        ctr: globalCurrentData.ctr.toFixed(2),\n        position: globalCurrentData.position.toFixed(1)\n      },\n      previous: {\n        clicks: Math.round(globalPreviousData.clicks),\n        impressions: Math.round(globalPreviousData.impressions),\n        ctr: globalPreviousData.ctr.toFixed(2),\n        position: globalPreviousData.position.toFixed(1)\n      },\n      variations: {\n        clicks: clicksVar.toFixed(1),\n        impressions: impressionsVar.toFixed(1),\n        ctr: calculateVariation(globalCurrentData.ctr, globalPreviousData.ctr).toFixed(1),\n        position: (globalCurrentData.position - globalPreviousData.position).toFixed(1)\n      }\n    },\n    topPages: pagesComparison.slice(0, 30),\n    topQueries: queriesComparison.slice(0, 50),\n    deviceBreakdown: deviceComparison,\n    pagesInDecline: pagesInDecline,\n    pagesInGrowth: pagesInGrowth,\n    lowCTROpportunities: lowCTROpportunities,\n    positionLosers: positionLosers,\n    newWinners: newWinners,\n    alerts: alerts\n  }\n}];"
+      },
+      "id": "9fb92488-cb42-4f0a-9b64-b106f8cc7b08",
+      "name": "Calculer toutes les métriques",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ]
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-11-02T15:40:05.489Z",
+      "updatedAt": "2025-11-02T15:40:05.489Z",
+      "role": "workflow:owner",
+      "workflowId": "2taM8Dtx5q06pH2E",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-02T15:40:05.489Z",
+  "versionId": "b52d7b7c-c8ae-4bf7-9677-e607f56bbd84"
+}
