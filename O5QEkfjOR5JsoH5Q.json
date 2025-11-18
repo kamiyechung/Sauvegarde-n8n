@@ -1,0 +1,270 @@
+{
+  "active": false,
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 1 - Collecte Search Console",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Debug Mode": {
+      "main": [
+        [
+          {
+            "node": "Debug Log - Search Console",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client Search Console": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent 1 - Collecte Search Console",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Agent 1 - Collecte Search Console",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "Agent 1 - Collecte Search Console": {
+      "main": [
+        []
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Agent 1 - Collecte Search Console",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-22T13:31:04.096Z",
+  "id": "O5QEkfjOR5JsoH5Q",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "SEO - Collecte Search Console (3 mois)",
+  "nodes": [
+    {
+      "parameters": {
+        "endpointUrl": "http://195.201.118.139:3007/mcp/searchconsole",
+        "serverTransport": "httpStreamable",
+        "options": {}
+      },
+      "id": "76eda58f-a42c-45a0-bac3-f189969db971",
+      "name": "MCP Client Search Console",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-5-haiku-20241022",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 3.5"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "ac0dbfaa-5b57-46e9-8810-b37be60f6a54",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        256
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.debug === 'true' }}"
+            }
+          ]
+        }
+      },
+      "id": "1a36ece7-2593-478a-872c-c2ed5df6b215",
+      "name": "If Debug Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { message: '🔍 [DEBUG] Résumé données Search Console:', data: $json } }];"
+      },
+      "id": "1217d668-792e-4216-a879-9b161bf2df85",
+      "name": "Debug Log - Search Console",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        144,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        240
+      ],
+      "id": "cdd40164-0b51-45d3-b90f-a4ddef109a64",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        896
+      ],
+      "id": "e0bef894-a02e-4fac-a5a5-9bf8b3883caa",
+      "name": "When chat message received",
+      "webhookId": "a7bba33d-3615-4088-8fc5-35297ac6770b"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=PROMPT COMPACT :\n\nTu es expert SEO et analyste Google Search Console.\nExporte les données SEO du site www.camille-patisserie.com\n pour la période {{ $json.periode }} , au format JSON uniquement.\n\n🧩 STRUCTURE ATTENDUE\n{\n  \"global\": {\n    \"clics\": 0,\n    \"impressions\": 0,\n    \"ctr\": 0,\n    \"position\": 0,\n    \"par_device\": [],\n    \"par_pays\": [],\n    \"part_internationale\": 0\n  },\n  \"top_requetes\": [\n    {\n      \"requete\": \"\",\n      \"clics\": 0,\n      \"impressions\": 0,\n      \"ctr\": 0,\n      \"position\": 0,\n      \"pays_majoritaire\": \"\",\n      \"tags\": []\n    }\n  ],\n  \"focus_international\": [\n    {\n      \"pays\": \"\",\n      \"part_trafic\": 0,\n      \"ctr\": 0,\n      \"position\": 0,\n      \"top_requetes\": [],\n      \"top_pages\": [],\n      \"categorie\": \"forte_traction | croissance | a_developper\"\n    }\n  ],\n  \"top_pages\": [\n    {\n      \"url\": \"\",\n      \"clics\": 0,\n      \"impressions\": 0,\n      \"ctr\": 0,\n      \"position\": 0,\n      \"part_mobile\": 0,\n      \"part_internationale\": 0,\n      \"tags\": []\n    }\n  ],\n  \"indexation\": {\n    \"non_indexees\": [],\n    \"exclues\": [],\n    \"erreurs_4xx\": [],\n    \"erreurs_5xx\": [],\n    \"anomalies\": []\n  },\n  \"core_web_vitals\": [\n    {\n      \"url\": \"\",\n      \"lcp\": 0,\n      \"cls\": 0,\n      \"inp\": 0,\n      \"statut\": \"Bon | A_ameliorer | Mauvais\"\n    }\n  ],\n  \"sitemaps\": {\n    \"envoyees\": 0,\n    \"indexees\": 0,\n    \"taux_indexation\": 0,\n    \"internationales\": []\n  },\n  \"comparatif_devices\": {\n    \"pages_ecart_significatif\": []\n  }\n}\n\n📋 RÈGLES\n\nAucune phrase ou texte explicatif, uniquement JSON valide.\n\nSi une donnée est absente → [].\n\nLes agents suivants liront directement ces clés (global, top_requetes, etc.).\n\nIdentifie les “potentiels” (ctr < 0.1) et “opportunités” (position 5–20) via le champ \"tags\".\n\nClasse les pays :\n\n🌍 forte_traction (>10 % trafic),\n\n🚀 croissance (trafic ou impressions ↑),\n\n🌱 a_developper (<3 % mais CTR élevé).",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "caedc23d-a5d9-4ebd-b59f-5dfe4704fdb7",
+      "name": "Agent 1 - Collecte Search Console",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"title\": \"Données Google Search Console enrichies\",\n  \"description\": \"Données de performance, indexation et international issues de la Google Search Console pour Camille Pâtisserie\",\n  \"properties\": {\n    \"globales\": {\n      \"type\": \"object\",\n      \"description\": \"Vue d’ensemble des performances globales\",\n      \"properties\": {\n        \"clics\": { \"type\": \"number\", \"description\": \"Total des clics sur la période\" },\n        \"impressions\": { \"type\": \"number\", \"description\": \"Total des impressions sur la période\" },\n        \"ctr\": { \"type\": \"number\", \"description\": \"CTR moyen global (0–1)\" },\n        \"position\": { \"type\": \"number\", \"description\": \"Position moyenne globale\" },\n        \"devices\": {\n          \"type\": \"array\",\n          \"description\": \"Performances par type d’appareil\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"device\": { \"type\": \"string\", \"description\": \"Type d’appareil : mobile, desktop, tablette\" },\n              \"clics\": { \"type\": \"number\" },\n              \"impressions\": { \"type\": \"number\" },\n              \"ctr\": { \"type\": \"number\" },\n              \"position\": { \"type\": \"number\" }\n            },\n            \"required\": [\"device\", \"clics\", \"impressions\"]\n          }\n        },\n        \"pays\": {\n          \"type\": \"array\",\n          \"description\": \"Performances par pays\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"pays\": { \"type\": \"string\" },\n              \"clics\": { \"type\": \"number\" },\n              \"ctr\": { \"type\": \"number\" },\n              \"position\": { \"type\": \"number\" }\n            },\n            \"required\": [\"pays\", \"clics\"]\n          }\n        },\n        \"trafic_international\": {\n          \"type\": \"number\",\n          \"description\": \"Part du trafic provenant de pays étrangers (0–1)\"\n        }\n      },\n      \"required\": [\"clics\", \"impressions\", \"ctr\"]\n    },\n\n    \"top_requetes\": {\n      \"type\": \"array\",\n      \"description\": \"Liste des principales requêtes (France et international)\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"requete\": { \"type\": \"string\" },\n          \"clics\": { \"type\": \"number\" },\n          \"impressions\": { \"type\": \"number\" },\n          \"ctr\": { \"type\": \"number\" },\n          \"position\": { \"type\": \"number\" },\n          \"pays\": { \"type\": \"string\", \"description\": \"Pays d’origine majoritaire de la requête\" }\n        },\n        \"required\": [\"requete\", \"clics\", \"impressions\"]\n      }\n    },\n\n    \"focus_international\": {\n      \"type\": \"object\",\n      \"description\": \"Focus sur les performances SEO à l’international\",\n      \"properties\": {\n        \"pays_principaux\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"pays\": { \"type\": \"string\" },\n              \"part\": { \"type\": \"number\", \"description\": \"Part du trafic (%)\" },\n              \"ctr\": { \"type\": \"number\" },\n              \"position\": { \"type\": \"number\" },\n              \"categorie\": { \"type\": \"string\", \"description\": \"Catégorie : 🌍, 🚀 ou 🌱\" }\n            },\n            \"required\": [\"pays\", \"part\"]\n          }\n        },\n        \"pages_internationales\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"url\": { \"type\": \"string\" },\n              \"clics\": { \"type\": \"number\" },\n              \"impressions\": { \"type\": \"number\" },\n              \"ctr\": { \"type\": \"number\" },\n              \"position\": { \"type\": \"number\" }\n            },\n            \"required\": [\"url\"]\n          }\n        },\n        \"requêtes_internationales\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"requete\": { \"type\": \"string\" },\n              \"pays\": { \"type\": \"string\" },\n              \"clics\": { \"type\": \"number\" },\n              \"impressions\": { \"type\": \"number\" },\n              \"ctr\": { \"type\": \"number\" },\n              \"position\": { \"type\": \"number\" }\n            },\n            \"required\": [\"requete\", \"pays\"]\n          }\n        }\n      }\n    },\n\n    \"top_pages\": {\n      \"type\": \"array\",\n      \"description\": \"Pages les plus performantes\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"url\": { \"type\": \"string\" },\n          \"clics\": { \"type\": \"number\" },\n          \"impressions\": { \"type\": \"number\" },\n          \"ctr\": { \"type\": \"number\" },\n          \"position\": { \"type\": \"number\" }\n        },\n        \"required\": [\"url\", \"clics\"]\n      }\n    },\n\n    \"indexation\": {\n      \"type\": \"object\",\n      \"description\": \"État d’indexation et erreurs\",\n      \"properties\": {\n        \"non_indexees\": { \"type\": \"integer\" },\n        \"exclues\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"url\": { \"type\": \"string\" },\n              \"motif\": { \"type\": \"string\" }\n            }\n          }\n        },\n        \"erreurs_4xx\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"erreurs_5xx\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n      }\n    },\n\n    \"core_web_vitals\": {\n      \"type\": \"object\",\n      \"description\": \"Performances Web (Core Web Vitals)\",\n      \"properties\": {\n        \"lcp\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"moyenne\": { \"type\": \"number\" },\n            \"pages_mauvaises\": { \"type\": \"integer\" }\n          }\n        },\n        \"cls\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"moyenne\": { \"type\": \"number\" },\n            \"pages_instables\": { \"type\": \"integer\" }\n          }\n        },\n        \"inp\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"moyenne\": { \"type\": \"number\" },\n            \"pages_lentes\": { \"type\": \"integer\" }\n          }\n        }\n      }\n    },\n\n    \"sitemaps\": {\n      \"type\": \"object\",\n      \"description\": \"Informations sur les sitemaps\",\n      \"properties\": {\n        \"envoyees\": { \"type\": \"integer\" },\n        \"indexees\": { \"type\": \"integer\" },\n        \"taux_indexation\": { \"type\": \"number\" },\n        \"internationaux\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"url\": { \"type\": \"string\" },\n              \"taux_indexation\": { \"type\": \"number\" }\n            }\n          }\n        }\n      }\n    },\n\n    \"mobile_vs_desktop\": {\n      \"type\": \"array\",\n      \"description\": \"Comparaison des performances entre mobile et desktop\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"url\": { \"type\": \"string\" },\n          \"ecart\": { \"type\": \"number\" }\n        }\n      }\n    }\n  },\n\n  \"required\": [\"globales\", \"top_requetes\", \"top_pages\", \"indexation\", \"core_web_vitals\"]\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        272
+      ],
+      "id": "e766067a-8ab0-48f1-a394-2f2d5ca2795a",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        480
+      ],
+      "id": "314cfadc-7522-4825-9eab-7dc844258f5e",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-22T13:31:04.096Z",
+      "updatedAt": "2025-10-22T13:31:04.096Z",
+      "role": "workflow:owner",
+      "workflowId": "O5QEkfjOR5JsoH5Q",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-23T05:45:17.645Z",
+  "versionId": "8deec34c-32fd-4fb3-9dd5-36f11ead9d80"
+}
