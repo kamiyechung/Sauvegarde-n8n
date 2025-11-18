@@ -1,0 +1,405 @@
+{
+  "active": false,
+  "connections": {
+    "Search a page in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a page in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a database in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search a database in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search a page in Notion1": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a page in Notion1": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a database page in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a database page in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger Notion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-10T08:07:20.030Z",
+  "id": "xjYDUWMsQICxbf2C",
+  "isArchived": true,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Parent_Page', ``, 'string') }}"
+        },
+        "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        240
+      ],
+      "id": "5e5c51bc-6bf3-4c95-b6e2-b89cc18885e0",
+      "name": "Create a page in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        240
+      ],
+      "id": "08967d2b-eb4d-4c79-a80b-55b4094f0a4d",
+      "name": "Search a page in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "database",
+        "databaseId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Database', ``, 'string') }}",
+          "__regex": "(?:https|http)://www\\.notion\\.so/(?:[a-z0-9-]{2,}/)?([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})"
+        }
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        240
+      ],
+      "id": "8e33883e-56bf-4e5a-bf56-5004831577a0",
+      "name": "Get a database in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "database",
+        "operation": "search",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search_Text', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        240
+      ],
+      "id": "d7a45119-2eb3-4eeb-bfc3-6d7156e2db14",
+      "name": "Search a database in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "2209bebc-3d19-425c-aaf2-6ac8f5890376"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        464,
+        16
+      ],
+      "id": "b6c7fa41-875c-4e9b-b0b1-e1fee6ab847c",
+      "name": "MCP Server Trigger Notion",
+      "webhookId": "2209bebc-3d19-425c-aaf2-6ac8f5890376"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search_Text', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        240
+      ],
+      "id": "e1b8f819-dcb3-41d3-ad2c-e9d17c50eaf0",
+      "name": "Search a page in Notion1",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Database', ``, 'string') }}",
+          "mode": "id",
+          "__regex": "^([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        240
+      ],
+      "id": "ef6b7ce8-860d-4a83-8fd8-b7ad91fdf37a",
+      "name": "Get many database pages in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Parent_Page', ``, 'string') }}"
+        },
+        "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        240
+      ],
+      "id": "249dd45c-f2a5-4cb6-a52a-5bfcdc3be466",
+      "name": "Create a page in Notion1",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Database', ``, 'string') }}",
+          "mode": "id",
+          "__regex": "^([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})"
+        },
+        "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        240
+      ],
+      "id": "abd0f0a0-6376-4ce0-b3ee-7b389d1be0f4",
+      "name": "Create a database page in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Database_Page', ``, 'string') }}"
+        },
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', ``, 'boolean') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        240
+      ],
+      "id": "122e20fa-4c52-4338-8153-4bc74cd9b84c",
+      "name": "Update a database page in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Database_Page', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        208
+      ],
+      "id": "43ef439c-f3ad-4551-a80e-c7e2011cd937",
+      "name": "Get a database page in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "v1eIH48LRCqq48t5",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-10T08:07:20.030Z",
+      "updatedAt": "2025-10-10T08:07:20.030Z",
+      "role": "workflow:owner",
+      "workflowId": "xjYDUWMsQICxbf2C",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-11T05:06:17.406Z",
+  "versionId": "ccb3b683-cf2a-43e5-8fe6-d79290f977a1"
+}
