@@ -1,0 +1,120 @@
+{
+  "active": false,
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        []
+      ]
+    },
+    "If Debug Mode": {
+      "main": [
+        [
+          {
+            "node": "Debug Log Dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-22T13:29:32.371Z",
+  "id": "FLtv0nAYX3KayOb5",
+  "isArchived": true,
+  "meta": null,
+  "name": "SEO - Init Dates (3 mois)",
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { debug: true, message: `🔍 [DEBUG] Dates générées: ${$json.infosDate}` } }];"
+      },
+      "id": "8342fc8c-47d8-4258-b91c-224363bd07c9",
+      "name": "Debug Log Dates",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        864,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "43bcec89-233c-4c03-87d5-ebc426574d2e",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\n\n// Calcul période\nconst dateActuelle = now.toISOString().split('T')[0];\n\n// Il y a 3 jours (Search Console = délai)\nconst il_y_a_3_jours = new Date(now);\nil_y_a_3_jours.setDate(now.getDate() - 3);\nconst datePourSearchConsole = il_y_a_3_jours.toISOString().split('T')[0];\n\n// Il y a 90 jours\nconst il_y_a_90j = new Date(now);\nil_y_a_90j.setDate(now.getDate() - 90);\nconst il_y_a_90_jours = il_y_a_90j.toISOString().split('T')[0];\n\n// Clé de session\nconst sessionKey = `camille-patisserie-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;\n\nreturn [\n  {\n    json: {\n      periode: {\n        debut: il_y_a_90_jours,\n        fin: datePourSearchConsole\n      },\n      dateActuelle,\n      sessionKey,\n      debug: true,\n      infosDate: `Période: ${il_y_a_90_jours} → ${datePourSearchConsole}`\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "649c0a83-9438-4f4e-a919-0d16a6647a59",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.debug === 'true' }}"
+            }
+          ]
+        }
+      },
+      "id": "d14b4766-ce3f-4b80-b06d-b501a5a56551",
+      "name": "If Debug Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        672,
+        16
+      ]
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-22T13:29:32.371Z",
+      "updatedAt": "2025-10-22T13:29:32.371Z",
+      "role": "workflow:owner",
+      "workflowId": "FLtv0nAYX3KayOb5",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-10T10:39:32.990Z",
+  "versionId": "a59a7a88-18c3-4a09-80ec-0f513b7f8d0f"
+}
