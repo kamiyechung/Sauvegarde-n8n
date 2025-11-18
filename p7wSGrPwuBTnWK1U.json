@@ -1,0 +1,198 @@
+{
+  "active": false,
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 2 - Analyse sémantique",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 2 - Analyse sémantique": {
+      "main": [
+        [
+          {
+            "node": "If Debug Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Debug Mode": {
+      "main": [
+        [
+          {
+            "node": "Debug Log - Analyse sémantique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Agent 2 - Analyse sémantique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Agent 2 - Analyse sémantique",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-22T13:32:25.528Z",
+  "id": "p7wSGrPwuBTnWK1U",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "SEO - Analyse sémantique (3 mois)",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "value": "claude-3-5-haiku-20241022",
+          "mode": "list"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "1aa507fc-9969-4916-a6cd-ac544fa5d51e",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        240
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "ZbZl90Lb8InIiwYE",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert SEO chargé d’analyser les performances sémantiques du site www.camille-patisserie.com à partir des données de la Google Search Console.\n\n---\n\n### Données d’entrée\nPériode : {{ $json.periode.debut }} → {{ $json.periode.fin }}\nCollecte : {{ JSON.stringify($json.collecte) }}\n\n---\n\n### Objectif\nProduire une analyse claire, orientée performance et opportunités.  \nIdentifier :\n- les requêtes et pages à fort potentiel,  \n- les contenus à améliorer,  \n- les requêtes montantes ou déclinantes,  \n- les cas de cannibalisation,  \n- les opportunités à l’international.\n\n---\n\n### Analyse demandée\n1. **Performance globale**\n   - Résume les tendances de clics, impressions, CTR, positions.\n   - Mentionne les pays et devices les plus performants.\n\n2. **Opportunités sémantiques**\n   - Requêtes avec CTR < 0.1 et position < 10 → snippet à retravailler.  \n   - Position 5–20 → contenu à renforcer.  \n   - Impressions élevées mais peu de clics → manque d’attractivité.\n\n3. **Requêtes montantes / déclinantes**\n   - Classe les requêtes selon leur évolution.  \n   - Commente brièvement les tendances.\n\n4. **Cannibalisation**\n   - Détecte les requêtes partagées par plusieurs pages.  \n   - Indique laquelle prioriser.\n\n5. **International**\n   - Requêtes étrangères performantes ou à potentiel.  \n   - Pages à traduire ou optimiser selon le pays.\n\n6. **Synthèse**\n   - 3 forces sémantiques  \n   - 3 opportunités  \n   - 3 risques  \n   - 2 pistes internationales\n\n---\n\n### Format JSON attendu\n```json\n{\n  \"performances\": {\"clics\": 10572, \"impressions\": 78673, \"ctr\": 0.134, \"position\": 4.5},\n  \"opportunites\": [\n    {\"requete\": \"tarte aux pommes\", \"page\": \"/recettes/tarte-aux-pommes/\", \"action\": \"optimiser meta-title\"},\n    {\"requete\": \"recette gâteau facile\", \"action\": \"créer article connexe\"}\n  ],\n  \"requêtes_montantes\": [{\"requete\": \"patisserie française\", \"evolution_pct\": 22}],\n  \"requêtes_declinaison\": [{\"requete\": \"recette noël\", \"evolution_pct\": -30}],\n  \"cannibalisations\": [{\"requete\": \"tarte aux pommes\", \"urls\": [\"/tarte/\", \"/recettes/tarte/\"]}],\n  \"international\": {\n    \"opportunites\": [\n      {\"requete\": \"french pastries\", \"pays\": \"USA\", \"action\": \"traduire page\"},\n      {\"requete\": \"pâtisserie française\", \"pays\": \"Belgique\", \"action\": \"renforcer contenu\"}\n    ]\n  },\n  \"synthese\": {\n    \"forces\": [\"CTR élevé mobile\", \"bon positionnement desserts maison\"],\n    \"opportunites\": [\"améliorer CTR pages top\", \"développer contenus multilingues\"],\n    \"risques\": [\"CTR faible requêtes concurrentielles\"]\n  }\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "b3723a78-899e-4d8e-b579-e0856cffc011",
+      "name": "Agent 2 - Analyse sémantique",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        16,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.debug === 'true' }}"
+            }
+          ]
+        }
+      },
+      "id": "52ccfddb-c0c2-4cc2-ae15-845454e5e373",
+      "name": "If Debug Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        368,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { message: '🔍 [DEBUG] Résultats analyse sémantique:', data: $json } }];"
+      },
+      "id": "3954c6ba-8146-43f4-a741-c0b7f48b4cbc",
+      "name": "Debug Log - Analyse sémantique",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        592,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "55230ea5-e3b4-4526-9b4c-aa688e2f455c",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"title\": \"Analyse sémantique SEO\",\n  \"properties\": {\n    \"performances\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"clics\": {\"type\": \"number\"},\n        \"impressions\": {\"type\": \"number\"},\n        \"ctr\": {\"type\": \"number\"},\n        \"position\": {\"type\": \"number\"}\n      }\n    },\n    \"opportunites\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"requete\": {\"type\": \"string\"},\n          \"page\": {\"type\": \"string\"},\n          \"action\": {\"type\": \"string\"}\n        }\n      }\n    },\n    \"requêtes_montantes\": {\"type\": \"array\"},\n    \"requêtes_declinaison\": {\"type\": \"array\"},\n    \"cannibalisations\": {\"type\": \"array\"},\n    \"international\": {\"type\": \"object\"},\n    \"synthese\": {\"type\": \"object\"}\n  },\n  \"required\": [\"performances\", \"synthese\"]\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        304
+      ],
+      "id": "98ab830e-9747-4743-9835-102c37c2a273",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-22T13:32:25.528Z",
+      "updatedAt": "2025-10-22T13:32:25.528Z",
+      "role": "workflow:owner",
+      "workflowId": "p7wSGrPwuBTnWK1U",
+      "projectId": "oALk376RbKlV8lOt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-23T05:53:08.805Z",
+  "versionId": "5a79c9f7-b620-4652-af0e-a5d1af87fc5f"
+}
