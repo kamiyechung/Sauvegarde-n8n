@@ -1,0 +1,91 @@
+{
+  "active": false,
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-08T14:20:59.269Z",
+  "id": "qoaFlL1Ma6bL7oKB",
+  "isArchived": false,
+  "meta": null,
+  "name": "[global]Variables temps",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Get current date\nconst now = new Date();\n\n// Format helpers\nconst pad = (n) => n.toString().padStart(2, '0');\n\n// TODAY\nconst today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;\n\n// YESTERDAY\nconst yd = new Date(now);\nyd.setDate(now.getDate() - 1);\nconst yesterday = `${yd.getFullYear()}-${pad(yd.getMonth() + 1)}-${pad(yd.getDate())}`;\n\n// TOMORROW\nconst tm = new Date(now);\ntm.setDate(now.getDate() + 1);\nconst tomorrow = `${tm.getFullYear()}-${pad(tm.getMonth() + 1)}-${pad(tm.getDate())}`;\n\n// LAST WEEK (7 jours en arrière)\nconst lw = new Date(now);\nlw.setDate(now.getDate() - 7);\nconst lastWeek = `${lw.getFullYear()}-${pad(lw.getMonth() + 1)}-${pad(lw.getDate())}`;\n\n// NEXT WEEK (7 jours en avant)\nconst nw = new Date(now);\nnw.setDate(now.getDate() + 7);\nconst nextWeek = `${nw.getFullYear()}-${pad(nw.getMonth() + 1)}-${pad(nw.getDate())}`;\n\n// CURRENT MONTH\nconst currentMonth = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;\n\n// LAST MONTH\nconst lm = new Date(now);\nlm.setMonth(now.getMonth() - 1);\nconst lastMonth = `${lm.getFullYear()}-${pad(lm.getMonth() + 1)}`;\n\n// NEXT MONTH\nconst nm = new Date(now);\nnm.setMonth(now.getMonth() + 1);\nconst nextMonth = `${nm.getFullYear()}-${pad(nm.getMonth() + 1)}`;\n\n// CURRENT YEAR\nconst currentYear = `${now.getFullYear()}`;\n\n// Return usable JSON\nreturn [\n  {\n    today,\n    yesterday,\n    tomorrow,\n    lastWeek,\n    nextWeek,\n    currentMonth,\n    lastMonth,\n    nextMonth,\n    currentYear,\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "fde94ac4-324f-4cc9-87d8-8d46038c7409",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "812fa540-36cc-4a0f-9304-7089644822e2",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        208,
+        0
+      ]
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-08T14:20:59.269Z",
+      "createdAt": "2025-12-08T14:20:59.269Z",
+      "role": "workflow:owner",
+      "workflowId": "qoaFlL1Ma6bL7oKB",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "updatedAt": "2025-12-10T08:17:53.064Z",
+      "createdAt": "2025-12-10T08:17:53.064Z",
+      "id": "bepMwfmLpeePQxuQ",
+      "name": "Global"
+    },
+    {
+      "updatedAt": "2025-12-03T14:44:48.317Z",
+      "createdAt": "2025-12-03T14:44:48.317Z",
+      "id": "82sur1uQrVPQybew",
+      "name": "Administratif"
+    },
+    {
+      "updatedAt": "2025-11-26T21:50:45.750Z",
+      "createdAt": "2025-11-26T21:50:45.750Z",
+      "id": "bVdv5uZuvSz9pfPC",
+      "name": "OK"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-18T18:45:35.486Z",
+  "versionId": "40b7d145-5520-4ce4-9f29-5fd124f5d9af"
+}
