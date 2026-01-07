@@ -1,0 +1,191 @@
+{
+  "active": false,
+  "connections": {
+    "Cron": {
+      "main": [
+        [
+          {
+            "node": "Fetch AdSense (placeholder)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch AdSense (placeholder)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Adsense": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-17T21:50:50.232Z",
+  "id": "yBWGu9uYdZiKKjtB",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "01 AdSense → Supabase (Camille Pâtisserie)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "c5a0a445-d551-488d-af3b-dd91a73d5757",
+      "name": "Cron",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://example.local/mcp/adsense/report?date=yesterday",
+        "authentication": "predefinedCredentialType",
+        "options": {}
+      },
+      "id": "2294d2ff-cc1b-4714-8a61-955b7de03850",
+      "name": "Fetch AdSense (placeholder)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -384,
+        112
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "223d9322-9740-4af9-ab53-122599853852",
+      "name": "Upsert pages",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -16
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Aa2EU8WOIBG6x2pW",
+          "name": "Supabase Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "database"
+      },
+      "id": "47940d50-b73e-4b62-b7be-d3d95ba1afe3",
+      "name": "Upsert adsense_daily",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        272,
+        208
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -144,
+        32
+      ],
+      "id": "74c30af1-6e7d-4059-8f92-41682b964021",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:1.5b-instruct-q4_K_M",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        288
+      ],
+      "id": "5d1fe1e8-46db-4817-bcb9-f99fb1eac046",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://mcp-adsense:3004/mcp/adsense",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        336
+      ],
+      "id": "73d548c2-335d-4f4c-8209-58d733a8416f",
+      "name": "MCP Adsense"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-17T21:50:50.232Z",
+      "createdAt": "2025-12-17T21:50:50.232Z",
+      "role": "workflow:owner",
+      "workflowId": "yBWGu9uYdZiKKjtB",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-17T22:09:00.393Z",
+  "versionId": "954be1ff-cf81-4acf-870a-c8d5c61d3d75"
+}
