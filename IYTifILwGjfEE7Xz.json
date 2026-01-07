@@ -1,0 +1,33 @@
+{
+  "active": false,
+  "connections": {},
+  "createdAt": "2025-12-09T20:51:41.275Z",
+  "id": "IYTifILwGjfEE7Xz",
+  "isArchived": false,
+  "meta": null,
+  "name": "Import des articles de blogs dans Notion",
+  "nodes": [],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-09T20:51:41.275Z",
+      "createdAt": "2025-12-09T20:51:41.275Z",
+      "role": "workflow:owner",
+      "workflowId": "IYTifILwGjfEE7Xz",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-09T20:51:41.275Z",
+  "versionId": "bd088b97-72d0-481b-b479-f0281a3944ee"
+}
