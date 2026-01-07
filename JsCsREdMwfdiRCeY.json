@@ -1,0 +1,528 @@
+{
+  "active": true,
+  "connections": {
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Résumé",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call '[global]Variables temps'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Clean HTML email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Génération rapport html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Parser du merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean HTML email": {
+      "main": [
+        [
+          {
+            "node": "Consolidation par ThreadId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidation par ThreadId": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Résumé",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent -valide la qualité",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser validateur": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Réponse Résumeur": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser du merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent -valide la qualité",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Résumé": {
+      "main": [
+        [
+          {
+            "node": "Réponse Résumeur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent -valide la qualité": {
+      "main": [
+        [
+          {
+            "node": "Parser validateur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Génération rapport html": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call '[global]Variables temps'": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-28T14:22:24.968Z",
+  "id": "JsCsREdMwfdiRCeY",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[Perso Camille] Syndic rapport",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        672
+      ],
+      "id": "73066ddc-07d9-4b0a-8ef2-a3677b0939c4",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                2
+              ]
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        528
+      ],
+      "id": "410baa3b-b544-4b05-ba59-6f0144dac809",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "Label_1107215070567604782"
+          ],
+          "receivedAfter": "={{ $json.lastWeek }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        576
+      ],
+      "id": "dc8f7051-0033-4a56-aeaa-1dcc1c845fe4",
+      "name": "Get many messages",
+      "webhookId": "362a49f9-0ea0-4114-9486-4500fd3b66c0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3xiqK9fngC1p7knM",
+          "name": "Gmail account Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "camille.bideau@gmail.com, huguet.thomas@gmail.com",
+        "subject": "=Rapport syndic",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3248,
+        576
+      ],
+      "id": "89d78d06-ecba-446d-8608-238cefff76df",
+      "name": "Send a message",
+      "webhookId": "70f9e7c0-87ff-4d10-a01a-1ca20a6141ef",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3xiqK9fngC1p7knM",
+          "name": "Gmail account Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CORRECTION DE RÉSUMÉ - \n\nRésumé précédent :\n{{ $('Parser du merge').item.json.summary_texte }}\n\nErreurs détectées :\n{{ $json.erreurs_critiques }}\n\nCONSIGNES DE CORRECTION :\nCorrige UNIQUEMENT les erreurs listées ci-dessus.\nRespecte strictement le contenu de l'email original.\nN'invente AUCUNE information.\n\nFORMAT JSON (identique au premier) :\n{ ... }\n\nSi aucune erreur n'est détectée, ne touche pas au fichier",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2672,
+        576
+      ],
+      "id": "99d93aa7-972d-46e0-b787-e06d974a294f",
+      "name": "AI Agent2",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "threadId",
+              "field2": "threadId"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1648,
+        576
+      ],
+      "id": "8c67ba61-8fbd-4730-814d-1b1a56900b35",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const email = $input.item.json;\n\nfunction stripHtml(html) { \n  return html.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\n}\n\nfunction stripHistory(text) { \n  return text.split(/(?:Le |On |From:)/)[0].trim();\n}\n\nfunction stripSignature(text) { \n  return text.split(/(?:Cordialement|Bien cordialement|Cdlt)/i)[0].trim();\n}\n\nfunction cleanup(text) { \n  return text.replace(/\\s+/g, ' ').trim();\n}\n\nlet raw = email.text || email.html || \"\";\nif (email.html && !email.text) { \n  raw = stripHtml(email.html); \n}\n\nlet cleaned = stripHistory(raw);\ncleaned = stripSignature(cleaned);\ncleaned = cleanup(cleaned);\n\nreturn {\n  json: {\n    id: email.messageId || email.id || \"\",\n    subject: email.subject || \"\",\n    threadId: email.threadId || \"\",\n    internalDate: email.internalDate || \"\",\n    titre: email.subject || \"\",\n    email_complet: cleaned || \"\",\n    expediteur: email.from?.value?.[0]?.name || \"\",\n    dateenvoi : $json.date || \"\",\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        576
+      ],
+      "id": "d0c0968e-544a-4071-891b-a02975f4be92",
+      "name": "Clean HTML email"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Grouper par threadId\nconst threads = {};\nitems.forEach(item => {\n  const tid = item.json.threadId;\n  if (!threads[tid]) {\n    threads[tid] = {\n      threadId: tid,\n      emails: []\n    };\n  }\n  threads[tid].emails.push(item.json);\n});\n\n// Retourner un item par thread\nreturn Object.values(threads).map(thread => ({\n  json: thread\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        576
+      ],
+      "id": "10ff6079-a9e6-4de4-80c1-63a4f487b92b",
+      "name": "Consolidation par ThreadId"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        800
+      ],
+      "id": "37518777-1590-4288-aeed-339c8fd39dc2",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const validatorInputs = $input.all();\nconst mergeOutputs = $('Parser du merge').all();\n\nreturn validatorInputs.map((item, index) => {\n  let text = item.json.output;\n  \n  // Parser la validation\n  text = text.replace(/```json/g, '');\n  text = text.replace(/```/g, '');\n  text = text.replace(/\\n/g, '');\n  text = text.trim();\n  \n  const start = text.indexOf('{');\n  const end = text.lastIndexOf('}') + 1;\n  const jsonStr = text.substring(start, end);\n  const validation = JSON.parse(jsonStr);\n  \n  // Récupère les données correspondantes du merge\n  const dataOriginal = mergeOutputs[index].json;\n  \n  return {\n    json: {\n      // Garde TOUTES les données originales\n      threadId: dataOriginal.threadId,\n      emails: dataOriginal.emails,\n      emails_texte_complet: dataOriginal.emails_texte_complet,\n      summary_texte: dataOriginal.summary_texte,\n      summary_json: dataOriginal.summary_json,\n      resume_seul: dataOriginal.resume_seul,\n      // Ajoute la validation\n      validation: validation.validation,\n      score_fidelite: validation.score_fidelite,\n      erreurs_critiques: validation.erreurs_critiques,\n      suggestions: validation.suggestions\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        576
+      ],
+      "id": "57c5a534-cce4-48c4-8340-ef0ac44d6508",
+      "name": "Parser validateur"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  try {\n    let text = item.json.output;\n    \n    // Supprimer les balises markdown\n    text = text.replace(/```json/g, '');\n    text = text.replace(/```/g, '');\n    text = text.trim();\n    \n    // Extraire le JSON\n    const start = text.indexOf('{');\n    const end = text.lastIndexOf('}') + 1;\n    const jsonStr = text.substring(start, end);\n    \n    return { \n      json: JSON.parse(jsonStr) \n    };\n  } catch (e) {\n    console.error('Parse error:', e);\n    return {\n      json: {\n        error: 'Failed to parse',\n        raw: item.json.output\n      }\n    };\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1424,
+        448
+      ],
+      "id": "e2671919-9e80-43bf-a4fd-fa8851f2987a",
+      "name": "Réponse Résumeur"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json;\n  \n  // Fusionner tous les contenus d'emails\n  const emailsFusionnes = data.emails.map((email, index) => {\n    return `\nEmail ${index + 1} - ${email.expediteur} (${new Date(email.dateenvoi).toLocaleDateString('fr-FR')})\nSujet: ${email.subject}\n\n${email.email_complet}\n`;\n  }).join('\\n---\\n');\n  \n  // Créer le texte du résumé au format lisible\n  const summaryTexte = `\nTitre: ${data.titre}\n\nProblème: ${data.probleme}\n\nÉtat: ${data.etat}\n\nAction suivante: ${data.action_suivante}\n\nMontants: ${data.montants.length > 0 ? JSON.stringify(data.montants, null, 2) : 'Aucun'}\n\nEntreprises: ${data.entreprises.join(', ') || 'Aucune'}\n\nDocuments: ${data.documents.join(', ') || 'Aucun'}\n\nBlocage: ${data.blocage || 'Aucun'}\n`.trim();\n  \n  return {\n    json: {\n      threadId: data.threadId,\n      emails: data.emails,\n      emails_texte_complet: emailsFusionnes,\n      summary_texte: summaryTexte, // Version texte pour le prompt\n      summary_json: data, // Version JSON complète\n      resume_seul: summaryTexte\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        576
+      ],
+      "id": "482c4d50-9f39-49c2-95c6-f5fcb4a8e7eb",
+      "name": "Parser du merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant syndic. Analyse ce fil d'emails et produis un résumé JSON structuré.\n\nThreadId: {{ $json.threadId }}\nEmails: {{ JSON.stringify($json.emails, null, 2) }}\n\nRÈGLES :\n- Lis chronologiquement, identifie qui parle (syndic/copropriétaire/prestataire/CS)\n- Rédige à la 3ème personne (ex: \"Jeremy indique que...\")\n- Utilise dates exactes, jamais \"aujourd'hui/demain\"\n- N'invente rien, si doute → état \"en cours\"\n- Extrais TOUS montants (avec bâtiment A/B/C/D/E/ASL si mentionné), entreprises, documents\n- Le lecteur doit comprendre tout le contexte dans la phrase (il ne sait rien du sujet)\nExemple : \nMauvaise formulation (trop vague): \"Le CS a contacté PICHET concernant les caméras, une réponse est attendue\" \nBonne formulation : \"PICHET doit revenir vers le CS concernant la possibilité ou non de conserver les caméras\"\n\nVOCABULAIRE :\nCharges=dépenses, AG=Assemblée Générale, CS=Conseil Syndical, Lot=appartement, Parties communes=espaces partagés\n\nSORTIE (JSON uniquement, rien d'autre) :\n{\n  \"titre\": \"résumé en 1 phrase\",\n  \"probleme\": \"max 5 phrases, contexte complet\",\n  \"etat\": \"en cours|résolu|bloqué\",\n  \"action_suivante\": \"qui fait quoi + deadline si mentionnée\",\n  \"montants\": [\"montant + contexte + bât si précisé\"],\n  \"entreprises\": [\"noms\"],\n  \"documents\": [\"types\"],\n  \"blocage\": \"si explicite sinon vide\",\n  \"threadId\": \"{{ $json.threadId }}\"\n}\n\nSi info absente → \"\" ou []\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "",
+          "batching": {
+            "delayBetweenBatches": 100
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        448
+      ],
+      "id": "30f682ad-28a0-44f8-a819-3a559c1beb7d",
+      "name": "AI Agent - Résumé",
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un vérificateur de résumés d'emails de syndic.\n\nEMAILS ORIGINAUX :\n{{ $json.emails_texte_complet }}\n\nRÉSUMÉ À VÉRIFIER :\n{{ $json.summary_texte }}\n\nTa mission : note le résumé sur 10.\n\nDONNE DES POINTS SI :\n- Le résumé capture les idées principales (+4 points)\n- Les montants, dates et noms sont corrects (+3 points)  \n- Aucune information n'est inventée (+3 points)\n\nRETIRE DES POINTS SI :\n- Information inventée (absente des emails) → score maximum 4\n- Contresens grave (dit le contraire) → score maximum 3\n- Oubli d'un montant important → -2 points\n- Le contexte est manquant, la phrase est générique et ne décrit pas le problème → -2 points\n- Oubli d'une action critique → -1 point\n- Un nom est incorrect → score maximum 4\n   Ghita Acharhabi\n   Isabelle Sene\n   Jeremy Saurel\n   Géraldine Thoorens\n\nVALIDATION :\n- score ≥ 7 → validation true\n- score < 7 → validation false\n\nRéponds UNIQUEMENT avec ce format de JSON, rien d'autre :\n{\n  \"validation\": true,\n  \"score_fidelite\": 8,\n  \"erreurs_critiques\": [],\n  \"suggestions\": \"\"\n}\n\nSi tu trouves une erreur grave, mets-la dans erreurs_critiques. Sinon laisse le tableau vide.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2096,
+        576
+      ],
+      "id": "aaea9013-e30d-4cbd-b9f8-a6e42a3c488c",
+      "name": "AI Agent -valide la qualité",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all();\n\n// Récupérer la date du jour\nconst options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };\nconst dateAujourdhui = new Date().toLocaleDateString('fr-FR', options);\n\n// Compter le nombre de fils de discussion\nconst nbThreads = data.length;\n\n// Début du HTML avec titre global\nlet htmlComplet = `<div style=\"font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;\">\n  <h1 style=\"color: #0066cc;\">Rapport syndic - ${dateAujourdhui}</h1>\n  <p style=\"font-size: 16px; color: #666;\">${nbThreads} fil(s) de discussion</p>\n  <hr style=\"border: 1px solid #ddd; margin: 20px 0;\">`;\n\n// Parcourir chaque email\ndata.forEach(item => {\n  let parsed;\n  const output = item.json.output;\n  \n  // Nettoyer le JSON si besoin (enlever les backticks markdown)\n  const cleanOutput = output.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  \n  try {\n    parsed = JSON.parse(cleanOutput);\n  } catch (e) {\n    console.error('Erreur parsing:', e);\n    return;\n  }\n  \n  const titre = parsed.Titre || parsed.titre || '';\n  const probleme = parsed.Problème || parsed.problème || '';\n  const etat = parsed.État || parsed.état || '';\n  const action = parsed['Action suivante'] || parsed.action_suivante || '';\n  const montants = parsed.Montants || parsed.montants || [];\n  const entreprises = parsed.Entreprises || parsed.entreprises || [];\n  const documents = parsed.Documents || parsed.documents || [];\n  const blocage = parsed.Blocage || parsed.blocage || '';\n  \n  let badgeColor = '#999';\n  if (etat.toLowerCase().includes('cours')) badgeColor = '#ff9800';\n  if (etat.toLowerCase().includes('résolu')) badgeColor = '#4caf50';\n  \n  htmlComplet += `\n  <div style=\"margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 4px solid #0066cc;\">\n    <h2 style=\"color: #333; margin: 0 0 10px 0;\">${titre}</h2>\n    <p style=\"margin: 10px 0;\">\n      <span style=\"display: inline-block; padding: 4px 12px; background: ${badgeColor}; color: white; border-radius: 4px; font-size: 12px; font-weight: bold;\">\n        ${etat.toUpperCase()}\n      </span>\n    </p>`;\n  \n  if (probleme) {\n    htmlComplet += `<p style=\"color: #555; line-height: 1.6;\">${probleme}</p>`;\n  }\n  \n  if (action) {\n    htmlComplet += `<p style=\"margin: 15px 0; padding: 10px; background: #fff3cd; border-left: 3px solid #ffc107;\">\n      <strong>🎯 Action :</strong> ${action}\n    </p>`;\n  }\n  \n  if (montants && montants !== 'Aucun') {\n    if (Array.isArray(montants)) {\n      montants.forEach(m => {\n        htmlComplet += `<p style=\"margin: 10px 0;\"><strong>💰 Montants :</strong> ${m.montant} (${m.contexte})</p>`;\n      });\n    } else {\n      htmlComplet += `<p style=\"margin: 10px 0;\"><strong>💰 Montants :</strong> ${montants}</p>`;\n    }\n  }\n  \n  if (entreprises && entreprises !== 'Aucune') {\n    const listeEntreprises = Array.isArray(entreprises) ? entreprises.join(', ') : entreprises;\n    htmlComplet += `<p style=\"margin: 10px 0;\"><strong>🏢 Entreprises :</strong> ${listeEntreprises}</p>`;\n  }\n  \n  if (documents && documents !== 'Aucun') {\n    const listeDocs = Array.isArray(documents) ? documents.join(', ') : documents;\n    htmlComplet += `<p style=\"margin: 10px 0;\"><strong>📄 Documents :</strong> ${listeDocs}</p>`;\n  }\n  \n  if (blocage && blocage !== 'Aucun') {\n    htmlComplet += `<p style=\"margin: 15px 0; padding: 10px; background: #ffebee; border-left: 3px solid #f44336; color: #c62828;\">\n      <strong>⚠️ Blocage :</strong> ${blocage}\n    </p>`;\n  }\n  \n  htmlComplet += `</div>`;\n});\n\nhtmlComplet += `\n  <hr style=\"border: 1px solid #ddd; margin: 30px 0;\">\n  <p style=\"color: #999; font-size: 12px; text-align: center;\">Rapport généré automatiquement</p>\n</div>`;\n\nreturn [{\n  json: {\n    titre: `Rapport syndic - ${dateAujourdhui}`,\n    html: htmlComplet,\n    nb_threads: nbThreads\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3024,
+        576
+      ],
+      "id": "f5df068d-9cf0-4a21-9dbf-3a8cda586353",
+      "name": "Génération rapport html"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "qoaFlL1Ma6bL7oKB",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/qoaFlL1Ma6bL7oKB",
+          "cachedResultName": "[global]Variables temps"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        544
+      ],
+      "id": "32e2392a-4b97-4964-ba71-36eb8fadea51",
+      "name": "Call '[global]Variables temps'"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-28T14:22:24.968Z",
+      "createdAt": "2025-11-28T14:22:24.968Z",
+      "role": "workflow:owner",
+      "workflowId": "JsCsREdMwfdiRCeY",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "tags": [
+    {
+      "updatedAt": "2025-12-03T14:44:48.317Z",
+      "createdAt": "2025-12-03T14:44:48.317Z",
+      "id": "82sur1uQrVPQybew",
+      "name": "Administratif"
+    },
+    {
+      "updatedAt": "2025-11-26T21:50:45.750Z",
+      "createdAt": "2025-11-26T21:50:45.750Z",
+      "id": "bVdv5uZuvSz9pfPC",
+      "name": "OK"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-18T14:55:31.005Z",
+  "versionId": "9f1e689b-1ad6-4b57-8a97-c37f828c1b71"
+}
