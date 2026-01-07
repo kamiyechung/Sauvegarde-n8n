@@ -1,0 +1,287 @@
+{
+  "active": true,
+  "connections": {
+    "Get many rows": {
+      "main": [
+        []
+      ]
+    },
+    "Conversion des emails": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Conversion des emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2025-12-08T20:17:01.306Z",
+  "id": "hYv4PisxR3ZlSBXH",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[fonctions supports] Ajout des mails sur supabase",
+  "nodes": [
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "operation": "getAll",
+        "tableId": "syndic_emails",
+        "returnAll": true,
+        "matchType": "allFilters"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -320
+      ],
+      "id": "58cbfc60-ddb9-4ded-b431-b6c0d86f658e",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Aa2EU8WOIBG6x2pW",
+          "name": "Supabase Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "syndic_emails",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "gmail_id",
+              "fieldValue": "={{ $json.gmail_id }}"
+            },
+            {
+              "fieldId": "thread_id",
+              "fieldValue": "={{ $json.thread_id }}"
+            },
+            {
+              "fieldId": "from_email",
+              "fieldValue": "={{ $json.from_email }}"
+            },
+            {
+              "fieldId": "to_email",
+              "fieldValue": "={{ $json.to_emails[0] }}"
+            },
+            {
+              "fieldId": "subject",
+              "fieldValue": "={{ $json.subject }}"
+            },
+            {
+              "fieldId": "raw",
+              "fieldValue": "={{ $json.text_content }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -240
+      ],
+      "id": "edfc1d18-ef36-4f6b-80df-e9467a8c3620",
+      "name": "Create a row",
+      "retryOnFail": false,
+      "maxTries": 2,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Aa2EU8WOIBG6x2pW",
+          "name": "Supabase Camille"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const email = Array.isArray($input.item.json) ? $input.item.json[0] : $input.item.json;\n\n// Fonction pour extraire uniquement le premier message (pas l'historique)\nfunction extractFirstMessage(text) {\n  if (!text) return '';\n  \n  // Cherche les marqueurs courants de début d'historique\n  const markers = [\n    '--- original message ---',\n    '--- end of original message ---',\n    'On December',\n    'On November',\n    '> On ',\n    '>>>',\n    'Retrouvez notre centre d\\'aide syndic en ligne'\n  ];\n  \n  let firstMessageEnd = text.length;\n  \n  for (const marker of markers) {\n    const index = text.indexOf(marker);\n    if (index !== -1 && index < firstMessageEnd) {\n      firstMessageEnd = index;\n    }\n  }\n  \n  // Retourne le texte jusqu'au premier marqueur trouvé et nettoie\n  return text.substring(0, firstMessageEnd).trim();\n}\n\nconst firstMessageText = extractFirstMessage(email.text);\n\nreturn {\n  json: {\n    gmail_id: email.id,\n    thread_id: email.threadId,\n    message_id: email.messageId,\n    date: email.date,\n    received_at: new Date().toISOString(),\n    from_email: email.from.value[0].address,\n    from_name: email.from.value[0].name,\n    to_emails: email.to.value.map(t => t.address),\n    to_names: email.to.value.map(t => t.name),\n    subject: email.subject,\n    text_content: firstMessageText,\n    reply_to: email.replyTo?.value?.[0]?.address || null,\n    in_reply_to: email.inReplyTo || null,\n    references: email.references || [],\n    label_ids: email.labelIds || [],\n    size_estimate: email.sizeEstimate\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -96
+      ],
+      "id": "a503166d-8fec-4396-bfd5-416511a63dd5",
+      "name": "Conversion des emails",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 23
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "Label_1107215070567604782"
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        -96
+      ],
+      "id": "cf059712-4b1c-411a-90ee-44b25d847b5e",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3xiqK9fngC1p7knM",
+          "name": "Gmail account Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant de gestion de copropriété pour le Bâtiment C de la résidence de Bobigny.\n\nTa mission est d'analyser les emails provenant du syndic MANDA (copro@manda.fr, Jeremy Saurel) et d'identifier ceux qui nécessitent une action ou une réponse de la part du Bâtiment C ou de ses représentants. Si le mail requiert une réponse, tu DOIS utiliser le MCP Gmail\n\nSujet du mail : {{ $json.subject }}\nMail : {{ $json.text_content }}\n\n\nDESTINATAIRES À SURVEILLER :\n- Camille BIDEAU (camille.bideau@gmail.com)\n- Camille HUGUET (huguet.thomas@gmail.com - mari de Camille Bideau)\n- Toute mention du \"Bâtiment C\" ou \"bât C\"\n- Conseil syndical du Bâtiment C\n\nSITUATIONS NÉCESSITANT UNE ALERTE :\n1. Demande d'information spécifique au Bâtiment C\n2. Demande de validation ou confirmation (documents, budgets, comptes)\n3. Demande d'action avant une date limite\n4. Questions restées sans réponse\n5. Convocation aux assemblées générales du Bâtiment C\n6. Problèmes techniques ou incidents concernant le Bâtiment C\n7. Documents à valider ou signer pour le Bâtiment C\n\nQUAND ENVOYER UN EMAIL D'ALERTE :\nSi le mail du syndic :\n- Mentionne explicitement \"Bâtiment C\" ou \"bât C\"\n- Demande une réponse ou action à \"Madame Bideau\", \"Camille\", ou \"Thomas Huguet\"\n- Contient une échéance/deadline nécessitant une action\n- Pose une question directe nécessitant une réponse\n- Signale un problème ou incident\n\nCOMMENT ENVOYER L'ALERTE :\nUtilise le MCP Gmail pour envoyer un email à camille.bideau@gmail.com avec :\n- Objet : \"[SYNDIC] Action requise : [sujet du mail]\"\n- Corps : Résumé concis du mail du syndic + action attendue + deadline si applicable\n- Lien vers le mail original si possible\n\nEXEMPLE D'EMAIL D'ALERTE :\nObjet : [SYNDIC] Action requise : Validation budget Bâtiment C avant demain\nCorps : \nBonjour Camille,\n\nLe syndic demande une réponse urgente :\n- Validation du fichier budget pour le Bâtiment C\n- Deadline : avant demain (19 décembre)\n- Contact : Isabelle (via Jeremy copro@manda.fr)\n\nContexte : Isabelle attend ce document pour finaliser les comptes avant l'envoi des convocations AG.\n\nNE PAS ENVOYER D'ALERTE si :\n- Le mail est purement informatif sans action requise\n- Le mail concerne uniquement d'autres bâtiments (A, B, D, E)\n- Le mail ne mentionne pas le Bâtiment C\n- C'est un simple accusé de réception ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        672,
+        -112
+      ],
+      "id": "11052830-79da-4546-b23a-59f917961f6c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        560,
+        32
+      ],
+      "id": "7118afcb-0946-4847-821b-ce840bab55b5",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://mcp-gmail:3002/mcp/gmail ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        992,
+        48
+      ],
+      "id": "6c533be1-141d-4984-bbb5-696ec223b3b5",
+      "name": "MCP Gmail"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-08T20:17:01.306Z",
+      "createdAt": "2025-12-08T20:17:01.306Z",
+      "role": "workflow:owner",
+      "workflowId": "hYv4PisxR3ZlSBXH",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": {
+    "node:Gmail Trigger": {
+      "Gmail Trigger": {
+        "lastTimeChecked": 1767374106,
+        "possibleDuplicates": [
+          "19b7fb4be6bbb428"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "updatedAt": "2025-12-03T14:44:48.317Z",
+      "createdAt": "2025-12-03T14:44:48.317Z",
+      "id": "82sur1uQrVPQybew",
+      "name": "Administratif"
+    },
+    {
+      "updatedAt": "2025-11-26T21:50:45.750Z",
+      "createdAt": "2025-11-26T21:50:45.750Z",
+      "id": "bVdv5uZuvSz9pfPC",
+      "name": "OK"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-12-18T13:54:30.624Z",
+  "versionId": "990b31e1-2a25-482b-bd75-1d701c3d6a43"
+}
