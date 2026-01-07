@@ -1,0 +1,388 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Récupérer threads uniques",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Récupérer threads uniques": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emails du thread": {
+      "main": [
+        [
+          {
+            "node": "Agréger emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sauvegarder résumé": {
+      "main": [
+        [
+          {
+            "node": "Attendre 3s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attendre 3s": {
+      "main": [
+        [
+          {
+            "node": "Batch de 1 thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Sauvegarder résumé",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Supabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch de 1 thread": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Emails du thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Batch de 1 thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agréger emails": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-21T14:37:01.954Z",
+  "id": "moJOFyNBZQFbAylf",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Résumé threads - Rattrapage 800 messages",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7cac16e9-4752-4556-97b4-09939bd8a623",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "tableId": "syndic_emails"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        624,
+        -112
+      ],
+      "id": "61c29fa4-cf73-4d53-8870-49cb8d3bca82",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Aa2EU8WOIBG6x2pW",
+          "name": "Supabase Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "syndic_emails",
+        "returnAll": true,
+        "filterType": "none"
+      },
+      "id": "3e22f619-8db6-417d-b628-083b192b083f",
+      "name": "Récupérer threads uniques",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        464,
+        64
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Aa2EU8WOIBG6x2pW",
+          "name": "Supabase Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "syndic_emails",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "thread_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.thread_id }}"
+            }
+          ]
+        }
+      },
+      "id": "70bca1cd-2268-4a96-ab95-100a40a3c45d",
+      "name": "Emails du thread",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        32
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Aa2EU8WOIBG6x2pW",
+          "name": "Supabase Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const thread_id = $input.first().json.thread_id;\nconst emails = $input.all().map(item => ({\n  date: item.json.date,\n  from: item.json.from,\n  subject: item.json.subject,\n  body: item.json.body,\n  raw: item.json.raw\n}));\n\nreturn [{ json: { thread_id, emails: JSON.stringify(emails, null, 2) } }];"
+      },
+      "id": "fa1aaee0-89a5-425d-b82b-33b2fc1e2cb7",
+      "name": "Agréger emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "syndic_email_summaries",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "summary_html"
+            }
+          ]
+        }
+      },
+      "id": "0ff66408-5bf6-4818-b8fd-d390e9479972",
+      "name": "Sauvegarder résumé",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        96
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Aa2EU8WOIBG6x2pW",
+          "name": "Supabase Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "id": "454c8ec6-e4cf-413f-8609-450740f8cce5",
+      "name": "Attendre 3s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2112,
+        352
+      ],
+      "webhookId": "attente-entre-threads"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant chargé de résumer les échanges d'emails entre un syndic de copropriété et les copropriétaires.\n\nVoici un fil de conversation (thread) contenant plusieurs emails :\n\n{{ $json.emails }}\n\nTa mission :\n1. Analyse chronologiquement tous les emails du thread\n2. Identifie le sujet principal et les sous-thèmes abordés\n3. Résume l'historique de manière cohérente et structurée\n\nFormat attendu :\n- Sujet : [titre court du sujet traité]\n- Participants : [expéditeurs impliqués]\n- Résumé : [synthèse chronologique des échanges en 3-5 phrases maximum]\n- Statut : [en cours / résolu / en attente de réponse]\n- Actions à suivre : [si applicable]\n- Prestataires impliqués : [lister les prestataires]\n\nReste factuel, concis et ne mentionne que les informations essentielles. Si le thread contient des pièces jointes ou des informations techniques (devis, dates de travaux, etc.), inclus-les dans le résumé.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        48
+      ],
+      "id": "40359530-340f-4f36-b52d-4a7734428864",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        240,
+        304
+      ],
+      "id": "9534d810-4098-4e43-a859-7c275a2727ce",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://mcp-supabase-2:3000/mcp/supabase",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        368
+      ],
+      "id": "b118779f-eb31-482e-91b7-3ca6a5cf8fdd",
+      "name": "MCP Supabase"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "e5a9f85d-f3b8-424e-9356-9d24a5af8361",
+      "name": "Batch de 1 thread",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        832,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        496
+      ],
+      "id": "db77fd5e-4b88-43fa-b95c-f384ffe142e9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const uniqueThreads = [...new Set($input.all().map(item => item.json.thread_id))];\nreturn uniqueThreads.map(thread_id => ({ json: { thread_id } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        80
+      ],
+      "id": "0c156c56-be77-4286-82a4-fba2711f7941",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-21T14:37:01.954Z",
+      "createdAt": "2025-12-21T14:37:01.954Z",
+      "role": "workflow:owner",
+      "workflowId": "moJOFyNBZQFbAylf",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-21T16:05:27.373Z",
+  "versionId": "2a19d63b-027d-46a8-9c74-1798e76eb93c"
+}
