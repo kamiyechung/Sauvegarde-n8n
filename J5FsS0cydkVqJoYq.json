@@ -1,0 +1,624 @@
+{
+  "active": false,
+  "connections": {
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Insert": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract JSON-LD": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare for Ollama": {
+      "main": [
+        []
+      ]
+    },
+    "Parser Ollama réponse": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Parser Ollama réponse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Cleaner": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract JSON-LD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Fusion des ingrédients de la recette",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase - Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Récupération liste ingrédients": {
+      "main": [
+        [
+          {
+            "node": "Fusion liste ingrédients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fusion liste ingrédients": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fusion des ingrédients de la recette": {
+      "main": [
+        [
+          {
+            "node": "Récupération liste ingrédients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-12T11:07:53.032Z",
+  "id": "J5FsS0cydkVqJoYq",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Import recettes Google Sheets vers Supabase",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WS0I1c-bPVSAf3u-gU5O5m3biBoK3LVyZFR7SDavmhg",
+          "mode": "list",
+          "cachedResultName": "Recettes ia meal planner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WS0I1c-bPVSAf3u-gU5O5m3biBoK3LVyZFR7SDavmhg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WS0I1c-bPVSAf3u-gU5O5m3biBoK3LVyZFR7SDavmhg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "751412a4-3510-421b-999c-1d53c25f1433",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        -16,
+        -208
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dX6J48BSCs6BymMp",
+          "name": "Google Sheets Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4d07ecc7-facd-4c86-b702-dfaa28c131ee",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        208,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "recipes",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $json.title }}"
+            },
+            {
+              "fieldId": "description",
+              "fieldValue": "={{ $json.description }}"
+            },
+            {
+              "fieldId": "category",
+              "fieldValue": "={{ $json.category }}"
+            },
+            {
+              "fieldId": "minutes_total",
+              "fieldValue": "={{ $json.minutes_total }}"
+            },
+            {
+              "fieldId": "servings_default",
+              "fieldValue": "={{ $json.servings_default }}"
+            },
+            {
+              "fieldId": "instructions",
+              "fieldValue": "={{ $json.instructions }}"
+            },
+            {
+              "fieldId": "prep_time",
+              "fieldValue": "={{ $json.prep_time }}"
+            },
+            {
+              "fieldId": "cook_time",
+              "fieldValue": "={{ $json.cook_time }}"
+            },
+            {
+              "fieldId": "difficulty",
+              "fieldValue": "={{ $json.difficulty }}"
+            }
+          ]
+        }
+      },
+      "id": "025ef156-62d3-4d74-ac89-33f24ade4873",
+      "name": "Supabase - Insert",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        -112
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un agent spécialisé dans la correspondance d'ingrédients avec leur identifiant en base de données.\n\n# Ta mission\nAnalyser une liste d'ingrédients de recette et remplacer chaque ingrédient par son ID de clé primaire.\n\n# Règles strictes\n1. Ignore les quantités et unités, concentre-toi uniquement sur l'ingrédient\n2. Gère les variations (singulier/pluriel, masculin/féminin)\n3. Si un ingrédient n'existe pas dans la liste, retourne null pour son ID\n4. Normalise les noms (ex: \"tomates cerises\" → cherche \"tomate cerise\")\n5. Réponds UNIQUEMENT en JSON valide, sans texte avant ou après\n\n# Format de sortie attendu :\n[\n  {\n    \"name\": \"saumon fumé\",\n    \"quantity\": 4,\n    \"unit\": \"tranches\",\n    \"ingredient_id\": \"uuid-du-saumon-fume\"\n  },\n  {\n    \"name\": \"tortillas mexicaines\",\n    \"quantity\": 4,\n    \"unit\": \"pièces\",\n    \"ingredient_id\": \"uuid-ou-null\"\n  }\n]\n# Ingrédients à matcher\n{{ $('Fusion des ingrédients de la recette').first().json.ingredients_to_match }}\n# Liste des ingrédients disponibles en base\n{{ $json.reference_ingredients }}\n\n\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2352,
+        -368
+      ],
+      "id": "502cdfa9-559b-49f2-a665-5a3dcc258ebb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:1.5b-instruct-q4_K_M",
+        "options": {
+          "temperature": 0.1,
+          "topK": 10,
+          "topP": 0.1,
+          "frequencyPenalty": 0.3,
+          "numCtx": 4096
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        -112
+      ],
+      "id": "8e6421b3-6a00-4820-85de-c58c4ac63831",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -208
+      ],
+      "id": "cd595715-3523-4681-9882-e0763ad492fb",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst recipes = [];\n\nfor (const item of items) {\n  // Le HTML est dans data\n  const htmlContent = item.json.data;\n  \n  if (!htmlContent) continue;\n  \n  // Extraire le JSON-LD du HTML\n  const regex = /<script type=\"application\\/ld\\+json\">\\s*([\\s\\S]*?)\\s*<\\/script>/g;\n  let match;\n  \n  while ((match = regex.exec(htmlContent)) !== null) {\n    try {\n      const jsonData = JSON.parse(match[1]);\n      \n      // Chercher le type Recipe\n      if (jsonData['@type'] === 'Recipe') {\n        const formatted = {\n          titre: jsonData.name,\n          categorie: jsonData.recipeCategory || jsonData.recipeCuisine,\n          temps_preparation: jsonData.prepTime,\n          temps_cuisson: jsonData.cookTime,\n          temps_total: jsonData.totalTime,\n          portions: jsonData.recipeYield,\n          ingredients: jsonData.recipeIngredient || [],\n          etapes: (jsonData.recipeInstructions || []).map(step => \n            typeof step === 'string' ? step : step.text\n          ),\n          auteur: jsonData.author,\n          description: jsonData.description,\n          note: jsonData.aggregateRating ? {\n            valeur: jsonData.aggregateRating.ratingValue,\n            nombre_avis: jsonData.aggregateRating.reviewCount\n          } : null\n        };\n        \n        recipes.push(formatted);\n      }\n    } catch (e) {\n      console.error('Erreur parsing JSON-LD:', e.message);\n    }\n  }\n}\n\nconsole.log('Recettes trouvées:', recipes.length);\n\nreturn [{\n  json: {\n    recettes_extraites: JSON.stringify(recipes, null, 2),\n    nombre_recettes: recipes.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -336
+      ],
+      "id": "eafc0cd9-5e36-464a-a2d3-439e15c839d9",
+      "name": "Extract JSON-LD"
+    },
+    {
+      "parameters": {
+        "jsCode": "const recipe = $input.item.json.recipe_json;\n\nif (!recipe) {\n  return { json: { error: 'No recipe data available', url: $input.item.json.url } };\n}\n\n// Parser durées ISO 8601\nfunction parseISODuration(duration) {\n  if (!duration) return null;\n  const match = duration.match(/PT(?:(\\d+)H)?(?:(\\d+)M)?/);\n  if (!match) return null;\n  const hours = parseInt(match[1] || 0);\n  const minutes = parseInt(match[2] || 0);\n  return hours * 60 + minutes;\n}\n\n// Parser portions\nfunction parseServings(yieldValue) {\n  if (!yieldValue) return null;\n  const match = String(yieldValue).match(/(\\d+)/);\n  return match ? parseInt(match[1]) : null;\n}\n\nconst prepTime = parseISODuration(recipe.prepTime);\nconst cookTime = parseISODuration(recipe.cookTime);\nconst totalTime = (prepTime || 0) + (cookTime || 0) || null;\n\n// Retourne uniquement les données structurées\nreturn { \n  json: { \n    title: recipe.name || 'Sans titre',\n    category: recipe.recipeCategory || null,\n    servings: parseServings(recipe.recipeYield),\n    prep_time: prepTime,\n    cook_time: cookTime,\n    total_time: totalTime,\n    ingredients: (recipe.recipeIngredient || []).slice(0, 20),\n    instructions: (recipe.recipeInstructions || [])\n      .map(step => typeof step === 'string' ? step : step.text)\n      .filter(Boolean)\n      .slice(0, 15),\n    original_url: $input.item.json.url\n  } \n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -656
+      ],
+      "id": "ba72c993-953c-4807-a509-3c91360e9557",
+      "name": "Prepare for Ollama"
+    },
+    {
+      "parameters": {
+        "jsCode": "let output = $input.item.json.output || $input.item.json.response || $input.item.json.text;\n\n// Nettoyer le JSON\noutput = output\n  .replace(/```json|```/g, '')\n  .replace(/,(\\s*[}\\]])/g, '$1')\n  .trim();\n\nconsole.log('Position 1048:', output.substring(1040, 1060));\n\ntry {\n  const parsed = JSON.parse(output);\n  return [{ json: parsed }];\n} catch (e) {\n  console.error('Erreur:', e.message);\n  console.log('JSON problématique:', output);\n  throw e;\n}"
+      },
+      "id": "68e8d88c-2241-4d18-a770-3b318e31d6a0",
+      "name": "Parser Ollama réponse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es rédacteur de recettes. À partir du JSON ci-dessous, reformule la recette et structure-la pour une base Supabase. Tu dois garder LA MÊME RECETTE mais reformuler les instructions. Laisse les ingrédients et les temps inchangés. \n\nPar exemple si c'est une tarte au citron, la reformulation doit être une tarte au citron.\n\nJSON SOURCE: \n{{ $json.recettes_extraites }}\n\nRÈGLES STRICTES\n- Réponds UNIQUEMENT avec un JSON valide (aucun texte avant/après, *AUCUN markdown*).\n- Reformule simplement, ton chaleureux et accessible pour débutants.\n- Recette appétissante et facile à réaliser, pas de techniques compliquées.\n- Étapes à l'impératif, courtes et claires avec repères visuels.\n- Category ∈ entrée|plat|dessert|accompagnement.\n- Difficulty ∈ facile|moyen|difficile.\n- Si info absente : null.\n- Unités françaises normalisées.\n- RESPECTE EXACTEMENT la structure JSON ci-dessous, sans ajouter de préfixes comme \"01:\" ou autres.\n- N'utilise JAMAIS de fractions pour les quantités\n- Category : choisis UNE SEULE valeur parmi entrée, plat, dessert ou accompagnement\n- Season : choisis UNE OU DEUX saisons max (ex: \"été\" ou \"printemps, été\")\n- Tu dois TOUT remplir en particulier les instructions et les ingrédients\n\nSORTIE JSON (structure STRICTE) :\n{\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"category\": \"plat\",\n  \"servings_default\": 6,\n  \"prep_time\": \"30\",\n  \"cook_time\": \"25\",\n  \"minutes_total\": \"55\",\n  \"difficulty\": \"moyen\",\n  \"instructions\": [\n    {\"step\": 1, \"text\": \"instruction claire\"}\n  ],\n  \"ingredients\": [\n    {\"name\": \"farine\", \"quantity\": 250, \"unit\": \"g\"}\n  ],\n   \"season\": \"automne\"\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1104,
+        -336
+      ],
+      "id": "e90dee81-8f32-4034-9e40-6aaa1027a025",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0f7bd2c8-6a6f-46b3-ae2b-3e4f8356edac",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "No Recipe JSON-LD found",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -336
+      ],
+      "id": "282b60cd-f182-4417-8373-b8b04d2effea",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $input.item.json.html;\n\nif (!html) {\n  return { json: { error: 'No HTML content', url: $input.item.json.url } };\n}\n\n// Fonction pour nettoyer le texte\nfunction cleanText(text) {\n  return text\n    .replace(/<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>/gi, '') // Vire les scripts\n    .replace(/<style\\b[^<]*(?:(?!<\\/style>)<[^<]*)*<\\/style>/gi, '') // Vire les styles\n    .replace(/<nav\\b[^<]*(?:(?!<\\/nav>)<[^<]*)*<\\/nav>/gi, '') // Vire la navigation\n    .replace(/<header\\b[^<]*(?:(?!<\\/header>)<[^<]*)*<\\/header>/gi, '') // Vire le header\n    .replace(/<footer\\b[^<]*(?:(?!<\\/footer>)<[^<]*)*<\\/footer>/gi, '') // Vire le footer\n    .replace(/<aside\\b[^<]*(?:(?!<\\/aside>)<[^<]*)*<\\/aside>/gi, '') // Vire les sidebars\n    .replace(/<!--[\\s\\S]*?-->/g, '') // Vire les commentaires\n    .replace(/<[^>]+>/g, ' ') // Vire toutes les balises HTML\n    .replace(/\\s+/g, ' ') // Normalise les espaces\n    .trim();\n}\n\n// Extraction basique avec regex pour structurer un minimum\nconst recipe = {\n  title: null,\n  ingredients: [],\n  instructions: [],\n  metadata: {}\n};\n\n// Titre (premier h1)\nconst titleMatch = html.match(/<h1[^>]*>(.*?)<\\/h1>/i);\nif (titleMatch) {\n  recipe.title = titleMatch[1].replace(/<[^>]*>/g, '').trim();\n}\n\n// Zone ingrédients (cherche les sections probables)\nconst ingredientPatterns = [\n  /<ul[^>]*class=\"[^\"]*ingredient[^\"]*\"[^>]*>([\\s\\S]*?)<\\/ul>/gi,\n  /<div[^>]*class=\"[^\"]*ingredient[^\"]*\"[^>]*>([\\s\\S]*?)<\\/div>/gi,\n  /<section[^>]*id=\"[^\"]*ingredient[^\"]*\"[^>]*>([\\s\\S]*?)<\\/section>/gi\n];\n\nfor (const pattern of ingredientPatterns) {\n  const matches = [...html.matchAll(pattern)];\n  for (const match of matches) {\n    const section = match[1];\n    const liMatches = section.matchAll(/<li[^>]*>(.*?)<\\/li>/gi);\n    for (const li of liMatches) {\n      const text = li[1].replace(/<[^>]*>/g, '').trim();\n      if (text && text.length > 2) {\n        recipe.ingredients.push(text);\n      }\n    }\n  }\n}\n\n// Zone instructions (cherche les sections probables)\nconst instructionPatterns = [\n  /<ol[^>]*class=\"[^\"]*step[^\"]*\"[^>]*>([\\s\\S]*?)<\\/ol>/gi,\n  /<ol[^>]*class=\"[^\"]*instruction[^\"]*\"[^>]*>([\\s\\S]*?)<\\/ol>/gi,\n  /<div[^>]*class=\"[^\"]*step[^\"]*\"[^>]*>([\\s\\S]*?)<\\/div>/gi\n];\n\nfor (const pattern of instructionPatterns) {\n  const matches = [...html.matchAll(pattern)];\n  for (const match of matches) {\n    const section = match[1];\n    const liMatches = section.matchAll(/<li[^>]*>(.*?)<\\/li>/gi);\n    let stepNum = 1;\n    for (const li of liMatches) {\n      const text = li[1].replace(/<[^>]*>/g, '').trim();\n      if (text && text.length > 10) {\n        recipe.instructions.push(text);\n        stepNum++;\n      }\n    }\n  }\n}\n\n// Métadonnées (temps, portions)\nconst metaText = html.substring(0, 5000); // Cherche dans le début de page\nconst prepMatch = metaText.match(/pr[ée]paration[:\\s]*(\\d+)\\s*min/i);\nconst cookMatch = metaText.match(/cuisson[:\\s]*(\\d+)\\s*min/i);\nconst servingsMatch = metaText.match(/(\\d+)\\s*personnes?/i);\n\nif (prepMatch) recipe.metadata.prep_time = parseInt(prepMatch[1]);\nif (cookMatch) recipe.metadata.cook_time = parseInt(cookMatch[1]);\nif (servingsMatch) recipe.metadata.servings = parseInt(servingsMatch[1]);\n\n// Texte nettoyé pour Ollama (fallback si extraction structurée échoue)\nconst cleanedText = cleanText(html);\n\nreturn {\n  json: {\n    source: \"html_extraction\",\n    url: $input.item.json.url,\n    title: recipe.title,\n    ingredients: recipe.ingredients,\n    instructions: recipe.instructions,\n    metadata: recipe.metadata,\n    cleaned_html_text: cleanedText.substring(0, 8000), // Limite à 8000 chars pour Ollama\n    has_structured_data: recipe.ingredients.length > 0 && recipe.instructions.length > 0\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -880
+      ],
+      "id": "a618f101-14a7-4e49-9c22-3739f02b25bb",
+      "name": "HTML Cleaner"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://browserless:3000/content",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.Url }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        432,
+        -336
+      ],
+      "id": "9fa85825-8e55-48af-abcf-2c5c78091ed8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "59dc56f1-698c-465f-ac16-8f302940c33a",
+                    "leftValue": "={{ $json._type }}",
+                    "rightValue": "=ingredient",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json._type }}",
+                    "rightValue": "=recipe",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "4e17b281-8b5e-4a3f-9201-c092fa1c81f2"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1632,
+        -336
+      ],
+      "id": "cb089fa5-fe80-434a-a50c-ca93c6e52318",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "ingredients",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        -592
+      ],
+      "id": "eb374ad9-333f-4dcf-a93b-00b9fe1a5477",
+      "name": "Récupération liste ingrédients",
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst ingredients = items.map(item => ({\n  id: item.json.id,\n  name: item.json.name,\n  slug: item.json.slug,\n  category: item.json.category\n}));\n\n// Convertit en JSON string pour Ollama\nreturn [{\n  json: {\n    reference_ingredients: JSON.stringify(ingredients, null, 2),\n    count: ingredients.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        -544
+      ],
+      "id": "7a16f872-d479-4af0-a122-f3f3857167b9",
+      "name": "Fusion liste ingrédients"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupérer tous les ingrédients du node Switch\nconst ingredients = $input.all().map(item => ({\n  name: item.json.name,\n  quantity: item.json.quantity,\n  unit: item.json.unit\n}));\n\nreturn [{\n  json: {\n    ingredients_to_match: JSON.stringify(ingredients, null, 2)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1936,
+        -352
+      ],
+      "id": "de26434e-dfc4-422e-b7d6-4c8d75adfd30",
+      "name": "Fusion des ingrédients de la recette"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {}
+      }
+    ]
+  },
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-12T11:07:53.032Z",
+      "createdAt": "2025-12-12T11:07:53.032Z",
+      "role": "workflow:owner",
+      "workflowId": "J5FsS0cydkVqJoYq",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-07T14:30:13.860Z",
+  "versionId": "7a3c152f-7231-4fd9-8f40-68f0111add43"
+}
