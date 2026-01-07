@@ -1,0 +1,86 @@
+{
+  "active": false,
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Clean email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-10T09:53:18.016Z",
+  "id": "Iv35NoZUYpm6VluM",
+  "isArchived": false,
+  "meta": null,
+  "name": "Clean des objets emails",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// --- CLEAN SUBJECT - SUBWORKFLOW - SINGLE INPUT `$input.item` ---\nconst subject = $input.item.json.subject || \"\";\n\nfunction cleanSubject(subject) {\n  if (!subject) return \"\";\n  \n  // Supprime \"Subject: \" au début\n  subject = subject.replace(/^Subject:\\s*/i, \"\");\n  \n  // Décode les caractères encodés en quoted-printable (=?UTF-8?Q?...)\n  subject = subject.replace(/=\\?UTF-8\\?Q\\?([^?]+)\\?=/gi, (match, encoded) => {\n    return encoded\n      .replace(/=([0-9A-F]{2})/g, (m, hex) => String.fromCharCode(parseInt(hex, 16)))\n      .replace(/_/g, \" \");\n  });\n  \n  // Décode les caractères encodés en base64 (=?UTF-8?B?...)\n  subject = subject.replace(/=\\?UTF-8\\?B\\?([^?]+)\\?=/gi, (match, encoded) => {\n    return Buffer.from(encoded, 'base64').toString('utf-8');\n  });\n  \n  // Supprime les retours à la ligne et espaces multiples\n  subject = subject\n    .replace(/\\r?\\n/g, \"\")\n    .replace(/\\s{2,}/g, \" \")\n    .trim();\n  \n  return subject;\n}\n\nreturn {\n  json: {\n    cleanSubject: cleanSubject(subject)\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        736
+      ],
+      "id": "3b16523a-f060-40e8-85c4-eddeff76e526",
+      "name": "Clean email"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "9e6d8aa2-dc9f-47a3-9373-73a352319522",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        192,
+        736
+      ]
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-10T09:53:18.016Z",
+      "createdAt": "2025-12-10T09:53:18.016Z",
+      "role": "workflow:owner",
+      "workflowId": "Iv35NoZUYpm6VluM",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "updatedAt": "2025-12-10T08:17:53.064Z",
+      "createdAt": "2025-12-10T08:17:53.064Z",
+      "id": "bepMwfmLpeePQxuQ",
+      "name": "Global"
+    },
+    {
+      "updatedAt": "2025-11-26T21:50:45.750Z",
+      "createdAt": "2025-11-26T21:50:45.750Z",
+      "id": "bVdv5uZuvSz9pfPC",
+      "name": "OK"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-10T09:58:47.246Z",
+  "versionId": "cb159b32-53b9-44fa-bd02-2931a9bf14a9"
+}
