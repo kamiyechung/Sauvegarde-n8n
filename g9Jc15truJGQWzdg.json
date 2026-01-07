@@ -707,6 +707,7 @@
     },
     {
       "parameters": {
+        "authentication": "oAuth2",
         "resource": "file",
         "operation": "list",
         "owner": {
@@ -731,8 +732,8 @@
       "executeOnce": true,
       "typeVersion": 1.1,
       "credentials": {
-        "githubApi": {
-          "id": "WUtJuLrcoEJWFIE0",
+        "githubOAuth2Api": {
+          "id": "oPLWnNDv036W4cH4",
           "name": "GitHub account"
         }
       }
@@ -1187,6 +1188,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-01-07T15:08:47.885Z",
-  "versionId": "47957d14-16cc-4c2f-84bc-28b92d6b5546"
+  "updatedAt": "2026-01-07T15:09:08.108Z",
+  "versionId": "6a9d35ce-677f-487a-a3a7-c89f3f74d306"
 }
