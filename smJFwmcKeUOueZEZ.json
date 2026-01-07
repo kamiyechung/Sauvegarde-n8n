@@ -1,0 +1,195 @@
+{
+  "active": false,
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Supabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-17T13:48:46.057Z",
+  "id": "smJFwmcKeUOueZEZ",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://usdmdyjdkzrjrzfanixo.supabase.co",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        576,
+        -112
+      ],
+      "id": "931c382e-eed7-41e8-a193-c42824856d4c",
+      "name": "HTTP Request",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Aa2EU8WOIBG6x2pW",
+          "name": "Supabase Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant syndic spécialisé dans l'analyse d'emails de copropriété.\n\nTu DOIS utiliser le MCP Supabase pour réaliser ta mission.\n\nMISSION :\nAnalyser les emails de syndic_emails et générer des résumés structurés dans syndic_email_summaries.\n\nÉTAPES :\n1. Récupérer les emails non encore résumés via MCP Supabase :\n   SELECT * FROM syndic_emails \n   WHERE id NOT IN (SELECT email_id FROM syndic_email_summaries)\n   LIMIT 20\n\n2. Pour chaque email, extraire :\n   - sujet_principal : type (travaux/AG/charges/incident/info/administratif)\n   - resume_court : 1-2 phrases max\n   - action_requise : true/false selon si action nécessaire\n   - priorite : faible/moyenne/haute\n   - date_evenement : date mentionnée (format ISO) ou null\n   - mots_cles : array de 3-5 mots-clés\n\n3. Insérer dans syndic_email_summaries :\n   {\n     \"email_id\": \"...\",\n     \"sujet_principal\": \"...\",\n     \"resume_court\": \"...\",\n     \"action_requise\": true/false,\n     \"priorite\": \"...\",\n     \"date_evenement\": \"...\",\n     \"mots_cles\": [...]\n   }\n\nRÈGLES :\n- Traite par batch de 20 emails\n- Skip si email_id existe déjà dans syndic_email_summaries\n- Continue même en cas d'erreur sur un email\n- Retourne le nombre traité et les erreurs\n\nCommence maintenant.",
+        "options": {
+          "batching": {
+            "batchSize": 3,
+            "delayBetweenBatches": 200
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        96,
+        -96
+      ],
+      "id": "db72ed85-4d73-4c04-9cf6-7287c96a13dc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        16,
+        128
+      ],
+      "id": "0bf8188f-5c68-4f6b-878f-28a81df4fc2a",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://mcp-supabase-2:3000/mcp/supabase ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        144
+      ],
+      "id": "21293100-f99f-48fe-b6ea-6ea3ca506cd6",
+      "name": "MCP Supabase"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        -112
+      ],
+      "id": "ce442c80-640b-43e3-9c87-2937c2d51c3c",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "56e19d72-617f-4f3d-9fb6-bfe64ac02409",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-17T13:48:46.057Z",
+      "createdAt": "2025-12-17T13:48:46.057Z",
+      "role": "workflow:owner",
+      "workflowId": "smJFwmcKeUOueZEZ",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-17T21:47:47.106Z",
+  "versionId": "97d89a27-a4d8-4bd8-836b-427a48f4f915"
+}
