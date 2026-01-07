@@ -37,7 +37,13 @@
     },
     "AI Agent": {
       "main": [
-        []
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Ollama Chat Model": {
@@ -137,7 +143,7 @@
       "main": [
         [
           {
-            "node": "Fusion des ingrédients de la recette",
+            "node": "Loop Over Items1",
             "type": "main",
             "index": 0
           }
@@ -164,20 +170,26 @@
     },
     "Fusion liste ingrédients": {
       "main": [
+        []
+      ]
+    },
+    "MCP Supabase": {
+      "ai_tool": [
         [
           {
             "node": "AI Agent",
-            "type": "main",
+            "type": "ai_tool",
             "index": 0
           }
         ]
       ]
     },
-    "Fusion des ingrédients de la recette": {
+    "Loop Over Items1": {
       "main": [
+        [],
         [
           {
-            "node": "Récupération liste ingrédients",
+            "node": "AI Agent",
             "type": "main",
             "index": 0
           }
@@ -288,7 +300,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        1904,
+        2112,
         -112
       ],
       "credentials": {
@@ -301,13 +313,13 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un agent spécialisé dans la correspondance d'ingrédients avec leur identifiant en base de données.\n\n# Ta mission\nAnalyser une liste d'ingrédients de recette et remplacer chaque ingrédient par son ID de clé primaire.\n\n# Règles strictes\n1. Ignore les quantités et unités, concentre-toi uniquement sur l'ingrédient\n2. Gère les variations (singulier/pluriel, masculin/féminin)\n3. Si un ingrédient n'existe pas dans la liste, retourne null pour son ID\n4. Normalise les noms (ex: \"tomates cerises\" → cherche \"tomate cerise\")\n5. Réponds UNIQUEMENT en JSON valide, sans texte avant ou après\n\n# Format de sortie attendu :\n[\n  {\n    \"name\": \"saumon fumé\",\n    \"quantity\": 4,\n    \"unit\": \"tranches\",\n    \"ingredient_id\": \"uuid-du-saumon-fume\"\n  },\n  {\n    \"name\": \"tortillas mexicaines\",\n    \"quantity\": 4,\n    \"unit\": \"pièces\",\n    \"ingredient_id\": \"uuid-ou-null\"\n  }\n]\n# Ingrédients à matcher\n{{ $('Fusion des ingrédients de la recette').first().json.ingredients_to_match }}\n# Liste des ingrédients disponibles en base\n{{ $json.reference_ingredients }}\n\n\n\n",
+        "text": "=Tu es un matcher d'ingrédients. Réponds UNIQUEMENT en JSON, rien d'autre.\n\nPour chaque ingrédient de recette, trouve son ID dans la base ou retourne null.\n\nTu as accès à un MCP Supabase. Utilise supabase_select pour matcher les ingrédients.\n\nIngrédients à matcher :\n\nPour chaque ingrédient :\n1. Appelle supabase_select sur la table \"ingredients\"\n2. Utilise ILIKE pour recherche floue : WHERE name ILIKE '%ingredient%'\n3. Si trouvé : récupère l'id\n4. Si pas trouvé : mets null\n\nExemple de requête :\ntable: ingredients\nquery: name ILIKE '%saumon%'\ncolumns: id, name\n\nRetourne uniquement ce JSON :\n[{\"name\":\"saumon fumé\",\"quantity\":200,\"unit\":\"g\",\"ingredient_id\":\"uuid-trouvé-ou-null\"}]",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        2352,
+        2560,
         -368
       ],
       "id": "502cdfa9-559b-49f2-a665-5a3dcc258ebb",
@@ -378,15 +390,15 @@
     },
     {
       "parameters": {
-        "jsCode": "let output = $input.item.json.output || $input.item.json.response || $input.item.json.text;\n\n// Nettoyer le JSON\noutput = output\n  .replace(/```json|```/g, '')\n  .replace(/,(\\s*[}\\]])/g, '$1')\n  .trim();\n\nconsole.log('Position 1048:', output.substring(1040, 1060));\n\ntry {\n  const parsed = JSON.parse(output);\n  return [{ json: parsed }];\n} catch (e) {\n  console.error('Erreur:', e.message);\n  console.log('JSON problématique:', output);\n  throw e;\n}"
+        "jsCode": "const output = $input.item.json.output;\nconst recipe = JSON.parse(output);\n\nconst items = [\n  { json: { ...recipe, _type: 'recipe' } }\n];\n\nif (recipe.ingredients && Array.isArray(recipe.ingredients)) {\n  recipe.ingredients.forEach(ing => {\n    items.push({ \n      json: { \n        ...ing, \n        _type: 'ingredient',\n        recipe_title: recipe.title \n      }\n    });\n  });\n}\n\nreturn items;"
       },
       "id": "68e8d88c-2241-4d18-a770-3b318e31d6a0",
       "name": "Parser Ollama réponse",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1456,
-        -336
+        1408,
+        -384
       ]
     },
     {
@@ -553,8 +565,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        1904,
-        -592
+        1840,
+        -736
       ],
       "id": "eb374ad9-333f-4dcf-a93b-00b9fe1a5477",
       "name": "Récupération liste ingrédients",
@@ -567,29 +579,43 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\nconst ingredients = items.map(item => ({\n  id: item.json.id,\n  name: item.json.name,\n  slug: item.json.slug,\n  category: item.json.category\n}));\n\n// Convertit en JSON string pour Ollama\nreturn [{\n  json: {\n    reference_ingredients: JSON.stringify(ingredients, null, 2),\n    count: ingredients.length\n  }\n}];"
+        "jsCode": "// Récupère les données en vérifiant leur existence\nconst fusionNode = $('Fusion des ingrédients de la recette').first();\nconst ingredientsToMatch = fusionNode?.json?.ingredients_to_match;\n\n// Récupère reference_ingredients depuis l'item actuel\nconst referenceIngredients = $input.item?.json?.reference_ingredients || $json?.reference_ingredients;\n\n// Vérifications\nif (!ingredientsToMatch) {\n  throw new Error(\"ingredients_to_match introuvable dans le node 'Fusion des ingrédients de la recette'\");\n}\n\nif (!referenceIngredients || !Array.isArray(referenceIngredients)) {\n  throw new Error(\"reference_ingredients introuvable ou n'est pas un array\");\n}\n\n// Crée un dictionnaire simplifié nom->id\nconst refDict = referenceIngredients.map(ing => ({\n  nom: ing.name.toLowerCase().trim(),\n  id: ing.id\n}));\n\n// Normalise les ingrédients à matcher\nconst toMatch = ingredientsToMatch.map(ing => ({\n  name: ing.name || ing.ingredient,\n  quantity: ing.quantity,\n  unit: ing.unit\n}));\n\nreturn {\n  json: {\n    to_match: toMatch,\n    reference: refDict\n  }\n};\n\n// Debug : voir ce qui arrive\nconsole.log(\"Items reçus:\", $input.all());\nconsole.log(\"JSON actuel:\", $json);\n\nreturn { json: { \n  debug_input: $input.all(),\n  debug_json: $json \n}};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2096,
-        -544
+        2080,
+        -752
       ],
       "id": "7a16f872-d479-4af0-a122-f3f3857167b9",
       "name": "Fusion liste ingrédients"
     },
     {
       "parameters": {
-        "jsCode": "// Récupérer tous les ingrédients du node Switch\nconst ingredients = $input.all().map(item => ({\n  name: item.json.name,\n  quantity: item.json.quantity,\n  unit: item.json.unit\n}));\n\nreturn [{\n  json: {\n    ingredients_to_match: JSON.stringify(ingredients, null, 2)\n  }\n}];"
+        "endpointUrl": "http://mcp-supabase:3000/mcp/supabase",
+        "options": {}
       },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
       "position": [
-        1936,
-        -352
+        2864,
+        -96
       ],
-      "id": "de26434e-dfc4-422e-b7d6-4c8d75adfd30",
-      "name": "Fusion des ingrédients de la recette"
+      "id": "a6106a71-5e5e-4e19-93e3-ff9d2455d5c2",
+      "name": "MCP Supabase"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1840,
+        -432
+      ],
+      "id": "53cea004-52d2-4b97-a78d-2847e85817d2",
+      "name": "Loop Over Items1"
     }
   ],
   "origin": "n8n",
@@ -619,6 +645,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-01-07T14:30:13.860Z",
-  "versionId": "7a3c152f-7231-4fd9-8f40-68f0111add43"
+  "updatedAt": "2026-01-07T15:06:53.534Z",
+  "versionId": "d86acdd4-8187-489b-b37e-690767f2a645"
 }
