@@ -1,0 +1,224 @@
+{
+  "active": false,
+  "connections": {
+    "Split ingredients": {
+      "main": [
+        []
+      ]
+    },
+    "Normalize ingredient": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Normalize ingredient",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Final cleanup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final cleanup": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2026-01-08T08:26:05.099Z",
+  "id": "8wyXJjpLXsSxAScW",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Ingredient Matcher - Supabase",
+  "nodes": [
+    {
+      "parameters": {
+        "fieldToSplitOut": "ingredients_to_match",
+        "options": {}
+      },
+      "id": "5d131d9f-847d-46e5-a02f-bc26a7521d1a",
+      "name": "Split ingredients",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const recipeIngredients = $input.all();\n\nfunction toSingular(word) {\n  word = String(word || '').toLowerCase().trim();\n  \n  if (!word) return '';\n  \n  const exceptions = {\n    'pommes de terre': 'pomme de terre',\n    'oeufs': 'oeuf',\n    'noix': 'noix'\n  };\n  \n  if (exceptions[word]) return exceptions[word];\n  \n  if (word.endsWith('aux')) return word.slice(0, -3) + 'al';\n  if (word.endsWith('eux')) return word.slice(0, -3) + 'eu';\n  if (word.endsWith('s')) return word.slice(0, -1);\n  \n  return word;\n}\n\nfunction mapIngredient(name) {\n  const mapping = {\n    'sucre': 'sucre blanc',\n    'farine': 'farine de blé',\n    'huile': 'huile d\\'olive'\n  };\n  \n  return mapping[name] || name;\n}\n\nreturn recipeIngredients.map(item => {\n  const name = String(item.json?.name || '');\n  const singular = toSingular(name);\n  const mapped = mapIngredient(singular);\n  \n  return {\n    json: {\n      search_term: mapped,\n      original_name: name,\n      quantity: item.json?.quantity,\n      unit: item.json?.unit,\n      recipe_title: item.json?.recipe_title\n    }\n  };\n});"
+      },
+      "id": "156d70b3-60b6-4ede-bfe6-327ee0cfb170",
+      "name": "Normalize ingredient",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -16
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const matchedIngredients = $input.all();\n\nreturn [{\n  json: {\n    matched_ingredients: matchedIngredients.map(item => ({\n      name: item.json.ingredient_name || item.json.name,\n      quantity: item.json.quantity,\n      unit: item.json.unit,\n      _type: \"ingredient\",\n      recipe_title: item.json.recipe_title,\n      ingredient_id: item.json.ingredient_id\n    }))\n  }\n}];"
+      },
+      "id": "0289d267-ab40-4c52-ad70-9e093745ea3c",
+      "name": "Final cleanup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://wxushblwrcnzezgscvvi.supabase.co/rest/v1/ingredients",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "=ilike.*{{ $json.search_term }}*"
+            },
+            {
+              "name": "select",
+              "value": "id, name"
+            },
+            {
+              "name": "limite",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        832,
+        -256
+      ],
+      "id": "35a6d3d5-cbc2-40b3-be01-43525eb9cc46",
+      "name": "HTTP Request",
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        16
+      ],
+      "id": "160c41dd-c559-4d06-94f8-f452d78c1b87",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "ingredients",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "condition": "ilike",
+              "keyValue": "={{ $json.search_term }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        -16
+      ],
+      "id": "dfe3e37e-76da-4a24-8241-f0442cbf3af4",
+      "name": "Get many rows",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      name: \"pommes\",\n      quantity: 800,\n      unit: \"g\",\n      _type: \"ingredient\",\n      recipe_title: \"Tarte Tatin\"\n    }\n  },\n  {\n    json: {\n      name: \"sucre\",\n      quantity: 150,\n      unit: \"g\",\n      _type: \"ingredient\",\n      recipe_title: \"Tarte Tatin\"\n    }\n  },\n  {\n    json: {\n      name: \"farine\",\n      quantity: 60,\n      unit: \"g\",\n      _type: \"ingredient\",\n      recipe_title: \"Tarte Tatin\"\n    }\n  },\n  {\n    json: {\n      name: \"beurre\",\n      quantity: 45,\n      unit: \"g\",\n      _type: \"ingredient\",\n      recipe_title: \"Tarte Tatin\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -160
+      ],
+      "id": "10f10497-7474-4c6e-95c3-20a5521cabe3",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-08T08:26:05.099Z",
+      "createdAt": "2026-01-08T08:26:05.099Z",
+      "role": "workflow:owner",
+      "workflowId": "8wyXJjpLXsSxAScW",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-08T10:27:23.889Z",
+  "versionId": "2db20503-227c-44c6-b262-1d3ff15e6331"
+}
