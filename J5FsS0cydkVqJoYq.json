@@ -28,20 +28,9 @@
       "main": [
         [
           {
-            "node": "Loop Over Items",
+            "node": "Merge",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items1",
-            "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -51,11 +40,6 @@
         [
           {
             "node": "AI Agent1",
-            "type": "ai_languageModel",
-            "index": 0
-          },
-          {
-            "node": "AI Agent",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -173,23 +157,45 @@
         []
       ]
     },
-    "MCP Supabase": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Loop Over Items1": {
       "main": [
         [],
         [
           {
-            "node": "AI Agent",
+            "node": "Call 'Ingredient Matcher - Supabase'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Ingredient Matcher - Supabase'": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -300,8 +306,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        2112,
-        -112
+        2336,
+        -96
       ],
       "credentials": {
         "supabaseApi": {
@@ -312,24 +318,9 @@
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=Tu es un matcher d'ingrédients. Réponds UNIQUEMENT en JSON, rien d'autre.\n\nPour chaque ingrédient de recette, trouve son ID dans la base ou retourne null.\n\nTu as accès à un MCP Supabase. Utilise supabase_select pour matcher les ingrédients.\n\nIngrédients à matcher :\n\nPour chaque ingrédient :\n1. Appelle supabase_select sur la table \"ingredients\"\n2. Utilise ILIKE pour recherche floue : WHERE name ILIKE '%ingredient%'\n3. Si trouvé : récupère l'id\n4. Si pas trouvé : mets null\n\nExemple de requête :\ntable: ingredients\nquery: name ILIKE '%saumon%'\ncolumns: id, name\n\nRetourne uniquement ce JSON :\n[{\"name\":\"saumon fumé\",\"quantity\":200,\"unit\":\"g\",\"ingredient_id\":\"uuid-trouvé-ou-null\"}]",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3,
-      "position": [
-        2560,
-        -368
-      ],
-      "id": "502cdfa9-559b-49f2-a665-5a3dcc258ebb",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": "qwen2.5:1.5b-instruct-q4_K_M",
+        "model": "qwen2.5:7b",
         "options": {
-          "temperature": 0.1,
+          "temperature": 0.3,
           "topK": 10,
           "topP": 0.1,
           "frequencyPenalty": 0.3,
@@ -390,7 +381,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const output = $input.item.json.output;\nconst recipe = JSON.parse(output);\n\nconst items = [\n  { json: { ...recipe, _type: 'recipe' } }\n];\n\nif (recipe.ingredients && Array.isArray(recipe.ingredients)) {\n  recipe.ingredients.forEach(ing => {\n    items.push({ \n      json: { \n        ...ing, \n        _type: 'ingredient',\n        recipe_title: recipe.title \n      }\n    });\n  });\n}\n\nreturn items;"
+        "jsCode": "const output = $input.item.json.output;\n\n// Retire les balises markdown\nlet cleanOutput = output\n  .replace(/```json\\s*/g, '')\n  .replace(/```\\s*/g, '')\n  .replace(/\\n/g, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\n// LOG pour déboguer\nconsole.log('JSON nettoyé:', cleanOutput);\nconsole.log('Position 1048:', cleanOutput.substring(1040, 1060));\n\nlet recipe;\ntry {\n  recipe = JSON.parse(cleanOutput);\n} catch (e) {\n  const pos = parseInt(e.message.match(/position (\\d+)/)?.[1] || 0);\n  console.error('Position erreur:', pos);\n  console.error('Contexte:', cleanOutput.substring(pos - 50, pos + 50));\n  \n  // Tentative de correction automatique des erreurs courantes\n  cleanOutput = cleanOutput\n    .replace(/,(\\s*[}\\]])/g, '$1')      // Retire virgules avant } ou ]\n    .replace(/([}\\]])(\\s*)([{\\[])/g, '$1,$2$3')  // Ajoute virgules manquantes\n    .replace(/\"([^\"]*)\"(\\s*)\"([^\"]*)\"/g, '\"$1 $3\"');  // Fusionne strings cassées\n  \n  try {\n    recipe = JSON.parse(cleanOutput);\n    console.log('JSON corrigé automatiquement');\n  } catch (e2) {\n    throw new Error(`JSON invalide même après correction: ${e2.message}`);\n  }\n}\n\nconst items = [\n  { json: { ...recipe, _type: 'recipe' } }\n];\n\nif (recipe.ingredients && Array.isArray(recipe.ingredients)) {\n  recipe.ingredients.forEach(ing => {\n    items.push({ \n      json: { \n        ...ing, \n        _type: 'ingredient',\n        recipe_title: recipe.title \n      }\n    });\n  });\n}\n\nreturn items;"
       },
       "id": "68e8d88c-2241-4d18-a770-3b318e31d6a0",
       "name": "Parser Ollama réponse",
@@ -404,7 +395,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es rédacteur de recettes. À partir du JSON ci-dessous, reformule la recette et structure-la pour une base Supabase. Tu dois garder LA MÊME RECETTE mais reformuler les instructions. Laisse les ingrédients et les temps inchangés. \n\nPar exemple si c'est une tarte au citron, la reformulation doit être une tarte au citron.\n\nJSON SOURCE: \n{{ $json.recettes_extraites }}\n\nRÈGLES STRICTES\n- Réponds UNIQUEMENT avec un JSON valide (aucun texte avant/après, *AUCUN markdown*).\n- Reformule simplement, ton chaleureux et accessible pour débutants.\n- Recette appétissante et facile à réaliser, pas de techniques compliquées.\n- Étapes à l'impératif, courtes et claires avec repères visuels.\n- Category ∈ entrée|plat|dessert|accompagnement.\n- Difficulty ∈ facile|moyen|difficile.\n- Si info absente : null.\n- Unités françaises normalisées.\n- RESPECTE EXACTEMENT la structure JSON ci-dessous, sans ajouter de préfixes comme \"01:\" ou autres.\n- N'utilise JAMAIS de fractions pour les quantités\n- Category : choisis UNE SEULE valeur parmi entrée, plat, dessert ou accompagnement\n- Season : choisis UNE OU DEUX saisons max (ex: \"été\" ou \"printemps, été\")\n- Tu dois TOUT remplir en particulier les instructions et les ingrédients\n\nSORTIE JSON (structure STRICTE) :\n{\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"category\": \"plat\",\n  \"servings_default\": 6,\n  \"prep_time\": \"30\",\n  \"cook_time\": \"25\",\n  \"minutes_total\": \"55\",\n  \"difficulty\": \"moyen\",\n  \"instructions\": [\n    {\"step\": 1, \"text\": \"instruction claire\"}\n  ],\n  \"ingredients\": [\n    {\"name\": \"farine\", \"quantity\": 250, \"unit\": \"g\"}\n  ],\n   \"season\": \"automne\"\n}",
+        "text": "=Tu es un rédacteur de recettes qui transforme des recettes brutes en recettes structurées pour une base de données.\n\nENTRÉE :\n{{ $json.recettes_extraites }}\n\nTÂCHE :\nReformule les instructions uniquement. Garde les ingrédients et temps identiques. Si c'est une tarte au citron, ça reste une tarte au citron.\n\nSTYLE :\n- Ton chaleureux et accessible pour débutants\n- Étapes à l'impératif, courtes, avec repères visuels (couleur, texture, durée)\n- Recette appétissante, pas de techniques compliquées\n- Unités françaises normalisées (g, cl, cuillères à soupe)\n\nRÈGLES JSON STRICTES :\n- Réponds UNIQUEMENT avec le JSON brut, sans texte avant/après\n- AUCUNE balise markdown, AUCUN triple backtick\n- AUCUN préfixe dans les textes (pas de \"01:\" ou numérotation)\n- Quantités en nombres décimaux, JAMAIS de fractions\n- Si info absente : null\n- Category : UNE SEULE valeur parmi \"entrée\", \"plat\", \"dessert\", \"accompagnement\"\n- Difficulty : \"facile\", \"moyen\" ou \"difficile\"\n- Season : UNE OU DEUX saisons max séparées par virgule (\"été\" ou \"printemps, été\")\n- Temps en minutes (nombres uniquement, sans \"min\")\n\nSTRUCTURE EXACTE :\n{\n  \"title\": \"string\",\n  \"description\": \"string (2 phrases max décrivant le plat)\",\n  \"category\": \"plat\",\n  \"servings_default\": 6,\n  \"prep_time\": \"30\",\n  \"cook_time\": \"25\",\n  \"minutes_total\": \"55\",\n  \"difficulty\": \"moyen\",\n  \"season\": \"automne\",\n  \"instructions\": [\n    {\"step\": 1, \"text\": \"Préchauffez le four à 180°C\"},\n    {\"step\": 2, \"text\": \"Mélangez la farine et le beurre jusqu'à obtenir une pâte sablée\"}\n  ],\n  \"ingredients\": [\n    {\"name\": \"farine\", \"quantity\": 250, \"unit\": \"g\"},\n    {\"name\": \"beurre\", \"quantity\": 125, \"unit\": \"g\"}\n  ]\n}\n\nAvant de répondre, vérifie que ton JSON est valide (virgules, guillemets, accolades).\nRéponds maintenant avec le JSON uniquement :",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -592,20 +583,6 @@
     },
     {
       "parameters": {
-        "endpointUrl": "http://mcp-supabase:3000/mcp/supabase",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
-      "typeVersion": 1.2,
-      "position": [
-        2864,
-        -96
-      ],
-      "id": "a6106a71-5e5e-4e19-93e3-ff9d2455d5c2",
-      "name": "MCP Supabase"
-    },
-    {
-      "parameters": {
         "options": {}
       },
       "type": "n8n-nodes-base.splitInBatches",
@@ -616,6 +593,67 @@
       ],
       "id": "53cea004-52d2-4b97-a78d-2847e85817d2",
       "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8wyXJjpLXsSxAScW",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/8wyXJjpLXsSxAScW",
+          "cachedResultName": "Ingredient Matcher - Supabase"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2144,
+        -416
+      ],
+      "id": "d4be2908-9038-40cd-b916-26faef261c3a",
+      "name": "Call 'Ingredient Matcher - Supabase'"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2512,
+        -384
+      ],
+      "id": "388c5a8e-16c8-48e7-a342-9963b7d9285f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "tableId": "recipe_ingredients",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "recipe_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        -384
+      ],
+      "id": "e1cfe582-7b46-4433-9a6c-9150a62e74be",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
     }
   ],
   "origin": "n8n",
@@ -645,6 +683,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-01-07T15:06:53.534Z",
-  "versionId": "d86acdd4-8187-489b-b37e-690767f2a645"
+  "updatedAt": "2026-01-08T09:43:50.811Z",
+  "versionId": "17d66fad-52d9-41c4-a22b-089952384c16"
 }
