@@ -1,0 +1,349 @@
+{
+  "active": false,
+  "connections": {
+    "Déclencheur manuel": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Récupérer produits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Récupérer produits": {
+      "main": [
+        [
+          {
+            "node": "Loop produits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop produits": {
+      "main": [
+        [
+          {
+            "node": "Browserless - Scrape page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Browserless - Scrape page": {
+      "main": [
+        [
+          {
+            "node": "Extraire données produit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire données produit": {
+      "main": [
+        [
+          {
+            "node": "Si prix trouvé",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Si prix trouvé": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Update prix",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase - Log erreur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Update prix": {
+      "main": [
+        [
+          {
+            "node": "Wait 45s (rate limit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Log erreur": {
+      "main": [
+        [
+          {
+            "node": "Wait 45s (rate limit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 45s (rate limit)": {
+      "main": [
+        [
+          {
+            "node": "Retour loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retour loop": {
+      "main": [
+        [
+          {
+            "node": "Loop produits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-01-09T16:58:10.398Z",
+  "id": "remABI1F53PBvWrF",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Scraping Prix E.Leclerc Drive",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "5b6160d1-8211-490c-a144-2c445d652222",
+      "name": "Déclencheur manuel",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1632,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "ingredients",
+        "filters": {
+          "conditions": [
+            {}
+          ]
+        }
+      },
+      "id": "ea5be2be-8aca-482c-bdff-f2f3ae11ae2d",
+      "name": "Supabase - Récupérer produits",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        -160
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "bd8a2ebf-e2ab-4d83-9e99-fc406b23fd5d",
+      "name": "Loop produits",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1232,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.BROWSERLESS_URL }}/content",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "=https://fd8-courses.leclercdrive.fr/magasin-060003/recherche.aspx?Motscles={{ encodeURIComponent($json.product_name) }}"
+            },
+            {
+              "name": "gotoOptions",
+              "value": "{\"waitUntil\": \"networkidle2\"}"
+            },
+            {
+              "name": "waitForSelector",
+              "value": ".product-card, .no-results"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "41bdc01d-0c19-4aa5-8f48-4954e0a3e588",
+      "name": "Browserless - Scrape page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -1040,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $input.item.json;\nconst cheerio = require('cheerio');\nconst $ = cheerio.load(html);\n\nconst results = [];\n\n$('.product-card').each((i, elem) => {\n  const name = $(elem).find('.product-name').text().trim();\n  const priceText = $(elem).find('.product-price').text().trim();\n  const price = parseFloat(priceText.replace(',', '.').replace(/[^0-9.]/g, ''));\n  const unit = $(elem).find('.product-unit').text().trim();\n  const promo = $(elem).find('.product-discount').text().trim();\n  const image = $(elem).find('.product-image img').attr('src');\n  const ean = $(elem).attr('data-ean') || '';\n  \n  if (name && price) {\n    results.push({\n      ingredient_id: $('$node[\"Loop produits\"].json[\"id\"]'),\n      searched_name: $('$node[\"Loop produits\"].json[\"product_name\"]'),\n      found_name: name,\n      price: price,\n      unit: unit,\n      promo: promo || null,\n      image_url: image,\n      ean: ean,\n      store: 'leclerc',\n      scraped_at: new Date().toISOString()\n    });\n  }\n});\n\nif (results.length === 0) {\n  return [{\n    json: {\n      ingredient_id: $('$node[\"Loop produits\"].json[\"id\"]'),\n      error: 'Produit non trouvé',\n      searched_name: $('$node[\"Loop produits\"].json[\"product_name\"]')\n    }\n  }];\n}\n\nreturn results.map(r => ({json: r}));"
+      },
+      "id": "1bb233f0-5f7a-40c8-8c07-b6441cb5fb34",
+      "name": "Extraire données produit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-exists",
+              "leftValue": "={{ $json.price }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d1742404-5c1c-4304-bbac-b2ab97dfdacf",
+      "name": "Si prix trouvé",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "ingredients"
+      },
+      "id": "52edab26-92fe-4640-83cf-b124cb4d93d9",
+      "name": "Supabase - Update prix",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -256
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "b089b69f-29bd-4f61-b183-a8a774f861f6",
+      "name": "Supabase - Log erreur",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -64
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 45
+      },
+      "id": "bf0d000f-ff37-40d6-b979-80eb778607a5",
+      "name": "Wait 45s (rate limit)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -160
+      ],
+      "webhookId": "wait-webhook"
+    },
+    {
+      "parameters": {},
+      "id": "a9e7ddb6-51fb-40e4-aae1-811aa3c1d60e",
+      "name": "Retour loop",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        -160
+      ]
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-09T16:58:10.398Z",
+      "createdAt": "2026-01-09T16:58:10.398Z",
+      "role": "workflow:owner",
+      "workflowId": "remABI1F53PBvWrF",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-09T18:15:26.244Z",
+  "versionId": "1c37980c-7293-4677-af2e-79f38d043d4c"
+}
