@@ -232,7 +232,6 @@
     {
       "parameters": {
         "operation": "getAll",
-        "returnAll": true,
         "simple": false,
         "filters": {
           "labelIds": [
@@ -251,6 +250,7 @@
       "id": "dc8f7051-0033-4a56-aeaa-1dcc1c845fe4",
       "name": "Get many messages",
       "webhookId": "362a49f9-0ea0-4114-9486-4500fd3b66c0",
+      "alwaysOutputData": true,
       "credentials": {
         "gmailOAuth2": {
           "id": "3xiqK9fngC1p7knM",
@@ -523,6 +523,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-12-18T14:55:31.005Z",
-  "versionId": "9f1e689b-1ad6-4b57-8a97-c37f828c1b71"
+  "updatedAt": "2026-01-14T11:15:41.473Z",
+  "versionId": "071684ca-423c-4a41-8689-22763053abff"
 }
