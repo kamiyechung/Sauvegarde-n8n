@@ -1,0 +1,229 @@
+{
+  "active": false,
+  "connections": {
+    "🚀 Lancer Import": {
+      "main": [
+        [
+          {
+            "node": "Lire Google Sheet CIQUAL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire Google Sheet CIQUAL": {
+      "main": [
+        [
+          {
+            "node": "Nettoyer & Mapper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nettoyer & Mapper": {
+      "main": [
+        [
+          {
+            "node": "Lots de 100",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lots de 100": {
+      "main": [
+        [
+          {
+            "node": "Statistiques",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insérer dans Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insérer dans Supabase": {
+      "main": [
+        [
+          {
+            "node": "Lots de 100",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Statistiques": {
+      "main": [
+        [
+          {
+            "node": "✅ Résultat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-01-14T15:12:14.563Z",
+  "id": "XoizK8VH1IroHIiT",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Import CIQUAL - Google Sheets",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "8ac3938d-6b88-4a15-b12b-d3d7eae15537",
+      "name": "🚀 Lancer Import",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1008,
+        320
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1SVnsbc-0sl0ytGVKRU4DJ2vG7OzK3PCyO0sfqTmZFlE/edit?gid=1476901492#gid=1476901492",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "ciqual_2025_clean",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "de0db25e-144e-42a4-b8dd-41b7b85902f0",
+      "name": "Lire Google Sheet CIQUAL",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1216,
+        320
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dX6J48BSCs6BymMp",
+          "name": "Google Sheets Camille"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nettoyer et mapper CIQUAL\nconst items = $input.all();\nconst output = [];\n\nconst nutritionMapping = {\n  'Energie, Règlement UE N° 1169 2011 (kcal 100 g)': 'energie_kcal',\n  'Protéines, N x facteur de Jones (g 100 g)': 'proteines',\n  'Glucides (g 100 g)': 'glucides',\n  'Lipides (g 100 g)': 'lipides',\n  'Sucres (g 100 g)': 'sucres',\n  'Fibres alimentaires (g 100 g)': 'fibres',\n  'Eau (g 100 g)': 'eau',\n  'AG saturés (g 100 g)': 'ag_satures',\n  'AG monoinsaturés (g 100 g)': 'ag_monoinsatures',\n  'AG polyinsaturés (g 100 g)': 'ag_polyinsatures',\n  'Cholestérol (mg 100 g)': 'cholesterol',\n  'Sel chlorure de sodium (g 100 g)': 'sel',\n  'Calcium (mg 100 g)': 'calcium',\n  'Fer (mg 100 g)': 'fer',\n  'Magnésium (mg 100 g)': 'magnesium',\n  'Phosphore (mg 100 g)': 'phosphore',\n  'Potassium (mg 100 g)': 'potassium',\n  'Sodium (mg 100 g)': 'sodium',\n  'Zinc (mg 100 g)': 'zinc',\n  'Iode (µg 100 g)': 'iode',\n  'Sélénium (µg 100 g)': 'selenium',\n  'Activité vitaminique A, équivalents rétinol (µg 100 g)': 'vitamine_a',\n  'Vitamine C (mg 100 g)': 'vitamine_c',\n  'Vitamine D (µg 100 g)': 'vitamine_d',\n  'Vitamine E (mg 100 g)': 'vitamine_e',\n  'Vitamine K1 (µg 100 g)': 'vitamine_k',\n  'Vitamine B1 ou Thiamine (mg 100 g)': 'vitamine_b1',\n  'Vitamine B2 ou Riboflavine (mg 100 g)': 'vitamine_b2',\n  'Vitamine B3 ou PP ou Niacine (mg 100 g)': 'vitamine_b3',\n  'Vitamine B5 ou Acide pantothénique (mg 100 g)': 'vitamine_b5',\n  'Vitamine B6 (mg 100 g)': 'vitamine_b6',\n  'Vitamine B9 ou Folates totaux (µg 100 g)': 'vitamine_b9',\n  'Vitamine B12 (µg 100 g)': 'vitamine_b12'\n};\n\nfunction cleanValue(value) {\n  if (!value || value === '-' || value === 'traces' || value === '<' || value === '') return null;\n  const num = parseFloat(String(value).replace(',', '.'));\n  return isNaN(num) ? null : num;\n}\n\nfor (const item of items) {\n  const json = item.json;\n  \n  // FILTRE : Ignorer les lignes sans alim_code\n  if (!json.alim_code || json.alim_code === '' || json.alim_code === 'alim_code') {\n    continue;\n  }\n  \n  // Ignorer les lignes sans nom\n  if (!json.alim_nom_fr || json.alim_nom_fr === '') {\n    continue;\n  }\n  \n  const cleaned = {\n    alim_code: String(json.alim_code).trim(),\n    alim_nom_fr: String(json.alim_nom_fr).trim(),\n    alim_nom_index: String(json.alim_nom_fr).trim(),\n    alim_grp_code: json.alim_grp_code ? String(json.alim_grp_code).trim() : null,\n    alim_grp_nom_fr: json.alim_grp_nom_fr ? String(json.alim_grp_nom_fr).trim() : null,\n    alim_ssgrp_code: json.alim_ssgrp_code ? String(json.alim_ssgrp_code).trim() : null,\n    alim_ssgrp_nom_fr: json.alim_ssgrp_nom_fr ? String(json.alim_ssgrp_nom_fr).trim() : null,\n    alim_ssssgrp_code: json.alim_ssssgrp_code ? String(json.alim_ssssgrp_code).trim() : null,\n    alim_ssssgrp_nom_fr: json.alim_ssssgrp_nom_fr ? String(json.alim_ssssgrp_nom_fr).trim() : null\n  };\n  \n  // Mapper les valeurs nutritionnelles\n  for (const [oldKey, newKey] of Object.entries(nutritionMapping)) {\n    if (json[oldKey] !== undefined) {\n      cleaned[newKey] = cleanValue(json[oldKey]);\n    }\n  }\n  \n  output.push({ json: cleaned });\n}\n\nreturn output;"
+      },
+      "id": "9e77fd9b-34dd-4b7d-ab93-c55dee9c34f0",
+      "name": "Nettoyer & Mapper",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1408,
+        320
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "batchSize": 100,
+        "options": {}
+      },
+      "id": "4677ea34-d53a-4e68-82bf-d71a772ed8cb",
+      "name": "Lots de 100",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1616,
+        320
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "tableId": "ingredients_ciqual",
+        "dataToSend": "autoMapInputData"
+      },
+      "id": "417aa7c3-cc3d-42bf-b0a2-9c1800d6e97a",
+      "name": "Insérer dans Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        1904,
+        384
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "runSql"
+      },
+      "id": "796c05c2-aa92-43af-9ab0-10de3e601221",
+      "name": "Statistiques",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        1952,
+        208
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const stats = $input.first().json;\n\nreturn [{\n  json: {\n    message: `✅ Import CIQUAL terminé !\\n\\n📊 Résultats :\\n• Total : ${stats.total} aliments\\n• Avec calories : ${stats.with_calories}\\n• Avec protéines : ${stats.with_proteins}\\n\\n🎉 Base de données prête !`,\n    ...stats\n  }\n}];"
+      },
+      "id": "5ff4ca73-41ba-4a37-8f21-217b58811a46",
+      "name": "✅ Résultat",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2208,
+        208
+      ],
+      "typeVersion": 2
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-14T15:12:14.563Z",
+      "createdAt": "2026-01-14T15:12:14.563Z",
+      "role": "workflow:owner",
+      "workflowId": "XoizK8VH1IroHIiT",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-14T16:24:51.325Z",
+  "versionId": "aa680631-41df-4c70-acea-4130e2566ae3"
+}
