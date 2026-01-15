@@ -48,12 +48,7 @@
             "index": 0
           },
           {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          },
-          {
-            "node": "AI Agent3",
+            "node": "AI Agent2",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -136,7 +131,7 @@
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Code in JavaScript",
             "type": "main",
             "index": 0
           }
@@ -160,6 +155,28 @@
           {
             "node": "AI Agent3",
             "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -196,7 +213,7 @@
     {
       "parameters": {
         "operation": "getAll",
-        "limit": 1,
+        "limit": 5,
         "simple": false,
         "filters": {
           "labelIds": []
@@ -234,18 +251,19 @@
         -176
       ],
       "id": "9d14bea7-c4ca-4167-9202-7df5cc96e1c5",
-      "name": "Extract from File"
+      "name": "Extract from File",
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un assistant qui insère des données comptables dans Notion via le MCP. Tu dois utiliser create_database_page.\n\nCONTEXTE : Tu reçois des données de factures déjà extraites et validées. Tu dois créer une page dans la base Factures avec toutes les informations et relations nécessaires.\n\nDONNÉES : {{ $json }}\n\nÉTAPE 1 - Crée la page :\ndatabase_id: \"1d402d84a06480dc9457efe180b8d4c0\"\n\nproperties: {\n  \"Numero_facture\": { \"title\": [{ \"text\": { \"content\": numero }}]},\n  \"Date_emission\": { \"date\": { \"start\": date_emission }},\n  \"Date_paiement\": { \"date\": { \"start\": date_paiement }},\n  \"Date_echeance\": { \"date\": { \"start\": date_echeance }},\n  \"Montant_HT\": { \"number\": montant_ht },\n  \"TVA\": { \"number\": tva },\n  \"Description\": { \"rich_text\": [{ \"text\": { \"content\": description }}]},\n  \"Periode_facturee\": { \"rich_text\": [{ \"text\": { \"content\": periode }}]},\n  \"Duree_facturation\": { \"select\": { \"name\": duree }},\n  \"Statut\": { \"select\": { \"name\": \"En attente\" }},\n  \"Type\": { \"select\": { \"name\": \"Dépense\" }},\n  \"Classe\": { \"rich_text\": [{ \"text\": { \"content\": \"44584\" }}]},\n  \"Intitule_compte\": { \"rich_text\": [{ \"text\": { \"content\": \"TVA récupérée d'avance\" }}]}\n}\n\nÉTAPE 2 - Recherche le prestataire dans la base (ID: 20902d84a06480da8d0de8ff87dab9ac) et ajoute la relation\n\nÉTAPE 3 - Recherche la catégorie appropriée dans la base (ID: 1d402d84a064806b96dce725d1becf9a) et ajoute la relation\n\nExécute ces 3 étapes dans l'ordre.\nTu DOIS utiliser l'outil \"MCP Notion\" pour ajouter une entrée dans la base de données",
+        "text": "=Tu es un assistant comptable qui insère des factures dans Notion.\n\nMISSION : Créer une entrée dans la base Factures avec les données reçues.\n\nDONNÉES REÇUES :\n- Numéro : {{ $json.numero_facture }}\n- Date émission : {{ $json.date_emission }}\n- Date paiement : {{ $json.date_paiement }}\n- Date échéance : {{ $json.date_echeance }}\n- Montant HT : {{ $json.montant_ht }}\n- TVA : {{ $json.tva }}\n- Description : {{ $json.description }}\n- Période : {{ $json.periode }}\n- Durée : {{ $json.duree }}\n\nINSTRUCTIONS :\n1. Crée une page dans la base Factures (ID: 1d402d84a06480dc9457efe180b8d4c0) avec ces propriétés :\n   - Tous les champs ci-dessus\n   - Statut : \"En attente\"\n   - Type : \"Dépense\"\n   - Classe : \"44584\"\n   - Intitulé compte : \"TVA récupérée d'avance\"\n\n2. Recherche le prestataire correspondant à la description dans la base Prestataires (ID: 20902d84a06480da8d0de8ff87dab9ac) et ajoute la relation\n\n3. Recherche la catégorie appropriée dans la base Catégories (ID: 1d402d84a064806b96dce725d1becf9a) et ajoute la relation\n\nExécute ces 3 étapes puis confirme la création.",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        1872,
+        2080,
         -144
       ],
       "id": "d28f9cd2-2d8f-4cd5-8d73-6bd04eeeedc7",
@@ -253,7 +271,7 @@
     },
     {
       "parameters": {
-        "model": "qwen2.5:7b-instruct-q4_K_M",
+        "model": "qwen2.5:1.5b-instruct-q4_K_M",
         "options": {
           "temperature": 0.2,
           "topP": 0.9,
@@ -263,8 +281,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1024,
-        144
+        1152,
+        192
       ],
       "id": "9a8d094a-5e01-4699-a538-7fddc78ae547",
       "name": "Ollama Chat Model",
@@ -376,7 +394,8 @@
           "id": "y2rnCZZdVP6LWjj6",
           "name": "Google Drive account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -401,8 +420,8 @@
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1.2,
       "position": [
-        1712,
-        144
+        2224,
+        208
       ],
       "id": "29f33854-bc56-4a34-8da0-97776c7010ef",
       "name": "MCP Notion"
@@ -410,7 +429,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un expert comptable spécialisé dans l'extraction de données de factures françaises.\n\nCONTEXTE : Tu traites des factures reçues par email pour automatiser la saisie comptable. Les factures concernent principalement des prestataires tech et services en ligne.\n\nFACTURE : {{ $('Extract from File').item.json.text }}\nEMAIL : {{ $('Get many messages').item.json.subject }}\n\nExtrais les informations en JSON :\n{\n  \"numero\": \"numéro de facture\",\n  \"date_emission\": \"YYYY-MM-DD\",\n  \"date_paiement\": \"YYYY-MM-DD ou null\",\n  \"date_echeance\": \"YYYY-MM-DD ou null\",\n  \"montant_ht\": 0.00,\n  \"tva\": 0.00,\n  \"description\": \"description courte\",\n  \"periode\": \"mois année\",\n  \"duree\": \"1 mois|3 mois|1 an\",\n  \"prestataire\": \"nom exact du prestataire\"\n}\n\nRÈGLES :\n- Date_emission est OBLIGATOIRE\n- Montants en décimal sans symbole\n- Si info manquante : null",
+        "text": "=Tu es un expert comptable spécialisé dans l'extraction de données de factures françaises.\n\nCONTEXTE : Tu traites des factures reçues par email pour automatiser la saisie comptable. Les factures concernent principalement des prestataires tech et services en ligne.\n\nFACTURE : {{ $('Extract from File').item.json.text }}\nEMAIL : {{ $('Get many messages').item.json.subject }}\n\nExtrais les informations en JSON :\n{\n  \"numero_facture\": \"numéro de facture\",\n  \"date_emission\": \"YYYY-MM-DD\",\n  \"date_paiement\": \"YYYY-MM-DD ou null\",\n  \"date_echeance\": \"YYYY-MM-DD ou null\",\n  \"montant_ht\": 0.00,\n  \"tva\": 0.00,\n  \"description\": \"description courte\",\n  \"periode\": \"mois année\",\n  \"duree\": \"1 mois|3 mois|1 an\",\n  \"prestataire\": \"nom exact du prestataire\"\n}\n\nRÈGLES :\n- Date_emission est OBLIGATOIRE\n- Montants en décimal sans symbole avec une virgule\n- Si info manquante : null\n- NE retourne QUE le Json sans texte ni avant ni après. PAS DE ```json\\n et assimilé\n\nExemple : \n\n{\n  \"numero_facture\": \"083000621772\",\n  \"date_emission\": \"2026-01-02\",\n  \"date_paiement\": null,\n  \"date_echeance\": \"2026-01-15\",\n  \"montant_ht\": 8.64,\n  \"tva\": 1.44,\n  \"description\": \"Project \\\"N8N\\\"\",\n  \"periode\": \"mensuelle\",\n  \"duree\": \"1 an\"\n}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -429,8 +448,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        304,
-        208
+        224,
+        272
       ],
       "id": "7c1ff04f-8396-429e-899b-57391174a36b",
       "name": "AI Agent3"
@@ -477,6 +496,39 @@
       ],
       "id": "55135ba1-190f-434d-9ed3-db9497fcc8d8",
       "name": "rechercher_code_comptable"
+    },
+    {
+      "parameters": {
+        "jsCode": "let jsonStr = $input.item.json.output;\n\n// Nettoie les markdown code blocks\njsonStr = jsonStr.trim()\n  .replace(/^```json\\s*\\n?/, '')\n  .replace(/\\n?```$/, '');\n\nconst data = JSON.parse(jsonStr);\n\nreturn [{\n  json: {\n    numero_facture: data.numero_facture,\n    date_emission: data.date_emission,\n    date_paiement: data.date_paiement,\n    date_echeance: data.date_echeance,\n    montant_ht: data.montant_ht,\n    tva: data.tva,\n    montant_ttc: data.montant_ht + data.tva,\n    description: data.description,\n    periode: data.periode,\n    duree: data.duree\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        -144
+      ],
+      "id": "2c87d83e-6fe4-4fc7-84da-97dec868d196",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        144
+      ],
+      "id": "82689293-9086-4e4e-87e2-7d50c2ab317e",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
     }
   ],
   "origin": "n8n",
@@ -518,6 +570,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-12-09T20:41:55.154Z",
-  "versionId": "da0c93cd-858f-42ef-965b-a56e7741e89a"
+  "updatedAt": "2026-01-14T15:02:21.647Z",
+  "versionId": "e200bb26-0ec1-43d5-beb9-6f5ae428a0bd"
 }
