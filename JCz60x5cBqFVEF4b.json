@@ -1,5 +1,5 @@
 {
-  "active": false,
+  "active": true,
   "connections": {
     "Schedule Trigger": {
       "main": [
@@ -198,7 +198,8 @@
         "limit": 5,
         "simple": false,
         "filters": {
-          "receivedAfter": "={{ $json.lastWeek }}"
+          "receivedAfter": "={{ $json.yesterday }}",
+          "receivedBefore": ""
         },
         "options": {}
       },
@@ -235,7 +236,9 @@
           "attemptToConvertTypes": false,
           "convertFieldsToString": true
         },
-        "options": {}
+        "options": {
+          "waitForSubWorkflow": true
+        }
       },
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
@@ -504,9 +507,13 @@
       "projectId": "ou1B4ZLA3LmPCUHk"
     }
   ],
-  "staticData": null,
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
   "tags": [],
-  "triggerCount": 0,
-  "updatedAt": "2025-12-31T07:05:21.709Z",
-  "versionId": "fdc0414c-f841-40d1-a027-d4b7a81f5f54"
+  "triggerCount": 1,
+  "updatedAt": "2026-01-14T14:36:51.144Z",
+  "versionId": "1bf70044-0808-4151-b021-bdca6ad807f2"
 }
