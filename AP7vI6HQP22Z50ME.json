@@ -1,5 +1,58 @@
 {
-  "active": false,
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-16T10:39:29.540Z",
+    "createdAt": "2026-01-16T10:39:29.540Z",
+    "versionId": "3f1f1720-f410-4b27-a273-ba6f063c694e",
+    "workflowId": "AP7vI6HQP22Z50ME",
+    "nodes": [
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "const email = $input.item.json;\n\nfunction stripHtml(html) { \n  return html.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();\n}\n\nfunction stripHistory(text) { \n  return text.split(/(?:Le |On |From:)/)[0].trim();\n}\n\nfunction stripSignature(text) { \n  return text.split(/(?:Cordialement|Bien cordialement|Cdlt)/i)[0].trim();\n}\n\nfunction cleanup(text) { \n  return text.replace(/\\s+/g, ' ').trim();\n}\n\nlet raw = email.text || email.html || \"\";\nif (email.html && !email.text) { \n  raw = stripHtml(email.html); \n}\n\nlet cleaned = stripHistory(raw);\ncleaned = stripSignature(cleaned);\ncleaned = cleanup(cleaned);\n\nreturn {\n  json: {\n    id: email.messageId || email.id || \"\",\n    subject: email.subject || \"\",\n    threadId: email.threadId || \"\",\n    internalDate: email.internalDate || \"\",\n    cleanText: cleaned\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          400,
+          736
+        ],
+        "id": "eb0eee63-228f-46e9-aa5c-3a3aa618a892",
+        "name": "Clean email"
+      },
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "id": "a22fe864-128b-48b7-9514-06f293585880",
+        "typeVersion": 1.1,
+        "name": "Start",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "position": [
+          192,
+          736
+        ]
+      }
+    ],
+    "connections": {
+      "Start": {
+        "main": [
+          [
+            {
+              "node": "Clean email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "3f1f1720-f410-4b27-a273-ba6f063c694e",
   "connections": {
     "Start": {
       "main": [
