@@ -1,5 +1,58 @@
 {
-  "active": false,
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-16T10:39:29.540Z",
+    "createdAt": "2026-01-16T10:39:29.540Z",
+    "versionId": "cb159b32-53b9-44fa-bd02-2931a9bf14a9",
+    "workflowId": "Iv35NoZUYpm6VluM",
+    "nodes": [
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// --- CLEAN SUBJECT - SUBWORKFLOW - SINGLE INPUT `$input.item` ---\nconst subject = $input.item.json.subject || \"\";\n\nfunction cleanSubject(subject) {\n  if (!subject) return \"\";\n  \n  // Supprime \"Subject: \" au début\n  subject = subject.replace(/^Subject:\\s*/i, \"\");\n  \n  // Décode les caractères encodés en quoted-printable (=?UTF-8?Q?...)\n  subject = subject.replace(/=\\?UTF-8\\?Q\\?([^?]+)\\?=/gi, (match, encoded) => {\n    return encoded\n      .replace(/=([0-9A-F]{2})/g, (m, hex) => String.fromCharCode(parseInt(hex, 16)))\n      .replace(/_/g, \" \");\n  });\n  \n  // Décode les caractères encodés en base64 (=?UTF-8?B?...)\n  subject = subject.replace(/=\\?UTF-8\\?B\\?([^?]+)\\?=/gi, (match, encoded) => {\n    return Buffer.from(encoded, 'base64').toString('utf-8');\n  });\n  \n  // Supprime les retours à la ligne et espaces multiples\n  subject = subject\n    .replace(/\\r?\\n/g, \"\")\n    .replace(/\\s{2,}/g, \" \")\n    .trim();\n  \n  return subject;\n}\n\nreturn {\n  json: {\n    cleanSubject: cleanSubject(subject)\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          400,
+          736
+        ],
+        "id": "3b16523a-f060-40e8-85c4-eddeff76e526",
+        "name": "Clean email"
+      },
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "id": "9e6d8aa2-dc9f-47a3-9373-73a352319522",
+        "typeVersion": 1.1,
+        "name": "Start",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "position": [
+          192,
+          736
+        ]
+      }
+    ],
+    "connections": {
+      "Start": {
+        "main": [
+          [
+            {
+              "node": "Clean email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "cb159b32-53b9-44fa-bd02-2931a9bf14a9",
   "connections": {
     "Start": {
       "main": [
