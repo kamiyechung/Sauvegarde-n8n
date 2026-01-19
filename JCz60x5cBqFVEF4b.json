@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-01-16T09:59:08.807Z",
-    "createdAt": "2026-01-16T09:59:08.807Z",
-    "versionId": "001707f2-ce28-4b37-93f2-e84771857f12",
+    "updatedAt": "2026-01-19T08:45:51.179Z",
+    "createdAt": "2026-01-19T08:45:39.323Z",
+    "versionId": "90e022e0-2d5c-4af8-82de-d493173012fa",
     "workflowId": "JCz60x5cBqFVEF4b",
     "nodes": [
       {
@@ -91,8 +91,8 @@
         "type": "@n8n/n8n-nodes-langchain.agent",
         "typeVersion": 3,
         "position": [
-          1344,
-          200
+          1504,
+          64
         ],
         "id": "d86edf5b-6832-4a68-8808-9cc3fcde956f",
         "name": "AI Agent"
@@ -105,8 +105,8 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
         "typeVersion": 1,
         "position": [
-          1352,
-          424
+          1504,
+          352
         ],
         "id": "930a813e-0a6e-484f-89d1-15a8079b6292",
         "name": "Ollama Chat Model",
@@ -132,66 +132,13 @@
       },
       {
         "parameters": {
-          "jsCode": "// Mapping des labels\nconst labelMap = {\n  \"Syndic\": \"Label_1107215070567604782\",\n  \"Gestion locative\": \"Label_1151885618813199628\",\n  \"Essentielles\": \"Label_255864265859626501\",\n  \"Personal\": \"Label_3\",\n  \"Receipts\": \"Label_4\",\n  \"A traiter urgent\": \"Label_4938988077910989456\",\n  \"Factures Carrefour\": \"Label_5180827763194058448\",\n  \"Work\": \"Label_6\",\n  \"Factures Rouen\": \"Label_6071725231057128983\",\n  \"Blog\": \"Label_659885575819992047\",\n  \"ID\": \"Label_7\",\n  \"OVH\": \"Label_7296642557858161401\",\n  \"Suivi livraison Pichet\": \"Label_7692245440759375862\",\n  \"A traiter (non urgent)\": \"Label_8411510230508964137\",\n  \"Blog/Commentaires ebook\": \"Label_8625761150509488262\",\n  \"Factures Camille\": \"Label_8963688369978048774\"\n};\n\n// Récupérer la réponse de Claude\nlet response = $json.output || $json.response || $json.text || $json;\n\n// Si c'est un objet avec \"output\", extraire output\nif (typeof response === 'object' && response.output) {\n  response = response.output;\n}\n\n// Convertir en string si nécessaire\nresponse = String(response);\n\n// Si c'est \"null\" ou vide, skip\nif (response.trim() === 'null' || response.trim() === '') {\n  return { json: { skip: true } };\n}\n\n// Extraire le JSON (chercher {\"label\":\"...\"})\nconst jsonMatch = response.match(/\\{\"label\"\\s*:\\s*\"([^\"]+)\"\\}/);\n\nif (!jsonMatch) {\n  // Si pas de match, logger et utiliser défaut\n  console.log('Pas de JSON trouvé, réponse brute:', response);\n  return {\n    json: {\n      id: $('Code in JavaScript').item.json.id,\n      addLabelIds: [\"Label_255864265859626501\"], // Essentielles par défaut\n      removeLabelIds: []\n    }\n  };\n}\n\nconst labelName = jsonMatch[1];\nconst labelId = labelMap[labelName];\n\nif (!labelId) {\n  throw new Error('Label inconnu : ' + labelName);\n}\n\n// Récupérer les infos de l'email\nconst emailId = $('Code in JavaScript').item.json.id;\nconst currentLabels = $('Code in JavaScript').item.json.labelIds || [];\n\n// Labels à retirer (tous sauf Traités et le nouveau)\nconst labelsARetirer = currentLabels.filter(label => \n  label.startsWith('Label_') && \n  label !== 'Label_6701427935417109792' &&\n  label !== labelId\n);\n\nreturn {\n  json: {\n    id: emailId,\n    addLabelIds: [labelId],\n    removeLabelIds: labelsARetirer\n  }\n};"
-        },
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          0,
-          -128
-        ],
-        "id": "f0fce557-cc07-48ce-891f-e2187180e40b",
-        "name": "Code in JavaScript"
-      },
-      {
-        "parameters": {
-          "resource": "label"
-        },
-        "type": "n8n-nodes-base.gmail",
-        "typeVersion": 2.1,
-        "position": [
-          0,
-          1136
-        ],
-        "id": "696c69ff-35cc-43d5-b413-035e666ffc23",
-        "name": "Get many labels",
-        "webhookId": "ddee7003-3a56-40d2-af9f-ba411e0696b5",
-        "credentials": {
-          "gmailOAuth2": {
-            "id": "3xiqK9fngC1p7knM",
-            "name": "Gmail account Camille"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "model": "qwen2.5:7b",
-          "options": {}
-        },
-        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-        "typeVersion": 1,
-        "position": [
-          0,
-          720
-        ],
-        "id": "210d1174-b81d-4d6d-8a42-4c1b2f53ec8c",
-        "name": "Ollama Chat Model1",
-        "credentials": {
-          "ollamaApi": {
-            "id": "C2ejebWhR6zEoNIL",
-            "name": "Ollama account"
-          }
-        }
-      },
-      {
-        "parameters": {
           "resource": "label"
         },
         "type": "n8n-nodes-base.gmailTool",
         "typeVersion": 2.1,
         "position": [
-          1480,
-          424
+          1728,
+          384
         ],
         "id": "8bfe64af-cae2-446a-9ef5-6db531030386",
         "name": "Get many labels in Gmail",
@@ -205,30 +152,16 @@
       },
       {
         "parameters": {
-          "jsCode": "// Fonction pour nettoyer le HTML\nfunction cleanHtmlContent(html) {\n  if (!html) return '';\n  \n  return html\n    .replace(/<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>/gi, '')\n    .replace(/<style\\b[^<]*(?:(?!<\\/style>)<[^<]*)*<\\/style>/gi, '')\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/&nbsp;/g, ' ')\n    .replace(/&amp;/g, '&')\n    .replace(/&lt;/g, '<')\n    .replace(/&gt;/g, '>')\n    .replace(/&quot;/g, '\"')\n    .replace(/&#39;/g, \"'\")\n    .replace(/&agrave;/g, 'à')\n    .replace(/&eacute;/g, 'é')\n    .replace(/&egrave;/g, 'è')\n    .replace(/&ecirc;/g, 'ê')\n    .replace(/&icirc;/g, 'î')\n    .replace(/&ocirc;/g, 'ô')\n    .replace(/&ucirc;/g, 'û')\n    .replace(/&ccedil;/g, 'ç')\n    .replace(/&#231;/g, 'ç')\n    .replace(/&#(\\d+);/g, (match, dec) => String.fromCharCode(dec))\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\n// Traiter les items\nreturn $input.all().map(item => {\n  const htmlContent = item.json.html || item.json.body || '';\n  const cleanedText = cleanHtmlContent(htmlContent);\n  \n  return {\n    json: {\n      id: item.json.id,\n      from: item.json.from?.value?.[0]?.address || item.json.from,\n      from_name: item.json.from?.value?.[0]?.name || '',\n      subject: item.json.subject || '',\n      labelIds: item.json.labelIds || [],\n      date: item.json.date,\n      extrait: cleanedText.substring(0, 2000)\n    }\n  };\n});"
+          "jsCode": "// Fonction pour nettoyer le HTML\nfunction cleanHtmlContent(html) {\n  if (!html) return '';\n  \n  return html\n    .replace(/<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>/gi, '')\n    .replace(/<style\\b[^<]*(?:(?!<\\/style>)<[^<]*)*<\\/style>/gi, '')\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/&nbsp;/g, ' ')\n    .replace(/&amp;/g, '&')\n    .replace(/&lt;/g, '<')\n    .replace(/&gt;/g, '>')\n    .replace(/&quot;/g, '\"')\n    .replace(/&#39;/g, \"'\")\n    .replace(/&agrave;/g, 'à')\n    .replace(/&eacute;/g, 'é')\n    .replace(/&egrave;/g, 'è')\n    .replace(/&ecirc;/g, 'ê')\n    .replace(/&icirc;/g, 'î')\n    .replace(/&ocirc;/g, 'ô')\n    .replace(/&ucirc;/g, 'û')\n    .replace(/&ccedil;/g, 'ç')\n    .replace(/&#231;/g, 'ç')\n    .replace(/&#(\\d+);/g, (match, dec) => String.fromCharCode(dec))\n    .replace(/&zwnj;/g, '')\n    .replace(/&shy;/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\n// Traiter les items\nreturn $input.all().map(item => {\n  const htmlContent = item.json.html || item.json.body || '';\n  const cleanedText = cleanHtmlContent(htmlContent);\n  \n  return {\n    json: {\n      id: item.json.id,\n      from: item.json.from?.value?.[0]?.address || item.json.from,\n      from_name: item.json.from?.value?.[0]?.name || '',\n      subject: item.json.subject || '',\n      labelIds: item.json.labelIds || [],\n      date: item.json.date,\n      extrait: cleanedText.substring(0, 2000)\n    }\n  };\n});"
         },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           896,
-          200
+          208
         ],
         "id": "f7da261a-2538-416f-882f-bdf70fe8d4ff",
         "name": "Clean mail html"
-      },
-      {
-        "parameters": {
-          "endpointUrl": "http://mcp-gmail:3002/mcp/gmail",
-          "options": {}
-        },
-        "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
-        "typeVersion": 1.2,
-        "position": [
-          0,
-          928
-        ],
-        "id": "11359b4d-7ef1-4108-9e23-fdea8261c509",
-        "name": "MCP Gmail"
       },
       {
         "parameters": {
@@ -242,7 +175,7 @@
             "conditions": [
               {
                 "id": "4edd09ae-dbdd-4343-8676-8cd6883b4eea",
-                "leftValue": "=",
+                "leftValue": "={{ $json.label_id }}",
                 "rightValue": "Null",
                 "operator": {
                   "type": "string",
@@ -258,8 +191,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          1920,
-          200
+          2128,
+          208
         ],
         "id": "d81ba7fe-93a3-481f-adb8-012bb2915e48",
         "name": "If"
@@ -302,7 +235,7 @@
         "typeVersion": 2.2,
         "position": [
           1120,
-          200
+          208
         ],
         "id": "90d7c6f7-ccb1-4e41-9d45-816ba28845ea",
         "name": "If1"
@@ -316,8 +249,8 @@
         "type": "n8n-nodes-base.gmail",
         "typeVersion": 2.1,
         "position": [
-          2144,
-          324
+          2352,
+          336
         ],
         "id": "f5042c25-d1ac-4ddc-8211-ef0588219774",
         "name": "Add label to message",
@@ -336,8 +269,8 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          1696,
-          200
+          1904,
+          208
         ],
         "id": "5f00defb-c097-4fd8-b977-11d170cec0ac",
         "name": "Code in JavaScript1"
@@ -411,16 +344,6 @@
           ]
         ]
       },
-      "Code in JavaScript": {
-        "main": [
-          []
-        ]
-      },
-      "Ollama Chat Model1": {
-        "ai_languageModel": [
-          []
-        ]
-      },
       "Get many labels in Gmail": {
         "ai_tool": [
           [
@@ -441,11 +364,6 @@
               "index": 0
             }
           ]
-        ]
-      },
-      "MCP Gmail": {
-        "ai_tool": [
-          []
         ]
       },
       "If": {
@@ -508,11 +426,11 @@
       }
     },
     "authors": "Camille Huguet",
-    "name": null,
-    "description": null,
+    "name": "Version 90e022e0",
+    "description": "",
     "autosaved": false
   },
-  "activeVersionId": "001707f2-ce28-4b37-93f2-e84771857f12",
+  "activeVersionId": "90e022e0-2d5c-4af8-82de-d493173012fa",
   "connections": {
     "Schedule Trigger": {
       "main": [
@@ -769,8 +687,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1560,
-        424
+        1504,
+        352
       ],
       "id": "930a813e-0a6e-484f-89d1-15a8079b6292",
       "name": "Ollama Chat Model",
@@ -822,7 +740,7 @@
       "typeVersion": 2,
       "position": [
         896,
-        200
+        208
       ],
       "id": "f7da261a-2538-416f-882f-bdf70fe8d4ff",
       "name": "Clean mail html"
@@ -856,7 +774,7 @@
       "typeVersion": 2.2,
       "position": [
         2128,
-        200
+        208
       ],
       "id": "d81ba7fe-93a3-481f-adb8-012bb2915e48",
       "name": "If"
@@ -899,7 +817,7 @@
       "typeVersion": 2.2,
       "position": [
         1120,
-        200
+        208
       ],
       "id": "90d7c6f7-ccb1-4e41-9d45-816ba28845ea",
       "name": "If1"
@@ -914,7 +832,7 @@
       "typeVersion": 2.1,
       "position": [
         2352,
-        324
+        336
       ],
       "id": "f5042c25-d1ac-4ddc-8211-ef0588219774",
       "name": "Add label to message",
@@ -934,7 +852,7 @@
       "typeVersion": 2,
       "position": [
         1904,
-        200
+        208
       ],
       "id": "5f00defb-c097-4fd8-b977-11d170cec0ac",
       "name": "Code in JavaScript1"
@@ -965,6 +883,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-01-16T11:35:54.318Z",
-  "versionId": "71fe1bb8-af39-4684-8c3b-15b73248d612"
+  "updatedAt": "2026-01-19T08:45:39.320Z",
+  "versionId": "90e022e0-2d5c-4af8-82de-d493173012fa"
 }
