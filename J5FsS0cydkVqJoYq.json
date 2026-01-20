@@ -317,7 +317,7 @@
       "typeVersion": 4.4,
       "position": [
         -16,
-        -64
+        156
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -336,7 +336,7 @@
       "typeVersion": 3,
       "position": [
         208,
-        -64
+        156
       ]
     },
     {
@@ -389,7 +389,7 @@
       "typeVersion": 1,
       "position": [
         1680,
-        -272
+        -40
       ],
       "credentials": {
         "supabaseApi": {
@@ -413,8 +413,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        960,
-        32
+        952,
+        256
       ],
       "id": "8e6421b3-6a00-4820-85de-c58c4ac63831",
       "name": "Ollama Chat Model",
@@ -431,7 +431,7 @@
       "typeVersion": 1,
       "position": [
         -240,
-        -64
+        156
       ],
       "id": "cd595715-3523-4681-9882-e0763ad492fb",
       "name": "When clicking ‘Execute workflow’"
@@ -444,7 +444,7 @@
       "typeVersion": 2,
       "position": [
         656,
-        -192
+        32
       ],
       "id": "eafc0cd9-5e36-464a-a2d3-439e15c839d9",
       "name": "Extract JSON-LD"
@@ -460,7 +460,7 @@
       "typeVersion": 3,
       "position": [
         880,
-        -192
+        32
       ],
       "id": "e90dee81-8f32-4034-9e40-6aaa1027a025",
       "name": "AI Agent1"
@@ -493,7 +493,7 @@
       "typeVersion": 4.3,
       "position": [
         432,
-        -192
+        32
       ],
       "id": "9fa85825-8e55-48af-abcf-2c5c78091ed8",
       "name": "HTTP Request"
@@ -556,7 +556,7 @@
       "typeVersion": 3.3,
       "position": [
         1456,
-        -192
+        32
       ],
       "id": "cb089fa5-fe80-434a-a50c-ca93c6e52318",
       "name": "Switch"
@@ -592,8 +592,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3600,
-        224
+        3824,
+        448
       ],
       "id": "e1cfe582-7b46-4433-9a6c-9150a62e74be",
       "name": "Create a row",
@@ -615,7 +615,7 @@
       "typeVersion": 2,
       "position": [
         1680,
-        -16
+        204
       ],
       "alwaysOutputData": false
     },
@@ -627,7 +627,7 @@
       "typeVersion": 3,
       "position": [
         1904,
-        208
+        424
       ],
       "id": "a9ae3307-2295-4f07-a609-48638deb3b28",
       "name": "Loop Over Items1"
@@ -639,8 +639,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3376,
-        80
+        3600,
+        304
       ],
       "id": "4c00a902-0b37-4c5e-88f2-730d5a308cf0",
       "name": "Code in JavaScript1"
@@ -666,7 +666,7 @@
       "typeVersion": 4.3,
       "position": [
         2192,
-        32
+        256
       ],
       "id": "8e49fab9-83c6-41a5-8025-bfa32f225051",
       "name": "matching ingredients",
@@ -686,7 +686,7 @@
       "typeVersion": 2,
       "position": [
         1904,
-        -272
+        -40
       ],
       "id": "b7ba28de-e83e-444b-b4bf-c17ff5c17a59",
       "name": "Stock ID recette"
@@ -696,8 +696,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        3152,
-        240
+        3376,
+        304
       ],
       "id": "2589c5fd-3119-4111-80e8-8681b7ff6d71",
       "name": "Merge1"
@@ -736,8 +736,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2560,
-        -256
+        -240,
+        -368
       ],
       "id": "104f7875-9051-47a7-a281-ac5ea9db7a2b",
       "name": "HTTP Request1"
@@ -750,14 +750,14 @@
       "typeVersion": 2,
       "position": [
         1232,
-        -192
+        32
       ],
       "id": "90029b40-f47e-423f-a8e2-77c72f6adf85",
       "name": "Séparation ingredients"
     },
     {
       "parameters": {
-        "url": "https://fr.openfoodfacts.org/cgi/search.pl",
+        "url": "=https://fr.openfoodfacts.org/cgi/search.pl",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -801,8 +801,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2608,
-        -48
+        2704,
+        184
       ],
       "id": "f0cf56d4-c5f4-44b9-b9d0-ccf7b4d10c74",
       "name": "HTTP Request2",
@@ -847,8 +847,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2400,
-        32
+        2480,
+        256
       ],
       "id": "f0914e62-7b6a-4818-8ac1-e1094c4bff20",
       "name": "If"
@@ -862,8 +862,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3104,
-        -48
+        3152,
+        184
       ],
       "id": "2c752c26-6b03-4dcd-9820-169fc3426c20",
       "name": "Create a row1",
@@ -885,7 +885,7 @@
       "typeVersion": 3,
       "position": [
         2128,
-        -368
+        -144
       ],
       "id": "e7a8ba4e-fed2-4a46-8142-59f41e3cf49a",
       "name": "AI Agent"
@@ -898,8 +898,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        2208,
-        -144
+        2200,
+        80
       ],
       "id": "36ac88b6-e01e-4fc0-878b-373c8e31d659",
       "name": "Ollama Chat Model1",
@@ -939,8 +939,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2816,
-        -48
+        2928,
+        184
       ],
       "id": "1aa1d3fe-5a49-4d82-83d3-dd7d42a6d8d7",
       "name": "If1"
@@ -976,6 +976,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-01-17T18:13:56.274Z",
-  "versionId": "5aa77f37-941d-4e9e-902a-4bff4410a5f9"
+  "updatedAt": "2026-01-19T12:38:29.033Z",
+  "versionId": "98899842-8872-4eb8-8c21-adfa946334be"
 }
