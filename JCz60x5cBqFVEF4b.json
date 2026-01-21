@@ -499,17 +499,6 @@
         ]
       ]
     },
-    "Get many labels in Gmail": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Clean mail html": {
       "main": [
         [
@@ -578,6 +567,17 @@
           }
         ]
       ]
+    },
+    "LABELS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-12-08T13:28:50.476Z",
@@ -612,10 +612,7 @@
         "operation": "getAll",
         "limit": 30,
         "simple": false,
-        "filters": {
-          "receivedAfter": "={{ $json.yesterday }}",
-          "receivedBefore": ""
-        },
+        "filters": {},
         "options": {}
       },
       "type": "n8n-nodes-base.gmail",
@@ -667,7 +664,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un classificateur d'emails. Ton rôle est de vérifier que les mails reçus ont le meilleur label possible en lien avec leur contenu.\n\nChaque mail ne peux avoir qu'un label utilisateur. \n\nTu dois répondre UNIQUEMENT avec un objet JSON, RIEN d'autre. N'ajoute pas de texte ni avant, ni après et ni caractère bizarre. Tu DOIS utiliser le tool : \"Get many labels in gmail\" pour déterminer l'id du label choisi\n\n📧 EMAIL A TRAITER:\nDe: {{ $json.from }}\nSujet: {{ $json.subject }}\nLabels : {{ $json.labelIds }}\nExtrait: {{ $json.extrait }}\n\n\n📋 LABELS :\nSyndic, Gestion locative, Essentielles, Personal, Receipts, A traiter urgent, Factures Carrefour, Work, Factures Rouen, Blog, ID, OVH, Suivi livraison Pichet, A traiter (non urgent), Blog/Commentaires ebook, Factures Camille\n\n📐 RÈGLES :\n- Copropriété, AG → \"Syndic\"\n- Location, bail → \"Gestion locative\"\n- Factures Carrefour → \"Factures Carrefour\"\n- Factures Rouen (EDF, eau) → \"Factures Rouen\"\n- Autres factures → \"Factures Camille\"\n- Reçus → \"Receipts\"\n- Blog → \"Blog\"\n- Admin perso → \"ID\"\n- OVH, DNS → \"OVH\"\n- Livraison Pichet → \"Suivi livraison Pichet\"\n- Urgent → \"A traiter urgent\"\n- Non urgent → \"A traiter (non urgent)\"\n- Personnel → \"Personal\"\n- Pro → \"Work\"\n- Défaut → \"Essentielles\"\n- Contenu commercial → \"CATEGORY_PROMOTIONS\"\n- Si un mail fait partie d'un Thread qui a un label, applique ce label à tous les mails de la conversation\n\n\n\n⚠️ RÉPONDS UNIQUEMENT CE JSON (sans markdown, sans explication) :\n\n{\"label_id\": \"id_du_label\", \"label\": \"nom_du_label\"}\n\nSi labels contient \"CATEGORY_PROMOTIONS\" → null\n\nSi labels contient \"Traités\" → null\n\nSi labels est déjà le plus pertinent → null\n\nSinon → {\"label_id\": \"id_du_label\", \"label\": \"nom_du_label\"} \n\nExemple : {\"label_id\": \"Label_1107215070567604782\", \"label\": \"Syndic\", \"message_id\": \"{{ $json.id }}\"}\n\nSI un label est choisi, l'ID associé à celui-ci doit être intégré",
+        "text": "=Tu es un classificateur d'emails.\n\nÉTAPE OBLIGATOIRE 1 : Appelle IMMÉDIATEMENT le serveur MCP \"LABELS\" pour obtenir la liste complète des labels (nom + ID). Tu NE PEUX PAS continuer sans cette étape.\n\nÉTAPE 2 : Analyse l'email et trouve le label le plus pertinent selon ces règles :\n- Copropriété, AG, de Jeremy Saurel ou contient \"Manda\" → \"Syndic\"\n- Location, bail → \"Gestion locative\"\n- Factures Carrefour → \"Factures Carrefour\"\n- Factures Rouen (EDF, eau) → \"Factures Rouen\"\n- Autres factures → \"Factures Camille\"\n- Reçus → \"Receipts\"\n- Blog → \"Blog\"\n- Admin perso → \"ID\"\n- OVH, DNS → \"OVH\"\n- Livraison Pichet → \"Suivi livraison Pichet\"\n- Urgent → \"A traiter urgent\"\n- Non urgent → \"A traiter (non urgent)\"\n- Personnel → \"Personal\"\n- Pro → \"Work\"\n- De Kaoutar ou de Kunact → \"Essentielles\"\n- Contenu commercial → \"CATEGORY_PROMOTIONS\"\n- Si thread avec label existant → même label pour tous\n\n📧 EMAIL :\nDe : {{ $json.from }}\nSujet : {{ $json.subject }}\nLabels actuels : {{ $json.labelIds }}\nExtrait : {{ $json.extrait }}\n\n⚠️ EXCLUSIONS :\nSi labels contient \"CATEGORY_PROMOTIONS\" → réponds null\nSi labels contient \"Traités\" → réponds null\nSi label actuel déjà optimal → réponds null\n\nRÉPONSE ATTENDUE (JSON pur, sans markdown, sans texte) :\n{\"label_id\": \"Label_xxx\", \"label\": \"nom_du_label\", \"message_id\": \"{{ $json.id }}\"}\n\nN'AJOUTE RIEN D'AUTRE QUE LE JSON, NI TEXTE, NI '''. N'essaie pas de changer le label, réponds juste par un json.",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -711,26 +708,6 @@
       ],
       "id": "aa0795da-156f-4c4b-b8ff-e076dd509fef",
       "name": "Loop Over Items"
-    },
-    {
-      "parameters": {
-        "resource": "label"
-      },
-      "type": "n8n-nodes-base.gmailTool",
-      "typeVersion": 2.1,
-      "position": [
-        1728,
-        384
-      ],
-      "id": "8bfe64af-cae2-446a-9ef5-6db531030386",
-      "name": "Get many labels in Gmail",
-      "webhookId": "f64a6a8d-5ea5-4174-b0bb-884d0ebabc5c",
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "3xiqK9fngC1p7knM",
-          "name": "Gmail account Camille"
-        }
-      }
     },
     {
       "parameters": {
@@ -825,7 +802,7 @@
     {
       "parameters": {
         "operation": "addLabels",
-        "messageId": "={{ $('Clean mail html').item.json.id }}",
+        "messageId": "={{ $json.message_id }}",
         "labelIds": "={{ $json.label_id }}"
       },
       "type": "n8n-nodes-base.gmail",
@@ -856,6 +833,20 @@
       ],
       "id": "5f00defb-c097-4fd8-b977-11d170cec0ac",
       "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://mcp-gmail:3002/mcp/gmail",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        1728,
+        368
+      ],
+      "id": "3fb42636-a776-4895-be6a-399544be59bc",
+      "name": "LABELS"
     }
   ],
   "origin": "n8n",
@@ -865,7 +856,11 @@
     "name": "Sauvegarde-n8n"
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "timezone": "Europe/Paris",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
   "shared": [
     {
@@ -883,6 +878,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-01-19T08:45:39.320Z",
-  "versionId": "90e022e0-2d5c-4af8-82de-d493173012fa"
+  "updatedAt": "2026-01-21T11:26:39.632Z",
+  "versionId": "93105f1e-cedd-4bce-8ac6-fddc2109c4bb"
 }
