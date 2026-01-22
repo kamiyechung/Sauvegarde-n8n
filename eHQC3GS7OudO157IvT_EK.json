@@ -1,0 +1,214 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Démarrage manuel": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch OFF API": {
+      "main": [
+        [
+          {
+            "node": "Transform Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Data": {
+      "main": [
+        [
+          {
+            "node": "Supabase Upsert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Upsert": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Fetch OFF API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch OFF API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-01-21T12:06:18.225Z",
+  "id": "eHQC3GS7OudO157IvT_EK",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Import Open Food Facts France",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        -168
+      ],
+      "id": "2890e418-8449-4649-9127-aa8b7cd5592b",
+      "name": "Démarrage manuel"
+    },
+    {
+      "parameters": {
+        "url": "https://world.openfoodfacts.org/api/v2/search",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"search_simple\": \"1\",\n  \"action\": \"process\",\n  \"json\": \"1\",\n  \"page_size\": \"100\",\n  \"page\": {{ $runIndex + 30 }},\n  \"tagtype_0\": \"countries\",\n  \"tag_contains_0\": \"contains\",\n  \"tag_0\": \"france\",\n  \"fields\": \"code,product_name,brands,quantity,categories,ingredients_text,allergens,traces,additives,additives_tags,additives_n,nova_group,ecoscore_grade,ecoscore_score,nutriments.energy_kj_100g,nutriments.energy-kcal_100g,nutriments.fat_100g,nutriments.saturated-fat_100g,nutriments.carbohydrates_100g,nutriments.sugars_100g,nutriments.fiber_100g,nutriments.proteins_100g,nutriments.salt_100g,nutriments.sodium_100g,nutriments.fruits-vegetables-nuts-estimate-from-ingredients_100g,nutriments.alcohol_100g,nutriments.calcium_100g,nutriments.iron_100g,nutriments.vitamin-c_100g,nutriments.vitamin-d_100g,image_url,image_small_url,image_ingredients_url,image_nutrition_url,packaging,packaging_tags,url,creator,created_t,last_modified_t,last_modified_by,states,states_tags,completeness,stores,countries_tags\"\n}\n",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -448,
+        -240
+      ],
+      "id": "ee9025d1-2ce7-4be0-8501-1d6eb6327ba5",
+      "name": "Fetch OFF API"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst products = response.products || [];\n\nif (!products.length) {\n  return [];\n}\n\nconst transformed = products\n  .filter(p => p.code && p.product_name)\n  .map(p => ({\n    json: {\n      code: p.code,\n      product_name: p.product_name || '',\n      brands: p.brands || null,\n      quantity: p.quantity || null,\n      serving_size: p.serving_size || null,\n      categories: p.categories || null,\n      categories_tags: p.categories_tags || null,\n      main_category: p.main_category || null,\n      labels: p.labels || null,\n      labels_tags: p.labels_tags || null,\n      origins: p.origins || null,\n      origins_tags: p.origins_tags || null,\n      manufacturing_places: p.manufacturing_places || null,\n      stores: p.stores || null,\n      countries: p.countries || null,\n      nutriscore_grade: p.nutriscore_grade || null,\n      nutriscore_score: p.nutriscore_score || null,\n      nova_group: p.nova_group || null,\n      ecoscore_grade: p.ecoscore_grade || null,\n      ecoscore_score: p.ecoscore_score || null,\n      energy_kj: p.nutriments?.['energy-kj_100g'] || null,\n      energy_kcal: p.nutriments?.['energy-kcal_100g'] || null,\n      fat: p.nutriments?.fat_100g || null,\n      saturated_fat: p.nutriments?.['saturated-fat_100g'] || null,\n      carbohydrates: p.nutriments?.carbohydrates_100g || null,\n      sugars: p.nutriments?.sugars_100g || null,\n      fiber: p.nutriments?.fiber_100g || null,\n      proteins: p.nutriments?.proteins_100g || null,\n      salt: p.nutriments?.salt_100g || null,\n      sodium: p.nutriments?.sodium_100g || null,\n      fruits_vegetables_nuts_percent: p.nutriments?.['fruits-vegetables-nuts-estimate-from-ingredients_100g'] || null,\n      alcohol: p.nutriments?.alcohol_100g || null,\n      calcium: p.nutriments?.calcium_100g || null,\n      iron: p.nutriments?.iron_100g || null,\n      vitamin_c: p.nutriments?.['vitamin-c_100g'] || null,\n      vitamin_d: p.nutriments?.['vitamin-d_100g'] || null,\n      ingredients_text: p.ingredients_text || null,\n      allergens: p.allergens_tags || null,\n      traces: p.traces_tags || null,\n      additives: p.additives_tags || null,\n      additives_n: p.additives_n || null,\n      image_url: p.image_url || null,\n      image_small_url: p.image_small_url || null,\n      image_ingredients_url: p.image_ingredients_url || null,\n      image_nutrition_url: p.image_nutrition_url || null,\n      packaging: p.packaging || null,\n      packaging_tags: p.packaging_tags || null,\n      url: p.url || null,\n      creator: p.creator || null,\n      created_t: p.created_t || null,\n      last_modified_t: p.last_modified_t || null,\n      last_modified_by: p.last_modified_by || null,\n      states: p.states || null,\n      states_tags: p.states_tags || null,\n      completeness: p.completeness || null,\n      last_synced_at: new Date().toISOString()\n    }\n  }));\n\nreturn transformed;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        -240
+      ],
+      "id": "90e9369c-10e9-410e-b748-0a017d90de13",
+      "name": "Transform Data"
+    },
+    {
+      "parameters": {
+        "tableId": "ingredients_off",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -240
+      ],
+      "id": "adcd47a9-94cb-4e0d-9988-249c7a4c2c99",
+      "name": "Supabase Upsert",
+      "retryOnFail": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "PPGMcebxGrT5POUo",
+          "name": "Supabase IA Meal Planner"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -816,
+        -256
+      ],
+      "id": "294d1c69-84d8-4134-8431-32113123fb9c",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        -256
+      ],
+      "id": "2c1f4cc0-f13d-4bbd-8039-60a0ccf30dbb",
+      "name": "Wait",
+      "webhookId": "bcad80a5-3051-49e5-9917-90e3734df107"
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-21T12:06:18.225Z",
+      "createdAt": "2026-01-21T12:06:18.225Z",
+      "role": "workflow:owner",
+      "workflowId": "eHQC3GS7OudO157IvT_EK",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-21T14:11:16.323Z",
+  "versionId": "11f5e929-3238-4b65-98a2-27ef0b4306bf"
+}
