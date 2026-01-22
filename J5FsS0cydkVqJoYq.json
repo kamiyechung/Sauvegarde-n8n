@@ -94,13 +94,7 @@
     },
     "Switch": {
       "main": [
-        [
-          {
-            "node": "Supabase - Insert",
-            "type": "main",
-            "index": 0
-          }
-        ],
+        [],
         [
           {
             "node": "Normalize ingredient",
@@ -317,7 +311,7 @@
       "typeVersion": 4.4,
       "position": [
         -16,
-        156
+        160
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -336,7 +330,7 @@
       "typeVersion": 3,
       "position": [
         208,
-        156
+        160
       ]
     },
     {
@@ -389,7 +383,7 @@
       "typeVersion": 1,
       "position": [
         1680,
-        -40
+        -48
       ],
       "credentials": {
         "supabaseApi": {
@@ -413,7 +407,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        952,
+        960,
         256
       ],
       "id": "8e6421b3-6a00-4820-85de-c58c4ac63831",
@@ -431,7 +425,7 @@
       "typeVersion": 1,
       "position": [
         -240,
-        156
+        160
       ],
       "id": "cd595715-3523-4681-9882-e0763ad492fb",
       "name": "When clicking ‘Execute workflow’"
@@ -615,7 +609,7 @@
       "typeVersion": 2,
       "position": [
         1680,
-        204
+        208
       ],
       "alwaysOutputData": false
     },
@@ -627,7 +621,7 @@
       "typeVersion": 3,
       "position": [
         1904,
-        424
+        432
       ],
       "id": "a9ae3307-2295-4f07-a609-48638deb3b28",
       "name": "Loop Over Items1"
@@ -686,7 +680,7 @@
       "typeVersion": 2,
       "position": [
         1904,
-        -40
+        -48
       ],
       "id": "b7ba28de-e83e-444b-b4bf-c17ff5c17a59",
       "name": "Stock ID recette"
@@ -802,7 +796,7 @@
       "typeVersion": 4.3,
       "position": [
         2704,
-        184
+        192
       ],
       "id": "f0cf56d4-c5f4-44b9-b9d0-ccf7b4d10c74",
       "name": "HTTP Request2",
@@ -856,14 +850,19 @@
     {
       "parameters": {
         "tableId": "ingredients",
-        "dataToSend": "autoMapInputData",
-        "inputsToIgnore": "count"
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name"
+            }
+          ]
+        }
       },
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
         3152,
-        184
+        192
       ],
       "id": "2c752c26-6b03-4dcd-9820-169fc3426c20",
       "name": "Create a row1",
@@ -898,7 +897,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        2200,
+        2208,
         80
       ],
       "id": "36ac88b6-e01e-4fc0-878b-373c8e31d659",
@@ -940,7 +939,7 @@
       "typeVersion": 2.3,
       "position": [
         2928,
-        184
+        192
       ],
       "id": "1aa1d3fe-5a49-4d82-83d3-dd7d42a6d8d7",
       "name": "If1"
@@ -976,6 +975,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-01-19T12:38:29.033Z",
-  "versionId": "98899842-8872-4eb8-8c21-adfa946334be"
+  "updatedAt": "2026-01-21T12:05:59.833Z",
+  "versionId": "a03d1360-fb20-4e6a-8ae5-afaf6613ea2c"
 }
