@@ -219,13 +219,7 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "HTTP Request2",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "AI Agent": {
@@ -250,6 +244,17 @@
         [
           {
             "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
             "type": "main",
             "index": 0
           }
@@ -424,7 +429,9 @@
         392
       ],
       "id": "e90dee81-8f32-4034-9e40-6aaa1027a025",
-      "name": "AI Agent1"
+      "name": "AI Agent1",
+      "retryOnFail": true,
+      "maxTries": 5
     },
     {
       "parameters": {
@@ -587,8 +594,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1904,
-        564
+        1872,
+        528
       ],
       "id": "a9ae3307-2295-4f07-a609-48638deb3b28",
       "name": "Loop Over Items1"
@@ -724,14 +731,8 @@
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "nom_recherche",
-              "value": "={{ $('Normalize ingredient').item.json.normalized_search }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"nom_recherche\": \"pate-canneloni\",\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -864,6 +865,17 @@
       ],
       "id": "1aa1d3fe-5a49-4d82-83d3-dd7d42a6d8d7",
       "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        16
+      ],
+      "id": "d9515782-6dc8-454a-b8df-5e148650031f",
+      "name": "When clicking ‘Execute workflow’"
     }
   ],
   "origin": "n8n",
@@ -890,6 +902,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-01-23T08:39:19.698Z",
-  "versionId": "06fea994-47b1-477c-acb4-d858a76efddf"
+  "updatedAt": "2026-01-25T20:44:03.524Z",
+  "versionId": "05e3b359-1cec-4de2-b9e9-ca321c9ca23f"
 }
