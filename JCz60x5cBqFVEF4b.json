@@ -610,9 +610,11 @@
     {
       "parameters": {
         "operation": "getAll",
-        "limit": 30,
+        "returnAll": true,
         "simple": false,
-        "filters": {},
+        "filters": {
+          "receivedAfter": "={{ $json.yesterday }}"
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.gmail",
@@ -664,7 +666,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un classificateur d'emails.\n\nÉTAPE OBLIGATOIRE 1 : Appelle IMMÉDIATEMENT le serveur MCP \"LABELS\" pour obtenir la liste complète des labels (nom + ID). Tu NE PEUX PAS continuer sans cette étape.\n\nÉTAPE 2 : Analyse l'email et trouve le label le plus pertinent selon ces règles :\n- Copropriété, AG, de Jeremy Saurel ou contient \"Manda\" → \"Syndic\"\n- Location, bail → \"Gestion locative\"\n- Factures Carrefour → \"Factures Carrefour\"\n- Factures Rouen (EDF, eau) → \"Factures Rouen\"\n- Autres factures → \"Factures Camille\"\n- Reçus → \"Receipts\"\n- Blog → \"Blog\"\n- Admin perso → \"ID\"\n- OVH, DNS → \"OVH\"\n- Livraison Pichet → \"Suivi livraison Pichet\"\n- Urgent → \"A traiter urgent\"\n- Non urgent → \"A traiter (non urgent)\"\n- Personnel → \"Personal\"\n- Pro → \"Work\"\n- De Kaoutar ou de Kunact → \"Essentielles\"\n- Contenu commercial → \"CATEGORY_PROMOTIONS\"\n- Si thread avec label existant → même label pour tous\n\n📧 EMAIL :\nDe : {{ $json.from }}\nSujet : {{ $json.subject }}\nLabels actuels : {{ $json.labelIds }}\nExtrait : {{ $json.extrait }}\n\n⚠️ EXCLUSIONS :\nSi labels contient \"CATEGORY_PROMOTIONS\" → réponds null\nSi labels contient \"Traités\" → réponds null\nSi label actuel déjà optimal → réponds null\n\nRÉPONSE ATTENDUE (JSON pur, sans markdown, sans texte) :\n{\"label_id\": \"Label_xxx\", \"label\": \"nom_du_label\", \"message_id\": \"{{ $json.id }}\"}\n\nN'AJOUTE RIEN D'AUTRE QUE LE JSON, NI TEXTE, NI '''. N'essaie pas de changer le label, réponds juste par un json.",
+        "text": "=Tu es un classificateur d'emails.\n\nÉTAPE OBLIGATOIRE 1 : Appelle IMMÉDIATEMENT le serveur MCP \"LABELS\" pour obtenir la liste complète des labels (nom + ID). Tu NE PEUX PAS continuer sans cette étape.\n\nÉTAPE 2 : Analyse l'email et trouve le label le plus pertinent selon ces règles :\n- Copropriété, AG, de Jeremy Saurel ou contient \"Manda\" → \"Syndic\"\n- Location, bail → \"Gestion locative\"\n- Factures Carrefour → \"Factures Carrefour\"\n- Factures Rouen (EDF, eau) → \"Factures Rouen\"\n- Autres factures → \"Factures Camille\"\n- Reçus → \"Receipts\"\n- Blog → \"Blog\"\n- Admin perso → \"ID\"\n- OVH, DNS → \"OVH\"\n- Livraison Pichet → \"Suivi livraison Pichet\"\n- Urgent → \"A traiter urgent\"\n- Non urgent → \"A traiter (non urgent)\"\n- Personnel → \"Personal\"\n- Pro → \"Work\"\n- De Kaoutar ou de Kunact → \"Essentielles\"\n- Si thread avec label existant → même label pour tous\n\n📧 EMAIL :\nDe : {{ $json.from }}\nSujet : {{ $json.subject }}\nLabels actuels : {{ $json.labelIds }}\nExtrait : {{ $json.extrait }}\n\n⚠️ EXCLUSIONS :\nSi labels contient \"CATEGORY_PROMOTIONS\" → réponds null\nSi labels contient \"CATEGORY_SOCIAL\" → réponds null\nSi labels contient \"Traités\" → réponds null\nSi label actuel déjà optimal → réponds null\nSi le mail est une notification de sécurité → réponds null\n\n⛔ LABELS INTERDITS (ne jamais retourner) :\nCATEGORY_PROMOTIONS, CATEGORY_SOCIAL, CATEGORY_UPDATES, CATEGORY_FORUMS, CATEGORY_PERSONAL, SPAM, TRASH, INBOX, UNREAD, STARRED, IMPORTANT\n\nUtilise UNIQUEMENT des label_id de type \"Label_xxx\" provenant du serveur MCP.\n\nRÉPONSE ATTENDUE (JSON pur, sans markdown, sans texte) :\n{\"label_id\": \"Label_xxx\", \"label\": \"nom_du_label\", \"message_id\": \"{{ $json.id }}\"}\n\nSi aucun label pertinent ou si exclusion → réponds : {\"label_id\": null, \"label\": null, \"message_id\": \"{{ $json.id }}\"}\n\nN'AJOUTE RIEN D'AUTRE QUE LE JSON, NI TEXTE, NI '''.",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -674,7 +676,9 @@
         64
       ],
       "id": "d86edf5b-6832-4a68-8808-9cc3fcde956f",
-      "name": "AI Agent"
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -823,7 +827,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const parsed = JSON.parse(item.json.output);\n  results.push({\n    json: {\n      label_id: parsed.label_id,\n      label: parsed.label,\n      message_id: parsed.message_id\n    }\n  });\n}\n\nreturn results;"
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const output = item.json.output;\n  \n  console.log('Type:', typeof output);\n  console.log('Contenu:', output);\n  console.log('Longueur:', output?.length);\n  \n  if (!output || output.trim() === '') {\n    console.log('Output vide, skip');\n    continue;\n  }\n  \n  if (typeof output === 'object') {\n    results.push({\n      json: {\n        label_id: output.label_id,\n        label: output.label,\n        message_id: output.message_id\n      }\n    });\n    continue;\n  }\n  \n  try {\n    const parsed = JSON.parse(output);\n    results.push({\n      json: {\n        label_id: parsed.label_id,\n        label: parsed.label,\n        message_id: parsed.message_id\n      }\n    });\n  } catch (e) {\n    console.log('Parse failed pour:', output.substring(0, 100));\n  }\n}\n\n// IMPORTANT : toujours retourner quelque chose\nif (results.length === 0) {\n  return [{ json: { error: 'Aucun résultat valide' } }];\n}\n\nreturn results;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -878,6 +882,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-01-21T11:26:39.632Z",
-  "versionId": "93105f1e-cedd-4bce-8ac6-fddc2109c4bb"
+  "updatedAt": "2026-01-28T11:27:07.025Z",
+  "versionId": "49e27362-001a-4254-b799-b135818ad261"
 }
