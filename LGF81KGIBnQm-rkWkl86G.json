@@ -1,0 +1,95 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-01-28T18:00:17.768Z",
+  "id": "LGF81KGIBnQm-rkWkl86G",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "aa174771-2c1f-4855-afc2-b3b965ab1ed4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1SVnsbc-0sl0ytGVKRU4DJ2vG7OzK3PCyO0sfqTmZFlE",
+          "mode": "list",
+          "cachedResultName": "ciqual_2025_clean",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SVnsbc-0sl0ytGVKRU4DJ2vG7OzK3PCyO0sfqTmZFlE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1476901492,
+          "mode": "list",
+          "cachedResultName": "ciqual_2025_clean",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SVnsbc-0sl0ytGVKRU4DJ2vG7OzK3PCyO0sfqTmZFlE/edit#gid=1476901492"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4fc0a045-ec96-45be-9ec9-12bbfa952093",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dX6J48BSCs6BymMp",
+          "name": "Google Sheets Camille"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-01-28T18:00:17.768Z",
+      "createdAt": "2026-01-28T18:00:17.768Z",
+      "role": "workflow:owner",
+      "workflowId": "LGF81KGIBnQm-rkWkl86G",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-28T18:00:17.768Z",
+  "versionId": "c3e01329-e00a-46cf-ac0e-3cadc710a3e5"
+}
