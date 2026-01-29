@@ -59,7 +59,13 @@
     },
     "AI Agent": {
       "main": [
-        []
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Call 'Clean des emails'": {
@@ -259,7 +265,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un assistant comptable qui insère des factures dans Notion.\n\nMISSION : Créer une entrée dans la base Factures avec les données reçues.\n\nDONNÉES REÇUES :\n- Numéro : {{ $json.numero_facture }}\n- Date émission : {{ $json.date_emission }}\n- Date paiement : {{ $json.date_paiement }}\n- Date échéance : {{ $json.date_echeance }}\n- Montant HT : {{ $json.montant_ht }}\n- TVA : {{ $json.tva }}\n- Description : {{ $json.description }}\n- Période : {{ $json.periode }}\n- Durée : {{ $json.duree }}\n\nINSTRUCTIONS :\n1. Crée une page dans la base Factures (ID: 1d402d84a06480dc9457efe180b8d4c0) avec ces propriétés :\n   - Tous les champs ci-dessus\n   - Statut : \"En attente\"\n   - Type : \"Dépense\"\n   - Classe : \"44584\"\n   - Intitulé compte : \"TVA récupérée d'avance\"\n\n2. Recherche le prestataire correspondant à la description dans la base Prestataires (ID: 20902d84a06480da8d0de8ff87dab9ac) et ajoute la relation\n\n3. Recherche la catégorie appropriée dans la base Catégories (ID: 1d402d84a064806b96dce725d1becf9a) et ajoute la relation\n\nExécute ces 3 étapes puis confirme la création.",
+        "text": "=Tu es un assistant comptable qui insère des factures dans Notion. Tu as accès à un outil appelé MCP Notion, tu peux utiliser la fonction \"list_page\" et \"get_page\" pour vérifier le contenu des bases.\n\nMISSION : Créer une entrée dans la base Factures avec les données reçues.\n\nDONNÉES REÇUES :\n- Numéro : {{ $json.numero_facture }}\n- Date émission : {{ $json.date_emission }}\n- Date de paiement : {{ $json.date_paiement }}\n- Date échéance : {{ $json.date_echeance }}\n- Montant HT : {{ $json.montant_ht }}\n- TVA : {{ $json.tva }}\n- Description : {{ $json.description }}\n- Période : {{ $json.periode }}\n- Durée de facturation : {{ $json.duree }}\n\nINSTRUCTIONS :\n1. Crée une page dans la base Factures (ID: 1d402d84a06480dc9457efe180b8d4c0) avec ces propriétés :\n   - Tous les champs ci-dessus\n   - Statut : \"En attente\"\n   - Type : \"Dépense\"\n   - Classe : \"44584\"\n   - Intitule compte : \"TVA récupérée d'avance\"\n\n2. Recherche le prestataire correspondant à la description dans la base Prestataires (ID: 20902d84a06480da8d0de8ff87dab9ac) et ajoute la relation\n\n3. Recherche la catégorie appropriée dans la base Catégories (ID: 1d402d84a064806b96dce725d1becf9a) et ajoute la relation\n\n4. Recherche le bon \"intitulé de compte\" dans la base PGC (ID: 20602d84a06480719c9c000c2de4263c)\n\nExécute ces 3 étapes puis confirme la création.",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -269,7 +275,9 @@
         -144
       ],
       "id": "d28f9cd2-2d8f-4cd5-8d73-6bd04eeeedc7",
-      "name": "AI Agent"
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -332,7 +340,9 @@
         -80
       ],
       "id": "084c501c-b13e-4c25-8c26-afeceec62d9b",
-      "name": "AI Agent1"
+      "name": "AI Agent1",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -422,8 +432,8 @@
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1.2,
       "position": [
-        2224,
-        208
+        2304,
+        176
       ],
       "id": "29f33854-bc56-4a34-8da0-97776c7010ef",
       "name": "MCP Notion"
@@ -531,6 +541,33 @@
           "name": "Ollama account"
         }
       }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "1d402d84-a064-80dc-9457-efe180b8d4c0",
+          "mode": "list",
+          "cachedResultName": "Factures",
+          "cachedResultUrl": "https://www.notion.so/1d402d84a06480dc9457efe180b8d4c0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2432,
+        -144
+      ],
+      "id": "87cf88c4-b7b4-4032-a3d8-3711295e3a9f",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
     }
   ],
   "origin": "n8n",
@@ -572,6 +609,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-01-14T15:02:21.647Z",
-  "versionId": "e200bb26-0ec1-43d5-beb9-6f5ae428a0bd"
+  "updatedAt": "2026-01-29T10:47:38.827Z",
+  "versionId": "f6301894-beeb-4593-bc68-91ef511ce0b1"
 }
