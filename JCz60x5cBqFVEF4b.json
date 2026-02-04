@@ -539,7 +539,7 @@
         ],
         [
           {
-            "node": "AI Agent",
+            "node": "Labels retournés",
             "type": "main",
             "index": 0
           }
@@ -557,23 +557,45 @@
         ]
       ]
     },
-    "Code in JavaScript1": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "LABELS": {
       "ai_tool": [
         [
           {
             "node": "AI Agent",
             "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Labels retournés": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
             "index": 0
           }
         ]
@@ -620,7 +642,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        448,
+        544,
         496
       ],
       "id": "a13ed8e5-00ac-4846-9549-29e6011d8e0e",
@@ -666,13 +688,13 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un classificateur d'emails.\n\nÉTAPE OBLIGATOIRE 1 : Appelle IMMÉDIATEMENT le serveur MCP \"LABELS\" pour obtenir la liste complète des labels (nom + ID). Tu NE PEUX PAS continuer sans cette étape.\n\nÉTAPE 2 : Analyse l'email et trouve le label le plus pertinent selon ces règles :\n- Copropriété, AG, de Jeremy Saurel ou contient \"Manda\" → \"Syndic\"\n- Location, bail → \"Gestion locative\"\n- Factures Carrefour → \"Factures Carrefour\"\n- Factures Rouen (EDF, eau) → \"Factures Rouen\"\n- Autres factures → \"Factures Camille\"\n- Reçus → \"Receipts\"\n- Blog → \"Blog\"\n- Admin perso → \"ID\"\n- OVH, DNS → \"OVH\"\n- Livraison Pichet → \"Suivi livraison Pichet\"\n- Urgent → \"A traiter urgent\"\n- Non urgent → \"A traiter (non urgent)\"\n- Personnel → \"Personal\"\n- Pro → \"Work\"\n- De Kaoutar ou de Kunact → \"Essentielles\"\n- Si thread avec label existant → même label pour tous\n\n📧 EMAIL :\nDe : {{ $json.from }}\nSujet : {{ $json.subject }}\nLabels actuels : {{ $json.labelIds }}\nExtrait : {{ $json.extrait }}\n\n⚠️ EXCLUSIONS :\nSi labels contient \"CATEGORY_PROMOTIONS\" → réponds null\nSi labels contient \"CATEGORY_SOCIAL\" → réponds null\nSi labels contient \"Traités\" → réponds null\nSi label actuel déjà optimal → réponds null\nSi le mail est une notification de sécurité → réponds null\n\n⛔ LABELS INTERDITS (ne jamais retourner) :\nCATEGORY_PROMOTIONS, CATEGORY_SOCIAL, CATEGORY_UPDATES, CATEGORY_FORUMS, CATEGORY_PERSONAL, SPAM, TRASH, INBOX, UNREAD, STARRED, IMPORTANT\n\nUtilise UNIQUEMENT des label_id de type \"Label_xxx\" provenant du serveur MCP.\n\nRÉPONSE ATTENDUE (JSON pur, sans markdown, sans texte) :\n{\"label_id\": \"Label_xxx\", \"label\": \"nom_du_label\", \"message_id\": \"{{ $json.id }}\"}\n\nSi aucun label pertinent ou si exclusion → réponds : {\"label_id\": null, \"label\": null, \"message_id\": \"{{ $json.id }}\"}\n\nN'AJOUTE RIEN D'AUTRE QUE LE JSON, NI TEXTE, NI '''.",
+        "text": "=Tu es un vérificateur de classification d'emails.\n\nÉTAPE 1 - OBLIGATOIRE : \nPREMIÈRE ACTION OBLIGATOIRE : Tu DOIS appeler le tool \"LABELS\" MAINTENANT avant toute autre action.\n\nÉTAPE 2 - VÉRIFICATION :\nÉvalue si le label actuel de cet email est pertinent. Donne une note de 1 à 10 :\n- 10 : Label parfaitement pertinent\n- 7-9 : Label correct mais pourrait être plus précis\n- 4-6 : Label peu pertinent\n- 1-3 : Label totalement inapproprié\n\n📋 RÈGLES DE CLASSIFICATION ATTENDUES :\n- Syndic : copropriété, AG, Jeremy Saurel, contient \"manda\", PICASO, ASL\n- Gestion locative : bail, loyer, locataire, Rouen/Bobigny\n- Factures Carrefour : achats Carrefour\n- Factures Rouen : EDF, eau, gaz Rouen\n- Factures Camille : autres factures perso\n- Receipts : reçus de paiement\n- Blog : camille-patisserie.com, SEO\n- ID : impôts, CAF, URSSAF, admin\n- OVH : hébergement, DNS\n- Suivi livraison Pichet : livraisons Pichet\n- A traiter urgent : problème urgent\n- A traiter (non urgent) : peut attendre\n- Essentielles : Kaoutar ou Kunact\n- Personal : famille, amis\n- Work : pro hors blog\n\n📧 EMAIL À VÉRIFIER :\n{{ $('If1').item.json.extrait }}\n\nLabels attribués:\n{{ $json.label_id }} :{{ $json.label }}\n\n\n⚠️ RÉPONDS UNIQUEMENT EN JSON :\n{\n  \"note\": 8,\n  \"label_actuel\": \"Syndic\",\n  \"pertinent\": true,\n  \"suggestion\": \"Le label est correct\" \n}\n\nOU si mauvais label :\n{\n  \"note\": 3,\n  \"label_actuel\": \"Work\",\n  \"pertinent\": false,\n  \"suggestion\": \"Devrait être 'Syndic' car contient AG et copropriété\",\n  \"label_suggere_id\": \"Label_1107215070567604782\"\n}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        1504,
+        1728,
         64
       ],
       "id": "d86edf5b-6832-4a68-8808-9cc3fcde956f",
@@ -682,13 +704,13 @@
     },
     {
       "parameters": {
-        "model": "qwen2.5:7b",
+        "model": "mistral:7b-instruct",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1504,
+        1712,
         352
       ],
       "id": "930a813e-0a6e-484f-89d1-15a8079b6292",
@@ -707,8 +729,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        672,
-        496
+        832,
+        480
       ],
       "id": "aa0795da-156f-4c4b-b8ff-e076dd509fef",
       "name": "Loop Over Items"
@@ -720,7 +742,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        896,
+        1104,
         208
       ],
       "id": "f7da261a-2538-416f-882f-bdf70fe8d4ff",
@@ -754,8 +776,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2128,
-        208
+        2544,
+        80
       ],
       "id": "d81ba7fe-93a3-481f-adb8-012bb2915e48",
       "name": "If"
@@ -776,7 +798,7 @@
               "rightValue": "CATEGORY_PROMOTIONS",
               "operator": {
                 "type": "string",
-                "operation": "equals"
+                "operation": "contains"
               }
             },
             {
@@ -785,8 +807,25 @@
               "rightValue": "SOCIAL",
               "operator": {
                 "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "ef1e0db0-06e8-4eb2-a407-90ceacedf30d",
+              "leftValue": "={{ $json.labelIds[1] }}",
+              "rightValue": "PROMOTION",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "a1c93934-53b6-49e7-9067-88fca2411187",
+              "leftValue": "={{ $json.labelIds[1] }}",
+              "rightValue": "SOCIAL",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
               }
             }
           ],
@@ -797,8 +836,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1120,
-        208
+        1264,
+        112
       ],
       "id": "90d7c6f7-ccb1-4e41-9d45-816ba28845ea",
       "name": "If1"
@@ -812,8 +851,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        2352,
-        336
+        2640,
+        352
       ],
       "id": "f5042c25-d1ac-4ddc-8211-ef0588219774",
       "name": "Add label to message",
@@ -827,30 +866,76 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const output = item.json.output;\n  \n  console.log('Type:', typeof output);\n  console.log('Contenu:', output);\n  console.log('Longueur:', output?.length);\n  \n  if (!output || output.trim() === '') {\n    console.log('Output vide, skip');\n    continue;\n  }\n  \n  if (typeof output === 'object') {\n    results.push({\n      json: {\n        label_id: output.label_id,\n        label: output.label,\n        message_id: output.message_id\n      }\n    });\n    continue;\n  }\n  \n  try {\n    const parsed = JSON.parse(output);\n    results.push({\n      json: {\n        label_id: parsed.label_id,\n        label: parsed.label,\n        message_id: parsed.message_id\n      }\n    });\n  } catch (e) {\n    console.log('Parse failed pour:', output.substring(0, 100));\n  }\n}\n\n// IMPORTANT : toujours retourner quelque chose\nif (results.length === 0) {\n  return [{ json: { error: 'Aucun résultat valide' } }];\n}\n\nreturn results;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1904,
-        208
-      ],
-      "id": "5f00defb-c097-4fd8-b977-11d170cec0ac",
-      "name": "Code in JavaScript1"
-    },
-    {
-      "parameters": {
         "endpointUrl": "http://mcp-gmail:3002/mcp/gmail",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
       "typeVersion": 1.2,
       "position": [
-        1728,
+        1936,
         368
       ],
       "id": "3fb42636-a776-4895-be6a-399544be59bc",
       "name": "LABELS"
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $json.output || $json.text;\nconst cleaned = output.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(cleaned);\n\nreturn [{ json: parsed }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        0
+      ],
+      "id": "96207a18-b0a3-46dd-ad01-95611d195736",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mapping des IDs de labels Gmail\nconst labelMap = {\n  'Syndic': 'Label_1107215070567604782',\n  'Gestion locative': 'Label_1151885618813199628',\n  'Factures Carrefour': 'Label_5180827763194058448',\n  'Factures Rouen': 'Label_6071725231057128983',\n  'Factures Camille': 'Label_8963688369978048774',\n  'Receipts': 'Label_4',\n  'Blog': 'Label_659885575819992047',\n  'ID': 'Label_7',\n  'OVH': 'Label_7296642557858161401',\n  'Suivi livraison Pichet': 'Label_7692245440759375862',\n  'A traiter urgent': 'Label_4938988077910989456',\n  'A traiter (non urgent)': 'Label_8411510230508964137',\n  'Personal': 'Label_3',\n  'Work': 'Label_6'\n};\n\nfunction classifierEmail(from, subject, extrait) {\n  const texte = `${from} ${subject} ${extrait}`.toLowerCase();\n  \n  // Syndic - copropriété\n  if (texte.match(/copropri[ée]t[ée]|syndic|assemblée générale|\\bag\\b|picaso|asl|manda/i) ||\n      from.match(/jeremy.*saurel|saurel.*jeremy/i)) {\n    return 'Syndic';\n  }\n  \n  // Gestion locative\n  if (texte.match(/bail|loyer|locataire|location|rouen.*logement|bobigny.*logement|appartement.*rouen|appartement.*bobigny/i)) {\n    return 'Gestion locative';\n  }\n  \n  // Factures Carrefour\n  if (texte.match(/carrefour.*facture|carrefour.*achat|carrefour.*ticket/i) || from.includes('carrefour')) {\n    return 'Factures Carrefour';\n  }\n  \n  // Factures Rouen (EDF, eau, gaz)\n  if ((texte.match(/edf|enedis|eau|gaz|électricité|facture.*énergie/i)) && \n      (texte.match(/rouen/i) || from.match(/edf|enedis|veolia/i))) {\n    return 'Factures Rouen';\n  }\n  \n  // Blog\n  if (texte.match(/camille-patisserie|commentaire.*blog|seo|google.*search|wordpress|adsense/i) || \n      from.includes('patisserie')) {\n    return 'Blog';\n  }\n  \n  // ID - administratif\n  if (texte.match(/impôts|caf|urssaf|sécurité sociale|carte.*identité|passeport|préfecture/i) || \n      from.match(/impots\\.gouv|caf\\.fr|urssaf/i)) {\n    return 'ID';\n  }\n  \n  // OVH\n  if (texte.match(/ovh|hébergement|domaine|dns|serveur/i) || from.includes('ovh')) {\n    return 'OVH';\n  }\n  \n  // Suivi livraison Pichet\n  if ((texte.match(/livraison|colis|expédition/i)) && texte.match(/pichet/i)) {\n    return 'Suivi livraison Pichet';\n  }\n  \n  // Receipts - reçus\n  if (texte.match(/re[çc]u.*paiement|confirmation.*achat|votre.*commande|ticket/i) && \n      !texte.match(/carrefour/i)) {\n    return 'Receipts';\n  }\n  \n  // Urgent\n  if (texte.match(/urgent|imm[ée]diat|rapidement|d[ée]lai.*court|avant.*\\d+\\/\\d+|action.*requise/i)) {\n    return 'A traiter urgent';\n  }\n  \n  // Personal\n  if (texte.match(/famille|anniversaire|vacances|personnel/i)) {\n    return 'Personal';\n  }\n  \n  // Work (professionnel hors blog)\n  if (texte.match(/projet|réunion|client|devis|contrat|professionnel/i)) {\n    return 'Work';\n  }\n  \n  // Autres factures\n  if (texte.match(/facture|paiement|montant.*[€]|total.*[€]/i)) {\n    return 'Factures Camille';\n  }\n  \n  // Par défaut - non urgent\n  return 'A traiter (non urgent)';\n}\n\n// Traiter tous les emails\nconst results = [];\n\nfor (const item of $input.all()) {\n  const category = classifierEmail(\n    item.json.from || '',\n    item.json.subject || '',\n    item.json.extrait || ''\n  );\n  \n  const labelId = labelMap[category];\n  \n  // Ne retourner que si un label différent doit être appliqué\n  if (labelId && !item.json.labelIds.includes(labelId)) {\n    results.push({\n      json: {\n        message_id: item.json.id,\n        label_id: labelId,\n        label: category\n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        112
+      ],
+      "id": "cf6ece31-1f02-4a84-ae0d-9bb10705c241",
+      "name": "Labels retournés"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "87d9b29e-da85-4bc8-a593-97f1287ad53a",
+              "leftValue": "={{ $json.note }}",
+              "rightValue": 7,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2288,
+        0
+      ],
+      "id": "623c0b97-2d26-4cfa-8117-7d5b971bcd20",
+      "name": "If2"
     }
   ],
   "origin": "n8n",
@@ -864,7 +949,7 @@
     "timeSavedMode": "fixed",
     "timezone": "Europe/Paris",
     "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
+    "availableInMCP": true
   },
   "shared": [
     {
@@ -882,6 +967,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-01-28T11:27:07.025Z",
-  "versionId": "49e27362-001a-4254-b799-b135818ad261"
+  "updatedAt": "2026-02-03T17:20:16.750Z",
+  "versionId": "e8ded000-3364-4a77-8ab3-501a0e021826"
 }
