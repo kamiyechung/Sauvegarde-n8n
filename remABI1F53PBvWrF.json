@@ -123,7 +123,7 @@
   },
   "createdAt": "2026-01-09T16:58:10.398Z",
   "id": "remABI1F53PBvWrF",
-  "isArchived": false,
+  "isArchived": true,
   "meta": {
     "templateCredsSetupCompleted": true
   },
@@ -346,6 +346,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-01-09T18:15:26.244Z",
-  "versionId": "1c37980c-7293-4677-af2e-79f38d043d4c"
+  "updatedAt": "2026-02-03T17:49:30.783Z",
+  "versionId": "f6f0ed54-3cdd-49bb-866e-6fa0427cbe4f"
 }
