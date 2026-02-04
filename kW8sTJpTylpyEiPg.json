@@ -1,7 +1,552 @@
 {
-  "active": false,
-  "activeVersion": null,
-  "activeVersionId": null,
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-03T18:29:57.196Z",
+    "createdAt": "2026-01-29T16:10:12.554Z",
+    "versionId": "31a7f072-87df-4feb-93fd-a4e9a124475a",
+    "workflowId": "kW8sTJpTylpyEiPg",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "weeks"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -176,
+          -80
+        ],
+        "id": "d27f2200-c0e0-48ba-8e44-9d1bcca1ee2f",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 10,
+          "simple": false,
+          "filters": {
+            "labelIds": []
+          },
+          "options": {
+            "downloadAttachments": true
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          48,
+          -80
+        ],
+        "id": "bbb1e7f7-7eb3-4dcf-800e-0d653a862a00",
+        "name": "Get many messages",
+        "webhookId": "309c1e68-5e9a-420a-8f40-1c7a6c12a266",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "pqbn4gDsGdlzIufZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "pdf",
+          "binaryPropertyName": "attachment_0",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1.1,
+        "position": [
+          272,
+          -176
+        ],
+        "id": "9d14bea7-c4ca-4167-9202-7df5cc96e1c5",
+        "name": "Extract from File",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=MISSION : Prépare le JSON pour créer une facture dans Notion.\n\nDONNÉES REÇUES :\n- Numéro : {{ $json['Numéro de facture'] }}\n- Date émission : {{ $json['date:Date émission:start'] }}\n- Date paiement : {{ $json['date:Date de paiement:start'] }}\n- Date échéance : {{ $json['date:Date échéance:start'] }}\n- Période : {{ $json['date:Période facturée:start'] }}\n- Montant HT : {{ $json['Montant HT'] }}\n- TVA : {{ $json.TVA }}\n- Description : {{ $json.Description }}\n- Durée : {{ $json.duree }}\n\nRetourne UNIQUEMENT ce JSON sans commentaire :\n{\n  \"Name\": \"{{ $json.numero_facture }}\",\n  \"Numéro de facture\": \"{{ $json.numero_facture }}\",\n  \"date:Date émission:start\": \"{{ $json.date_emission }}\",\n  \"date:Date de paiement:start\": \"{{ $json.date_paiement }}\",\n  \"date:Date échéance:start\": \"{{ $json.date_echeance }}\",\n  \"date:Période facturée:start\": \"{{ $json.periode }}\",\n  \"Montant HT\": {{ $json.montant_ht }},\n  \"TVA\": {{ $json.tva }},\n  \"Description\": \"{{ $json.description }}\",\n  \"Durée de facturation\": \"{{ $json.duree }}\",\n  \"Statut\": \"En attente\"|\"Payée\",\n  \"Type\": \"Dépense\"\n}",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3,
+        "position": [
+          2096,
+          256
+        ],
+        "id": "d28f9cd2-2d8f-4cd5-8d73-6bd04eeeedc7",
+        "name": "AI Agent",
+        "retryOnFail": true,
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "model": "qwen2.5:1.5b-instruct-q4_K_M",
+          "options": {
+            "temperature": 0.2,
+            "topP": 0.9,
+            "repeatPenalty": 1.1
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "typeVersion": 1,
+        "position": [
+          1488,
+          176
+        ],
+        "id": "9a8d094a-5e01-4699-a538-7fddc78ae547",
+        "name": "Ollama Chat Model",
+        "credentials": {
+          "ollamaApi": {
+            "id": "C2ejebWhR6zEoNIL",
+            "name": "Ollama account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "AP7vI6HQP22Z50ME",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/AP7vI6HQP22Z50ME",
+            "cachedResultName": "Clean des corps emails"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": true
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          720,
+          -80
+        ],
+        "id": "76530fe0-10c6-4605-b0ed-704a652846b2",
+        "name": "Call 'Clean des emails'"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Tu es un assistant spécialisé dans l'analyse d'emails reçus par une société. Ta seule tâche est de déterminer si un email reçu est bien une facture.\n\nUn email est considéré comme une facture UNIQUEMENT si les 2 conditions suivantes sont remplies :\n1. Le sujet du mail ou le contenu du mail contient le mot \"facture\" ou \"invoice\"\n2. L'email contient une pièce jointe PDF\n\nSi une seule de ces conditions manque, ce n'est PAS une facture (sauf si l'objet est \" receipt from Anthropic\", c'est bien une facture)\nSi le mail contient \"payment warning\" ou \"payment reminder\" ce n'est pas une facture\n\nAnalyse l'email fourni et réponds UNIQUEMENT avec ce format JSON exact :\n{\"est_facture\": true} ou {\"est_facture\": false}\n\nAucun texte avant ou après le JSON.\n\nAucun texte avant ou après le JSON.\nSujet du mail : {{ $('Get many messages').item.json.headers.subject }}\nContenu du mail : {{ $('Get many messages').item.json.text }}\nLien de la PJ : {{ $('Upload file').item.json.webViewLink }}\n\n",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3,
+        "position": [
+          944,
+          -80
+        ],
+        "id": "084c501c-b13e-4c25-8c26-afeceec62d9b",
+        "name": "AI Agent1",
+        "retryOnFail": true,
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "b7487244-39c2-4d61-b1e3-7e451fbf00b2",
+                "leftValue": "={{ $json.output }}",
+                "rightValue": "true",
+                "operator": {
+                  "type": "string",
+                  "operation": "contains"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1296,
+          -80
+        ],
+        "id": "a864f8c4-f83d-4f70-b5da-a80037876b11",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "inputDataFieldName": "=attachment_0",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "root",
+            "cachedResultName": "/ (Root folder)"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          272,
+          16
+        ],
+        "id": "bf40bd8b-d10e-4dbb-a1e0-b341f4b95ccc",
+        "name": "Upload file",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineByPosition",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          496,
+          -80
+        ],
+        "id": "44e36112-5800-4e28-a4ca-39ebab939fe6",
+        "name": "Merge1"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Tu es un expert comptable spécialisé dans l'extraction de données de factures françaises.\n\nCONTEXTE : Tu traites des factures reçues par email pour automatiser la saisie comptable. Les factures concernent principalement des prestataires tech et services en ligne.\n\nFACTURE : {{ $('Extract from File').item.json.text }}\nEMAIL : {{ $('Get many messages').item.json.subject }}\nPJ : {{ $('Upload file').item.json.webViewLink }}\n\nExtrais les informations en JSON :\n{\n  \"numero_facture\": \"numéro de facture\",\n  \"date_emission\": \"YYYY-MM-DD\",\n  \"date_paiement\": \"YYYY-MM-DD\",\n  \"date_echeance\": \"YYYY-MM-DD\",\n  \"periode facturée start\": \"2026-01-15\",\n \"periode facturée end\": \"2026-02-15\",\n  \"montant_ht\": 0.00,\n  \"tva\": 0.00,\n  \"description\": \"description courte\",\n  \"periode\": \"mois|année\",\n  \"duree\": \"mensuelle|annuelle\",\n  \"prestataire\": \"nom exact du prestataire\",\n  \"année\": \"YYYY\",\n  \"statut\": \"En attente|Payée\"\n  \"pdf\": {{ $('Upload file').item.json.webViewLink }} ,\n  \"prestataire\" : \"Nom du prestataire\",\n}\n\nRÈGLES :\n- Date_emission est OBLIGATOIRE\n- Montants en décimal sans symbole avec une virgule\n- le lien du PDF est OBLIGATOIRE\n- Si info manquante : null\n- Si la facture ne mentionne pas de date d'échéance, considère qu'elle est \"payée\" et que la date de paiement est la date d'émission de d'échéance (les 3 peuvent être identiques mais elles doivent chacunes être remplies).\n- NE retourne QUE le Json sans texte ni avant ni après. PAS DE ```json\\n et assimilé\n\nVoici un exemple d'output : \n\n{\n  \"numero_facture\": \"083000621772\",\n  \"date_emission\": \"2026-01-02\",\n  \"date_paiement\": \"2026-01-15\",\n  \"date_echeance\": \"2026-01-15\",\n  \"montant_ht\": 8.64,\n  \"tva\": 1.44,\n  \"description\": \"Hébergement Hetzner\",\n  \"periode facturée\": \"2026-01-15\",\n  \"durée de facturation\": \"mensuelle\",\n  \"statut\": \"payée\",\n  \"pdf\" : {{ $('Upload file').item.json.webViewLink }},\n  \"Nom de la page\" :\"Nom du prestataire - Numéro de Facture\",\n  \"Prestataire\" : \"Hetzner\"\n\n}",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3,
+        "position": [
+          1584,
+          -112
+        ],
+        "id": "64875f92-99f9-464a-93ef-61437607f599",
+        "name": "AI Agent2"
+      },
+      {
+        "parameters": {
+          "jsCode": "let jsonStr = $input.item.json.output;\n// Nettoie les markdown code blocks\njsonStr = jsonStr.trim()\n  .replace(/^```json\\s*\\n?/, '')\n  .replace(/\\n?```$/, '');\nconst data = JSON.parse(jsonStr);\nreturn [{\n  json: {\n    Name: data[\"Nom de la page\"] || data[\"Name\"] || data.numero_facture,\n    \"Numéro de facture\": data[\"Numéro de facture\"] || data.numero_facture,\n    \"date:Date émission:start\": data[\"date:Date émission:start\"] || data.date_emission,\n    \"date:Date de paiement:start\": data[\"date:Date de paiement:start\"] || data.date_paiement || null,\n    \"date:Date échéance:start\": data[\"date:Date échéance:start\"] || data.date_echeance,\n    \"date:Période facturée:start\": data[\"date:Période facturée:start\"] || data.periode,\n    \"date:Période facturée:end\": data[\"date:Période facturée:end\"] || data.periode_fin || null,\n    \"Montant HT\": data[\"Montant HT\"] || data.montant_ht,\n    \"TVA\": data[\"TVA\"] || data.tva,\n    \"Description\": data[\"Description\"] || data.description,\n    \"Durée de facturation\": data[\"Durée de facturation\"] || data.duree,\n    \"Statut\": data[\"Statut\"] || data.statut || \"En attente\",\n    \"Type\": data[\"Type\"] || \"Dépense\",\n    \"Fichier facture\": data[\"pdf\"] || data[\"Fichier facture\"] || null,\n    \"Prestataire\": data[\"Prestataire\"] || null\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2000,
+          -96
+        ],
+        "id": "2c87d83e-6fe4-4fc7-84da-97dec868d196",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {
+          "model": "qwen2.5:7b",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "typeVersion": 1,
+        "position": [
+          1968,
+          416
+        ],
+        "id": "82689293-9086-4e4e-87e2-7d50c2ab317e",
+        "name": "Ollama Chat Model1",
+        "credentials": {
+          "ollamaApi": {
+            "id": "C2ejebWhR6zEoNIL",
+            "name": "Ollama account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "databaseId": {
+            "__rl": true,
+            "value": "1d402d84-a064-80dc-9457-efe180b8d4c0",
+            "mode": "list",
+            "cachedResultName": "Factures",
+            "cachedResultUrl": "https://www.notion.so/1d402d84a06480dc9457efe180b8d4c0"
+          },
+          "title": "={{ $json.Description }}",
+          "propertiesUi": {
+            "propertyValues": [
+              {
+                "key": "Name|title",
+                "title": "={{ $json.Name }}"
+              },
+              {
+                "key": "Année|number",
+                "numberValue": 2026
+              },
+              {
+                "key": "Date de paiement|date",
+                "range": "={{ $json['date:Date de paiement:start'] }}"
+              },
+              {
+                "key": "Numéro de facture|rich_text",
+                "textContent": "={{ $json['Numéro de facture'] }}"
+              },
+              {
+                "key": "Date émission|date",
+                "includeTime": "={{ $json['date:Date émission:start'] }}"
+              },
+              {
+                "key": "Montant HT|number",
+                "numberValue": "={{ $json['Montant HT'] }}"
+              },
+              {
+                "key": "TVA|number",
+                "numberValue": "={{ $json.TVA }}"
+              },
+              {
+                "key": "Statut|select",
+                "selectValue": "={{ $json.Statut }}"
+              },
+              {
+                "key": "Durée de facturation|select",
+                "selectValue": "={{ $json['Durée de facturation'] }}"
+              },
+              {
+                "key": "Pdf|files",
+                "fileUrls": {
+                  "fileUrl": [
+                    {
+                      "name": "=facture {{ $json.Prestataire }}-{{ $json['Numéro de facture'] }}",
+                      "url": "={{ $json['Fichier facture'] }}"
+                    }
+                  ]
+                }
+              },
+              {
+                "key": "Description|rich_text",
+                "textContent": "={{ $json.Description }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          2368,
+          -64
+        ],
+        "id": "87cf88c4-b7b4-4032-a3d8-3711295e3a9f",
+        "name": "Create a database page",
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const input = $input.first().json;\n\n// Récupère la string JSON depuis le champ output\nlet jsonString = input.output || input;\n\n// Parse le JSON\nconst data = JSON.parse(jsonString);\n\nreturn { json: data };"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2464,
+          240
+        ],
+        "id": "6bbf886a-560f-47ca-bafe-bcd2a2dc94f5",
+        "name": "Code in JavaScript1"
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get many messages",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many messages": {
+        "main": [
+          [
+            {
+              "node": "Extract from File",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Upload file",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract from File": {
+        "main": [
+          [
+            {
+              "node": "Merge1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ollama Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "AI Agent2",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Call 'Clean des emails'": {
+        "main": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent1": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "AI Agent2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "Upload file": {
+        "main": [
+          [
+            {
+              "node": "Merge1",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Merge1": {
+        "main": [
+          [
+            {
+              "node": "Call 'Clean des emails'",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent2": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Create a database page",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ollama Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript1": {
+        "main": [
+          []
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": "Version 31a7f072",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "31a7f072-87df-4feb-93fd-a4e9a124475a",
   "connections": {
     "Schedule Trigger": {
       "main": [
@@ -570,7 +1115,8 @@
     "name": "Sauvegarde-n8n"
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": true
   },
   "shared": [
     {
@@ -581,9 +1127,13 @@
       "projectId": "ou1B4ZLA3LmPCUHk"
     }
   ],
-  "staticData": null,
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
   "tags": [],
-  "triggerCount": 0,
-  "updatedAt": "2026-01-29T16:10:12.551Z",
+  "triggerCount": 1,
+  "updatedAt": "2026-02-03T18:30:16.565Z",
   "versionId": "31a7f072-87df-4feb-93fd-a4e9a124475a"
 }
