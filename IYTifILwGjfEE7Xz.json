@@ -5,7 +5,7 @@
   "connections": {},
   "createdAt": "2025-12-09T20:51:41.275Z",
   "id": "IYTifILwGjfEE7Xz",
-  "isArchived": false,
+  "isArchived": true,
   "meta": null,
   "name": "Import des articles de blogs dans Notion",
   "nodes": [],
@@ -30,6 +30,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-12-09T20:51:41.275Z",
-  "versionId": "bd088b97-72d0-481b-b479-f0281a3944ee"
+  "updatedAt": "2026-02-09T18:44:20.878Z",
+  "versionId": "9f63d32c-efd0-4944-a741-4b2268bdddfc"
 }
