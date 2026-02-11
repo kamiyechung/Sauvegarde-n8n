@@ -760,7 +760,7 @@
       "main": [
         [
           {
-            "node": "Browserless Scrape",
+            "node": "If",
             "type": "main",
             "index": 0
           }
@@ -773,6 +773,17 @@
           {
             "node": "AI Agent",
             "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Browserless Scrape",
+            "type": "main",
             "index": 0
           }
         ]
@@ -835,7 +846,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        2712,
+        2720,
         416
       ],
       "id": "8458a5ea-4840-47b7-9935-fb948cda541d",
@@ -872,13 +883,13 @@
           "assignments": [
             {
               "name": "requetes_google",
-              "value": "=[\"food tech France\", \"nutrition personnalisée\", \"Yuka actualité\", \"Jow app\", \"Frigo Magic\", \"Seazon startup\", \"French Tech nutrition\", \"meal planning IA\", \"startup foodtech France\", \"gaspillage alimentaire\"]",
+              "value": "=[\"foodtech France\", \"nutrition personnalisée\", \"Yuka actualité\", \"Jow app\", \"Frigo Magic\", \"Seazon startup\", \"French Tech nutrition\", \"meal planning IA\", \"startup foodtech France\", \"gaspillage alimentaire\"]",
               "type": "array",
               "id": "cdee7f6f-dc98-4769-bd85-f3f6093bfe0d"
             },
             {
               "name": "requetes_hn",
-              "value": "=[ \"food tech\", \"nutrition app\", \"personalized nutrition\", \"recipe recommendation\"]",
+              "value": "=[ \"foodtech\", \"nutrition app\", \"personalized nutrition\"]",
               "type": "array",
               "id": "19ed25cd-abb1-432b-8626-0e97c5d89c33"
             },
@@ -918,7 +929,15 @@
     {
       "parameters": {
         "url": "=https://news.google.com/rss/search?q={{encodeURIComponent($json.requetes_google)}}&hl=fr&gl=FR&ceid=FR:fr",
-        "options": {}
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 2,
+              "batchInterval": 1000
+            }
+          },
+          "pagination": {}
+        }
       },
       "name": "RSS Google News1",
       "type": "n8n-nodes-base.httpRequest",
@@ -1170,17 +1189,18 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=<Role>\nTu es un agent IA spécialisé dans l'analyse de pertinence d'articles tech/food pour entrepreneurs.\n</role>\n\n<context>\nL'utilisateur est Camille, entrepreneure qui développe \"IA Meal Planner\", une application de planification de repas alimentée par IA.\n\nProfil détaillé :\n- Stack technique : Ollama (modèles IA locaux), n8n (workflows), PostgreSQL, Qdrant (vector DB)\n- Intérêts principaux : foodtech, nutrition personnalisée, IA appliquée alimentation, UX meal planning, business models food apps\n- Projets actuels : système de matching ingrédients, workflows automatisation recettes, optimisation base données recettes\n- Veille active sur : startups foodtech (levées de fonds, pivots, innovations), apps concurrentes (Yuka, Jow, Frigo Magic), tendances nutrition IA\n</context>\n\n<article>\nTitre : \"${item.json.title}\"\nSource : ${item.json.source}\nDate : ${item.json.pubDate}\n</article>\n\n<task>\nAnalyse si cet article mérite l'attention de Camille en suivant ce raisonnement :\n\n1. IDENTIFICATION : De quoi parle vraiment l'article ?\n2. PERTINENCE DIRECTE : Est-ce lié à son produit ou sa stack technique ?\n3. PERTINENCE INDIRECTE : Y a-t-il des insights business/concurrence/tendances exploitables ?\n4. PRIORITÉ : Urgent/Important/Nice-to-have/Hors-sujet ?\n\nPense étape par étape. Sois critique et honnête.\n</task>\n\n<output_format>\nRéponds UNIQUEMENT en JSON valide (pas de markdown) :\n{\n  \"pertinent\": true/false,\n  \"score\": 0-10,\n  \"categorie\": \"produit|tech|business|concurrence|tendance|hors-sujet\",\n  \"raison\": \"explication en 1 phrase\",\n  \"action_suggeree\": \"lire maintenant|lire plus tard|archiver|ignorer\"\n}\n</output_format>\n\n<examples>\nTitre: \"Jow lève 18M€ pour sa plateforme de courses\"\n→ pertinent: true, score: 9, categorie: \"concurrence\", action: \"lire maintenant\"\n\nTitre: \"Infineon investit dans l'alimentation des serveurs IA\"\n→ pertinent: false, score: 2, categorie: \"hors-sujet\", action: \"ignorer\"\n\nTitre: \"Yuka devient un levier pour l'agroalimentaire français\"\n→ pertinent: true, score: 7, categorie: \"tendance\", action: \"lire plus tard\"\n</examples>\n\nAnalyse maintenant : {{ $json.title }}\n\n",
+        "text": "=<Role>\nTu es un agent IA spécialisé dans l'analyse de pertinence d'articles tech/food pour entrepreneurs.\n</role>\n\n<context>\nL'utilisateur est Camille, entrepreneure qui développe \"IA Meal Planner\", une application de planification de repas alimentée par IA.\n\nProfil détaillé :\n- Stack technique : Ollama (modèles IA locaux), n8n (workflows), PostgreSQL, Qdrant (vector DB)\n- Intérêts principaux : foodtech, nutrition personnalisée, IA appliquée alimentation, UX meal planning, business models food apps\n- Projets actuels : système de matching ingrédients, workflows automatisation recettes, optimisation base données recettes\n- Veille active sur : startups foodtech (levées de fonds, pivots, innovations), apps concurrentes (Yuka, Jow, Frigo Magic), tendances nutrition IA\n</context>\n\n<article>\nTitre : \"{{ $json.title }}\"\nSource : {{ $json.source }}\nDate : {{ $json.pubDate }}\n</article>\n\n<task>\nAnalyse si cet article mérite l'attention de Camille en suivant ce raisonnement :\n\n1. IDENTIFICATION : De quoi parle vraiment l'article ?\n2. PERTINENCE DIRECTE : Est-ce lié à son produit ou sa stack technique ?\n3. PERTINENCE INDIRECTE : Y a-t-il des insights business/concurrence/tendances exploitables ?\n4. PRIORITÉ : Urgent/Important/Nice-to-have/Hors-sujet ?\n\nPense étape par étape. Sois critique et honnête.\n</task>\n\n<output_format>\nRéponds UNIQUEMENT en JSON valide (pas de markdown) :\n{\n  \"pertinent\": true/false,\n  \"score\": 0-10,\n  \"categorie\": \"produit|tech|business|concurrence|tendance|hors-sujet\",\n  \"raison\": \"explication en 1 phrase\",\n  \"action_suggeree\": \"lire maintenant|lire plus tard|archiver|ignorer\"\n}\n</output_format>\n\n<examples>\nTitre: \"Jow lève 18M€ pour sa plateforme de courses\"\n→ pertinent: true, score: 9, categorie: \"concurrence\", action: \"lire maintenant\"\n\nTitre: \"Infineon investit dans l'alimentation des serveurs IA\"\n→ pertinent: false, score: 2, categorie: \"hors-sujet\", action: \"ignorer\"\n\nTitre: \"Yuka devient un levier pour l'agroalimentaire français\"\n→ pertinent: true, score: 7, categorie: \"tendance\", action: \"lire plus tard\"\n</examples>\n\nAnalyse maintenant : {{ $json.title }}\n\n",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1872,
+        1808,
         0
       ],
       "id": "90af40cd-16d1-40ce-9b4f-dd08e0fcd7cc",
-      "name": "AI Agent"
+      "name": "AI Agent",
+      "retryOnFail": true
     },
     {
       "parameters": {
@@ -1190,8 +1210,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1728,
-        256
+        1856,
+        272
       ],
       "id": "639bb09e-d457-4ba9-98b8-3e5b04216385",
       "name": "Ollama Chat Model1",
@@ -1201,6 +1221,40 @@
           "name": "Ollama account"
         }
       }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7a25c552-6620-4358-8692-a26469d69a6f",
+              "leftValue": "={{ json. }}",
+              "rightValue": 6,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2112,
+        0
+      ],
+      "id": "68ea31cc-7592-41e9-9141-3e62cdd83ac4",
+      "name": "If"
     }
   ],
   "origin": "n8n",
@@ -1225,6 +1279,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-09T19:15:07.941Z",
-  "versionId": "1434300f-2400-4268-a285-cc964d12eef7"
+  "updatedAt": "2026-02-10T21:28:15.564Z",
+  "versionId": "d8210072-8af4-4603-ab9e-0832501d61db"
 }
