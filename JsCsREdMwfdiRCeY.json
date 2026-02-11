@@ -676,7 +676,7 @@
   "nodes": [
     {
       "parameters": {
-        "model": "qwen2.5:7b",
+        "model": "mistral:7b-instruct",
         "options": {
           "temperature": 0.3
         }
@@ -684,8 +684,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1152,
-        672
+        1136,
+        864
       ],
       "id": "73066ddc-07d9-4b0a-8ef2-a3677b0939c4",
       "name": "Ollama Chat Model",
@@ -838,7 +838,7 @@
     },
     {
       "parameters": {
-        "model": "qwen2.5:7b",
+        "model": "mistral:7b-instruct",
         "options": {
           "temperature": 0.2
         }
@@ -846,8 +846,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        2752,
-        800
+        2224,
+        880
       ],
       "id": "37518777-1590-4288-aeed-339c8fd39dc2",
       "name": "Ollama Chat Model1",
@@ -1012,6 +1012,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-01-14T11:15:41.473Z",
-  "versionId": "071684ca-423c-4a41-8689-22763053abff"
+  "updatedAt": "2026-02-10T15:13:14.750Z",
+  "versionId": "d02f6529-b3c4-4323-9d56-5d95f632052a"
 }
