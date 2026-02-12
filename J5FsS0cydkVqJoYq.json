@@ -7,30 +7,7 @@
       "main": [
         [
           {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop Over Items": {
-      "main": [
-        [],
-        [
-          {
             "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Supabase - Insert": {
-      "main": [
-        [
-          {
-            "node": "Stock ID recette",
             "type": "main",
             "index": 0
           }
@@ -83,7 +60,13 @@
     },
     "Switch": {
       "main": [
-        [],
+        [
+          {
+            "node": "Insert or update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Normalize ingredient",
@@ -107,13 +90,7 @@
     },
     "Loop Over Items1": {
       "main": [
-        [
-          {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ],
+        [],
         [
           {
             "node": "Merge1",
@@ -121,7 +98,7 @@
             "index": 1
           },
           {
-            "node": "Insert rows in a table1",
+            "node": "Select rows from a table",
             "type": "main",
             "index": 0
           }
@@ -143,7 +120,7 @@
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Insert rows in a table",
             "type": "main",
             "index": 0
           }
@@ -181,7 +158,7 @@
       "main": [
         [
           {
-            "node": "If1",
+            "node": "Merge1",
             "type": "main",
             "index": 0
           }
@@ -190,18 +167,7 @@
     },
     "If": {
       "main": [
-        [
-          {
-            "node": "Merge1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "AI Agent": {
-      "main": [
+        [],
         []
       ]
     },
@@ -218,7 +184,13 @@
     },
     "If1": {
       "main": [
-        [],
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Merge1",
@@ -241,20 +213,25 @@
     },
     "Insert rows in a table": {
       "main": [
+        []
+      ]
+    },
+    "Select rows from a table": {
+      "main": [
         [
           {
-            "node": "Loop Over Items1",
+            "node": "If1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Insert rows in a table1": {
+    "Insert or update rows in a table": {
       "main": [
         [
           {
-            "node": "If",
+            "node": "Stock ID recette",
             "type": "main",
             "index": 0
           }
@@ -293,8 +270,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.4,
       "position": [
-        -16,
-        576
+        -1120,
+        824
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -302,79 +279,6 @@
           "name": "Google Sheets Camille"
         }
       }
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "id": "4d07ecc7-facd-4c86-b702-dfaa28c131ee",
-      "name": "Loop Over Items",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        208,
-        576
-      ]
-    },
-    {
-      "parameters": {
-        "tableId": "recipes",
-        "fieldsUi": {
-          "fieldValues": [
-            {
-              "fieldId": "title",
-              "fieldValue": "={{ $json.title }}"
-            },
-            {
-              "fieldId": "description",
-              "fieldValue": "={{ $json.description }}"
-            },
-            {
-              "fieldId": "category",
-              "fieldValue": "={{ $json.category }}"
-            },
-            {
-              "fieldId": "minutes_total",
-              "fieldValue": "={{ $json.total_time }}"
-            },
-            {
-              "fieldId": "servings_default",
-              "fieldValue": "={{ $json.servings }}"
-            },
-            {
-              "fieldId": "instructions",
-              "fieldValue": "={{ $json.instructions }}"
-            },
-            {
-              "fieldId": "prep_time",
-              "fieldValue": "={{ $json.prep_time }}"
-            },
-            {
-              "fieldId": "cook_time",
-              "fieldValue": "={{ $json.cook_time }}"
-            },
-            {
-              "fieldId": "difficulty",
-              "fieldValue": "={{ $json.difficulty }}"
-            }
-          ]
-        }
-      },
-      "id": "025ef156-62d3-4d74-ac89-33f24ade4873",
-      "name": "Supabase - Insert",
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [
-        1600,
-        160
-      ],
-      "credentials": {
-        "supabaseApi": {
-          "id": "PPGMcebxGrT5POUo",
-          "name": "Supabase IA Meal Planner"
-        }
-      },
-      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -390,8 +294,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        960,
-        624
+        -376,
+        1048
       ],
       "id": "8e6421b3-6a00-4820-85de-c58c4ac63831",
       "name": "Ollama Chat Model",
@@ -409,8 +313,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        656,
-        400
+        -672,
+        824
       ],
       "id": "eafc0cd9-5e36-464a-a2d3-439e15c839d9",
       "name": "Extract JSON-LD"
@@ -425,8 +329,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        880,
-        400
+        -448,
+        824
       ],
       "id": "e90dee81-8f32-4034-9e40-6aaa1027a025",
       "name": "AI Agent1",
@@ -460,8 +364,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        432,
-        400
+        -896,
+        824
       ],
       "id": "9fa85825-8e55-48af-abcf-2c5c78091ed8",
       "name": "HTTP Request"
@@ -523,8 +427,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        1456,
-        400
+        128,
+        824
       ],
       "id": "cb089fa5-fe80-434a-a50c-ca93c6e52318",
       "name": "Switch"
@@ -538,8 +442,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1680,
-        400
+        432,
+        1008
       ],
       "alwaysOutputData": false
     },
@@ -550,8 +454,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1872,
-        528
+        1024,
+        656
       ],
       "id": "a9ae3307-2295-4f07-a609-48638deb3b28",
       "name": "Loop Over Items1"
@@ -563,8 +467,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3472,
-        464
+        2144,
+        800
       ],
       "id": "4c00a902-0b37-4c5e-88f2-730d5a308cf0",
       "name": "Code in JavaScript1",
@@ -577,8 +481,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1824,
-        160
+        576,
+        728
       ],
       "id": "b7ba28de-e83e-444b-b4bf-c17ff5c17a59",
       "name": "Stock ID recette"
@@ -588,8 +492,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        3248,
-        480
+        1920,
+        656
       ],
       "id": "2589c5fd-3119-4111-80e8-8681b7ff6d71",
       "name": "Merge1"
@@ -628,7 +532,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -240,
+        -1344,
         -368
       ],
       "id": "104f7875-9051-47a7-a281-ac5ea9db7a2b",
@@ -641,8 +545,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1232,
-        400
+        -96,
+        824
       ],
       "id": "90029b40-f47e-423f-a8e2-77c72f6adf85",
       "name": "Séparation ingredients"
@@ -661,8 +565,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2624,
-        320
+        1696,
+        512
       ],
       "id": "f0cf56d4-c5f4-44b9-b9d0-ccf7b4d10c74",
       "name": "HTTP Request2",
@@ -713,26 +617,11 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2352,
-        384
+        -1344,
+        -144
       ],
       "id": "f0914e62-7b6a-4818-8ac1-e1094c4bff20",
       "name": "If"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Tu es un expert en prompts pour Flux Pro spécialisé en photographie culinaire professionnelle.\n\nGénère un prompt détaillé pour pour générer une image d'illustration de recette façon blog culinaire : {{ $json.title }}\n\nSTRUCTURE OBLIGATOIRE :\n1. Type de vue (overhead/slightly angled/side view selon le plat)\n2. Description précise du plat avec ses caractéristiques visuelles réelles\n3. Finition spécifique (matte/glossy/caramelized/crispy selon le plat)\n4. Environnement et styling\n5. Lumière et atmosphère\n6. Style technique\n\nRÈGLES CRITIQUES :\n- Pour les tartes aux fruits : précise \"matte caramelized [fruit], no glaze, golden brown edges\"\n- Pour les pâtisseries : \"powdered sugar dusting\" ou \"golden crust\" selon le type\n- Pour les plats chauds : \"steam rising gently, hot surface\"\n- Pour les salades : \"vibrant fresh colors, crisp leaves\"\n- Pour les gratins/crumbles : \"golden crispy top, bubbling edges\"\n- Toujours : \"natural daylight, soft shadows, rustic wooden table\"\n\nENVIRONNEMENT STANDARD :\n- Table en bois rustique\n- Serviette en lin (couleur neutre : blanc cassé, beige, gris clair)\n- Couverts simples et discrets en arrière-plan\n- Quelques ingrédients frais comme décor subtil\n\nSTYLE PHOTOGRAPHIQUE :\n- Profondeur de champ réduite (focus sur le plat)\n- Lumière naturelle douce (golden hour ou lumière diffuse)\n- Ombres subtiles et douces\n- Composition équilibrée et aérée\n- Aspect authentique et fait maison, pas trop stylisé\n- Haute résolution, qualité professionnelle\n\nLONGUEUR : 150-200 mots\n\nINTERDICTIONS :\n- Pas de termes génériques vagues\n- Pas de contradictions visuelles\n- Pas de sur-stylisation artificielle\n- Évite \"glossy\" sauf pour les plats qui le nécessitent vraiment (glaçage chocolat, nappage miroir)\n\nGénère uniquement le prompt Flux Pro, sans introduction ni explication. Ne prends pas d'initiative et n'ajoute pas d'ingrédient, fais juste la description la plus précise possible.",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3,
-      "position": [
-        1920,
-        -16
-      ],
-      "id": "e7a8ba4e-fed2-4a46-8142-59f41e3cf49a",
-      "name": "AI Agent"
     },
     {
       "parameters": {
@@ -742,8 +631,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1856,
-        336
+        -1272,
+        408
       ],
       "id": "36ac88b6-e01e-4fc0-878b-373c8e31d659",
       "name": "Ollama Chat Model1",
@@ -783,8 +672,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2800,
-        336
+        1472,
+        584
       ],
       "id": "1aa1d3fe-5a49-4d82-83d3-dd7d42a6d8d7",
       "name": "If1"
@@ -794,8 +683,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -400,
-        544
+        -1344,
+        824
       ],
       "id": "d9515782-6dc8-454a-b8df-5e148650031f",
       "name": "When clicking ‘Execute workflow’"
@@ -887,8 +776,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3776,
-        576
+        2688,
+        976
       ],
       "id": "d013b404-c43c-44d3-8b45-8f7267ee2439",
       "name": "Insert rows in a table",
@@ -901,6 +790,7 @@
     },
     {
       "parameters": {
+        "operation": "select",
         "schema": {
           "__rl": true,
           "mode": "list",
@@ -908,14 +798,58 @@
         },
         "table": {
           "__rl": true,
-          "value": "recipe_ingredients",
+          "value": "ingredients_ciqual",
           "mode": "list",
-          "cachedResultName": "recipe_ingredients"
+          "cachedResultName": "ingredients_ciqual"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "name_fr",
+              "condition": "LIKE",
+              "value": "={{ $json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1264,
+        464
+      ],
+      "id": "31441061-6133-4497-93a9-891c3b2b0d98",
+      "name": "Select rows from a table",
+      "credentials": {
+        "postgres": {
+          "id": "i3VK3mU16DyNdZFA",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "recipes",
+          "mode": "list",
+          "cachedResultName": "recipes"
         },
         "columns": {
-          "mappingMode": "defineBelow",
+          "mappingMode": "autoMapInputData",
           "value": {
-            "quantity": 0
+            "servings": 0,
+            "minutes_prep": 0,
+            "minutes_cook": 0,
+            "kcal_per_serving": 0
           },
           "matchingColumns": [
             "id"
@@ -932,49 +866,94 @@
               "removed": false
             },
             {
-              "id": "recipe_id",
-              "displayName": "recipe_id",
+              "id": "user_id",
+              "displayName": "user_id",
               "required": false,
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": false
             },
             {
-              "id": "name",
-              "displayName": "name",
+              "id": "title",
+              "displayName": "title",
               "required": true,
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": false
             },
             {
-              "id": "quantity",
-              "displayName": "quantity",
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "servings",
+              "displayName": "servings",
               "required": false,
               "defaultMatch": false,
               "display": true,
               "type": "number",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": false
             },
             {
-              "id": "unit",
-              "displayName": "unit",
+              "id": "minutes_prep",
+              "displayName": "minutes_prep",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "minutes_cook",
+              "displayName": "minutes_cook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "image_url",
+              "displayName": "image_url",
               "required": false,
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": false
             },
             {
-              "id": "ciqual_code",
-              "displayName": "ciqual_code",
+              "id": "instructions",
+              "displayName": "instructions",
               "required": false,
               "defaultMatch": false,
               "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
+              "type": "object",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "kcal_per_serving",
+              "displayName": "kcal_per_serving",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -985,17 +964,32 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2144,
-        320
+        352,
+        728
       ],
-      "id": "31441061-6133-4497-93a9-891c3b2b0d98",
-      "name": "Insert rows in a table1",
+      "id": "4d55ab34-891a-4a10-ae59-6df879424ba9",
+      "name": "Insert or update rows in a table",
       "credentials": {
         "postgres": {
           "id": "i3VK3mU16DyNdZFA",
           "name": "Postgres account 2"
         }
       }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert en prompts pour Flux Pro spécialisé en photographie culinaire professionnelle.\n\nGénère un prompt détaillé pour pour générer une image d'illustration de recette façon blog culinaire : {{ $json.title }}\n\nSTRUCTURE OBLIGATOIRE :\n1. Type de vue (overhead/slightly angled/side view selon le plat)\n2. Description précise du plat avec ses caractéristiques visuelles réelles\n3. Finition spécifique (matte/glossy/caramelized/crispy selon le plat)\n4. Environnement et styling\n5. Lumière et atmosphère\n6. Style technique\n\nRÈGLES CRITIQUES :\n- Pour les tartes aux fruits : précise \"matte caramelized [fruit], no glaze, golden brown edges\"\n- Pour les pâtisseries : \"powdered sugar dusting\" ou \"golden crust\" selon le type\n- Pour les plats chauds : \"steam rising gently, hot surface\"\n- Pour les salades : \"vibrant fresh colors, crisp leaves\"\n- Pour les gratins/crumbles : \"golden crispy top, bubbling edges\"\n- Toujours : \"natural daylight, soft shadows, rustic wooden table\"\n\nENVIRONNEMENT STANDARD :\n- Table en bois rustique\n- Serviette en lin (couleur neutre : blanc cassé, beige, gris clair)\n- Couverts simples et discrets en arrière-plan\n- Quelques ingrédients frais comme décor subtil\n\nSTYLE PHOTOGRAPHIQUE :\n- Profondeur de champ réduite (focus sur le plat)\n- Lumière naturelle douce (golden hour ou lumière diffuse)\n- Ombres subtiles et douces\n- Composition équilibrée et aérée\n- Aspect authentique et fait maison, pas trop stylisé\n- Haute résolution, qualité professionnelle\n\nLONGUEUR : 150-200 mots\n\nINTERDICTIONS :\n- Pas de termes génériques vagues\n- Pas de contradictions visuelles\n- Pas de sur-stylisation artificielle\n- Évite \"glossy\" sauf pour les plats qui le nécessitent vraiment (glaçage chocolat, nappage miroir)\n\nGénère uniquement le prompt Flux Pro, sans introduction ni explication. Ne prends pas d'initiative et n'ajoute pas d'ingrédient, fais juste la description la plus précise possible.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1344,
+        184
+      ],
+      "id": "e7a8ba4e-fed2-4a46-8142-59f41e3cf49a",
+      "name": "AI Agent"
     }
   ],
   "origin": "n8n",
@@ -1022,6 +1016,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-02-10T21:24:18.195Z",
-  "versionId": "bdff334a-3a71-4aa2-a7b1-27b2136370e3"
+  "updatedAt": "2026-02-11T16:58:54.338Z",
+  "versionId": "8b5c360b-3f98-4043-bc48-6d8623e9855a"
 }
