@@ -1,11 +1,70 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-09T18:10:45.346Z",
-    "createdAt": "2026-02-09T18:10:38.780Z",
-    "versionId": "f08565b7-1b0c-414a-beea-043cabe8c5de",
+    "updatedAt": "2026-02-11T14:39:08.741Z",
+    "createdAt": "2026-02-11T14:39:05.193Z",
+    "versionId": "54862013-2ee4-4574-8f04-26e20dc1d1ef",
     "workflowId": "yxqD-Z_1vdh0EOFdlDrpo",
     "nodes": [
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+        },
+        "name": "Parse Google XML",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1600,
+          -16
+        ],
+        "id": "4d3f93d8-6677-4cda-8ba2-0134df156161"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+        },
+        "name": "Parse Reddit XML",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2624,
+          232
+        ],
+        "id": "45969928-b038-4152-9d4d-799d4cc8285d"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+        },
+        "name": "Parse HN JSON",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2624,
+          424
+        ],
+        "id": "26de70d7-5922-43d0-8524-2a3fcc432584"
+      },
+      {
+        "parameters": {
+          "model": "mistral:7b-instruct",
+          "options": {}
+        },
+        "name": "Ollama Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "typeVersion": 1,
+        "position": [
+          3736,
+          456
+        ],
+        "id": "8458a5ea-4840-47b7-9935-fb948cda541d",
+        "credentials": {
+          "ollamaApi": {
+            "id": "C2ejebWhR6zEoNIL",
+            "name": "Ollama account"
+          }
+        }
+      },
       {
         "parameters": {
           "rule": {
@@ -17,14 +76,14 @@
             ]
           }
         },
-        "name": "Déclencheur horaire",
+        "name": "Déclencheur horaire1",
         "type": "n8n-nodes-base.scheduleTrigger",
         "typeVersion": 1,
         "position": [
-          448,
-          272
+          704,
+          232
         ],
-        "id": "4d0025a4-610b-485e-98b1-0146d436176c"
+        "id": "ce3c01b0-c73e-49bd-860e-7a7805d85846"
       },
       {
         "parameters": {
@@ -32,315 +91,208 @@
             "assignments": [
               {
                 "name": "requetes_google",
-                "value": "=[\"IA alimentation\", \"food tech France\", \"nutrition personnalisée\", \"Yuka actualité\", \"Jow app\", \"Frigo Magic\", \"Seazon startup\", \"French Tech nutrition\", \"meal planning IA\", \"startup foodtech France\"]",
-                "type": "array"
+                "value": "=[\"foodtech France\"]",
+                "type": "array",
+                "id": "cdee7f6f-dc98-4769-bd85-f3f6093bfe0d"
               },
               {
                 "name": "requetes_hn",
-                "value": "=[\"meal planning AI\", \"food tech\", \"nutrition app\", \"personalized nutrition\", \"recipe recommendation\"]",
-                "type": "array"
+                "value": "=[ \"foodtech\", \"nutrition app\", \"personalized nutrition\"]",
+                "type": "array",
+                "id": "19ed25cd-abb1-432b-8626-0e97c5d89c33"
               },
               {
                 "name": "subreddits",
                 "value": "=[\"MachineLearning\", \"nutrition\", \"mealprep\", \"startups\", \"foodtech\", \"FrenchTech\"]",
-                "type": "array"
+                "type": "array",
+                "id": "5d87fd6f-b609-4323-9082-3af680628108"
               }
             ]
           },
           "options": {}
         },
-        "name": "Config sources",
+        "name": "Config sources1",
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.3,
         "position": [
-          656,
-          272
+          928,
+          232
         ],
-        "id": "d6f48d7a-bf4a-4327-a184-e374b8fd957b"
+        "id": "d7e99e32-4566-43d3-bcdc-9444f70148d0"
       },
       {
         "parameters": {
           "fieldToSplitOut": "requetes_google",
           "options": {}
         },
-        "name": "Split Google queries",
+        "name": "Split Google queries1",
         "type": "n8n-nodes-base.splitOut",
         "typeVersion": 1,
         "position": [
-          864,
-          48
+          1152,
+          -16
         ],
-        "id": "de27a1d6-ac1b-41ee-ae5f-f7eec2da0b3f"
+        "id": "b8abb821-caa0-42f3-a24b-03fea5d9b446"
       },
       {
         "parameters": {
           "url": "=https://news.google.com/rss/search?q={{encodeURIComponent($json.requetes_google)}}&hl=fr&gl=FR&ceid=FR:fr",
           "options": {
-            "response": {
-              "response": {
-                "responseFormat": "xml"
-              }
-            }
+            "pagination": {}
           }
         },
-        "name": "RSS Google News",
+        "name": "RSS Google News1",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          1072,
-          32
+          1376,
+          -16
         ],
-        "id": "f7fe728c-0d9e-4d9c-9b6c-da7220175674"
-      },
-      {
-        "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "name": "source",
-                "value": "Google News",
-                "type": "string"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "name": "Tag Google",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.3,
-        "position": [
-          1248,
-          160
-        ],
-        "id": "8638d752-cd4e-4cfc-9efc-023bdacbe4df"
+        "id": "7025a74a-5e55-4e91-84d3-09e0b5f47a5e"
       },
       {
         "parameters": {
           "fieldToSplitOut": "subreddits",
           "options": {}
         },
-        "name": "Split Reddit subs",
+        "name": "Split Reddit subs1",
         "type": "n8n-nodes-base.splitOut",
         "typeVersion": 1,
         "position": [
-          880,
-          208
+          2176,
+          232
         ],
-        "id": "67b1cddb-1e5b-4025-8b6a-10af16ab4beb"
+        "id": "1de9e176-4a97-4510-8ba9-02c96680f1f0"
       },
       {
         "parameters": {
           "url": "=https://www.reddit.com/r/{{$json.subreddits}}/new/.rss",
-          "options": {
-            "response": {
-              "response": {
-                "responseFormat": "xml"
-              }
-            }
-          }
+          "options": {}
         },
-        "name": "RSS Reddit",
+        "name": "RSS Reddit1",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          1056,
-          224
+          2400,
+          232
         ],
-        "id": "eeec5217-2df9-4ab2-91a9-6cb6360a707f"
-      },
-      {
-        "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "name": "source",
-                "value": "Reddit",
-                "type": "string"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "name": "Tag Reddit",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.3,
-        "position": [
-          1248,
-          272
-        ],
-        "id": "8d40e961-8d1c-4c5d-a1ae-0fae95b2568b"
+        "id": "3b76ce3d-87cf-4d50-a17f-f6af8c204f06"
       },
       {
         "parameters": {
           "fieldToSplitOut": "requetes_hn",
           "options": {}
         },
-        "name": "Split HN queries",
+        "name": "Split HN queries1",
         "type": "n8n-nodes-base.splitOut",
         "typeVersion": 1,
         "position": [
-          864,
-          416
+          2176,
+          424
         ],
-        "id": "192b1eaf-7240-4822-a4c7-a0f8ebfeb8ce"
+        "id": "3b00557f-45d4-463b-b8ea-a4c7f302f1d3"
       },
       {
         "parameters": {
-          "url": "=https://hn.algolia.com/api/v1/search?query={{encodeURIComponent($json.requetes_hn)}}&tags=story",
+          "url": "=https://hn.algolia.com/api/v1/search?query={{encodeURIComponent($json.requetes_hn)}}&tags=story&hitsPerPage=10",
           "options": {}
         },
-        "name": "API Hacker News",
+        "name": "API Hacker News1",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          1072,
-          448
+          2400,
+          424
         ],
-        "id": "7def4249-1140-4c17-a3c8-2519806550d1"
+        "id": "c2290e73-50d0-4e3e-800e-64d124d2f534"
       },
       {
         "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "name": "source",
-                "value": "Hacker News",
-                "type": "string"
-              }
+          "mode": "combine",
+          "mergeByFields": {
+            "values": [
+              {}
             ]
           },
           "options": {}
         },
-        "name": "Tag HN",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.3,
-        "position": [
-          1248,
-          448
-        ],
-        "id": "5af4807d-b998-47ba-afff-a70d52b4903f"
-      },
-      {
-        "parameters": {},
-        "name": "Fusion sources",
+        "name": "Fusion sources1",
         "type": "n8n-nodes-base.merge",
         "typeVersion": 2.1,
         "position": [
-          1456,
-          272
+          3216,
+          232
         ],
-        "id": "17ea7036-e31d-489b-9711-5f64353e5b15"
+        "id": "6972d0a3-987c-4f4e-b02e-fd4bca182831"
       },
       {
         "parameters": {
           "conditions": {
             "string": [
               {
-                "value1": "={{$json.title || $json.story_title}}",
+                "value1": "={{$json.title}}",
                 "operation": "isNotEmpty"
-              }
-            ],
-            "dateTime": [
+              },
               {
-                "value1": "={{$json.pubDate || $json.created_at}}",
-                "operation": "afterDate",
-                "value2": "={{$now.minus({days: 2}).toISO()}}"
+                "value1": "={{$json.link}}",
+                "operation": "isNotEmpty"
               }
             ]
           },
           "options": {}
         },
-        "name": "Filtre qualité",
+        "name": "Filtre qualité1",
         "type": "n8n-nodes-base.if",
         "typeVersion": 2,
         "position": [
-          1648,
-          272
+          3440,
+          232
         ],
-        "id": "557321b7-09c0-47cd-86a6-c82ec6575dd2"
+        "id": "5357e5c3-7344-4ee0-bdad-7493f8f54353"
       },
       {
         "parameters": {
-          "model": "mistral:7b-instruct",
+          "promptType": "define",
+          "text": "=Analyse cet article et réponds UNIQUEMENT avec un JSON valide (sans markdown, sans balises) :\n\nTitre : {{$json.title}}\nDescription : {{$json.description}}\nSource : {{$json.source}}\n\nRéponds au format :\n{\"resume\": \"résumé en 2-3 phrases\", \"tags\": [\"tag1\", \"tag2\"], \"priorite\": \"Haute|Moyenne|Basse\"}\n\nTags possibles : IA, Meal Planning, Startup, Tech, Marketing\n\nPriorité :\n- Haute : concurrent, innovation majeure, réglementation\n- Moyenne : tendance intéressante\n- Basse : info générale",
           "options": {}
         },
-        "name": "Analyse Ollama",
-        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-        "typeVersion": 1,
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
         "position": [
-          1888,
-          432
+          3664,
+          232
         ],
-        "id": "a0c1d15d-8294-44ae-8ec4-e7ba539c5107",
-        "credentials": {
-          "ollamaApi": {
-            "id": "C2ejebWhR6zEoNIL",
-            "name": "Ollama account"
-          }
-        }
+        "id": "0345cca8-6bb4-4a6e-bc55-03b55561bd37",
+        "name": "AI Agent1"
       },
       {
         "parameters": {
-          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    const analysis = JSON.parse(item.json.response);\n    results.push({\n      json: {\n        ...item.json,\n        resume: analysis.resume,\n        tags: analysis.tags,\n        priorite: analysis.priorite\n      }\n    });\n  } catch (e) {\n    results.push({\n      json: {\n        ...item.json,\n        resume: item.json.response || '',\n        tags: [],\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    let text = item.json.output || item.json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    \n    const analysis = JSON.parse(text);\n    \n    results.push({\n      json: {\n        title: item.json.title,\n        link: item.json.link,\n        source: item.json.source,\n        pubDate: item.json.pubDate,\n        resume: analysis.resume || '',\n        tags: Array.isArray(analysis.tags) ? analysis.tags : [],\n        priorite: analysis.priorite || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    results.push({\n      json: {\n        title: item.json.title,\n        link: item.json.link,\n        source: item.json.source,\n        pubDate: item.json.pubDate,\n        resume: item.json.description?.substring(0, 200) || '',\n        tags: [],\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
         },
-        "name": "Parse JSON",
+        "name": "Parse JSON1",
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          2128,
-          240
+          4016,
+          232
         ],
-        "id": "f80afcae-6805-42af-b38b-d84957ceea95"
+        "id": "ca16d761-ec0e-453a-a704-64c52e9e4740"
       },
       {
         "parameters": {
           "resource": "databasePage",
-          "databaseId": {
-            "__rl": true,
-            "value": "8886261fa0cd4fb7bc831d3fdcd78a7d",
-            "mode": "id",
-            "__regex": "^([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})"
-          },
-          "title": "={{$json.title || $json.story_title}}",
-          "propertiesUi": {
-            "propertyValues": [
-              {
-                "key": "userDefined:URL",
-                "urlValue": "={{$json.link || $json.story_url}}"
-              },
-              {
-                "key": "Source",
-                "selectValue": "={{$json.source}}"
-              },
-              {
-                "key": "Date publication"
-              },
-              {
-                "key": "Résumé"
-              },
-              {
-                "key": "Priorité",
-                "selectValue": "={{$json.priorite}}"
-              },
-              {
-                "key": "Tags",
-                "multiSelectValue": "={{$json.tags}}"
-              },
-              {
-                "key": "Lu"
-              }
-            ]
-          },
+          "databaseId": "8886261fa0cd4fb7bc831d3fdcd78a7d",
+          "title": "={{$json.title}}",
           "options": {}
         },
-        "name": "Notion insert",
+        "name": "Notion insert1",
         "type": "n8n-nodes-base.notion",
         "typeVersion": 2,
         "position": [
-          2320,
-          272
+          4240,
+          232
         ],
-        "id": "13706496-4604-4dba-9e66-a151c039ef36",
+        "id": "d6ce10e5-d730-4c94-ad0f-b55ecf6ccefe",
         "credentials": {
           "notionApi": {
             "id": "rV7Q43daAHzHJJVH",
@@ -350,186 +302,382 @@
       },
       {
         "parameters": {
+          "method": "POST",
+          "url": "http://browserless:3000/scrape",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"url\": \"{{ $json.lien }}\",\n  \"elements\": [\n    {\n      \"selector\": \"script[type='application/ld+json']\"\n    }\n  ],\n  \"gotoOptions\": {\n    \"waitUntil\": \"networkidle2\"\n  },\n  \"waitFor\": 2000\n}",
+          "options": {
+            "batching": {
+              "batch": {
+                "batchSize": 1,
+                "batchInterval": 2000
+              }
+            },
+            "redirect": {
+              "redirect": {}
+            },
+            "timeout": 60000
+          }
+        },
+        "id": "28ec9163-2469-422f-8fd7-409e01e618bd",
+        "name": "Browserless Scrape",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2960,
+          -160
+        ]
+      },
+      {
+        "parameters": {
+          "url": "https://ntfy.sh/veille-ia-alimentation",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Title",
+                "value": "Veille quotidienne"
+              },
+              {
+                "name": "Priority",
+                "value": "default"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "string",
+          "body": "={{ $json.message }}",
+          "options": {}
+        },
+        "id": "19dd9179-5f35-4882-9333-dfb38aa4452d",
+        "name": "Send Ntfy Notification",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          704,
+          648
+        ]
+      },
+      {
+        "parameters": {
           "promptType": "define",
-          "text": "Tu es un assistant spécialisé en veille stratégique pour une startup foodtech française qui développe une application de meal planning personnalisée par IA.\n\n**Ton rôle :**\nAnalyser les articles de veille et extraire les insights actionnables pour l'entrepreneur.\n\n**Contexte de l'entreprise :**\n- Produit : IA Meal Planner (planificateur de repas personnalisé par IA)\n- Cible : Familles françaises\n- Lancement : Mars 2026\n- Concurrents directs : Yuka, Jow, Frigo Magic, Seazon\n- Secteurs surveillés : foodtech, nutrition, IA, French Tech\n\n**Pour chaque article, tu dois :**\n\n1. **Résumer en 2-3 phrases** les points clés en français\n2. **Identifier les tags pertinents** parmi : IA, Meal Planning, Startup, Tech, Marketing\n3. **Déterminer la priorité :**\n   - **Haute** : concurrent qui lance une nouvelle fonctionnalité, levée de fonds dans le secteur, innovation technologique applicable, réglementation impactante\n   - **Moyenne** : tendance de consommation, étude de marché, article de fond intéressant\n   - **Basse** : information générale sans impact direct\n\n4. **Format de réponse JSON strict :**\n```json\n{\n  \"resume\": \"Texte du résumé en français, concis et factuel\",\n  \"tags\": [\"tag1\", \"tag2\"],\n  \"priorite\": \"Haute|Moyenne|Basse\"\n}\n```\n\n**Critères d'analyse :**\n- Mentionne des chiffres/données concrètes si disponibles\n- Identifie les opportunités ou menaces pour le business\n- Repère les innovations technologiques réutilisables\n- Note les changements réglementaires ou de marché\n- Signale les mouvements des concurrents\n\n**Exemples :**\n\nArticle : \"Yuka lève 20M€ pour développer son offre meal planning\"\n→ {\"resume\": \"Yuka lève 20M€ auprès de fonds français pour développer une fonctionnalité de planification de repas personnalisée, en complément de son scan produits. Menace directe sur notre positionnement.\", \"tags\": [\"Startup\", \"Meal Planning\"], \"priorite\": \"Haute\"}\n\nArticle : \"L'IA générative transforme l'industrie agroalimentaire\"\n→ {\"resume\": \"Article de fond sur l'usage de l'IA générative dans l'agroalimentaire : personnalisation des recettes, optimisation supply chain, et prédiction des tendances. Cas d'usage intéressants pour notre roadmap produit.\", \"tags\": [\"IA\", \"Tech\"], \"priorite\": \"Moyenne\"}\n\n**Ton style :**\n- Factuel et synthétique\n- Orienté action et business\n- Français professionnel\n- Pas de superflu ni de formules de politesse",
+          "text": "=<Role>\nTu es un agent IA spécialisé dans l'analyse de pertinence d'articles tech/food pour entrepreneurs.\n</role>\n\n<context>\nL'utilisateur est Camille, entrepreneure qui développe \"IA Meal Planner\", une application de planification de repas alimentée par IA.\n\nProfil détaillé :\n- Stack technique : Ollama (modèles IA locaux), n8n (workflows), PostgreSQL, Qdrant (vector DB)\n- Intérêts principaux : foodtech, nutrition personnalisée, IA appliquée alimentation, UX meal planning, business models food apps\n- Projets actuels : système de matching ingrédients, workflows automatisation recettes, optimisation base données recettes\n- Veille active sur : startups foodtech (levées de fonds, pivots, innovations), apps concurrentes (Yuka, Jow, Frigo Magic), tendances nutrition IA\n</context>\n\n<article>\nTitre : \"{{ $json.title }}\"\nSource : {{ $json.source }}\nDate : {{ $json.pubDate }}\n</article>\n\n<task>\nAnalyse si cet article mérite l'attention de Camille en suivant ce raisonnement :\n\n1. IDENTIFICATION : De quoi parle vraiment l'article ?\n2. PERTINENCE DIRECTE : Est-ce lié à son produit ou sa stack technique ?\n3. PERTINENCE INDIRECTE : Y a-t-il des insights business/concurrence/tendances exploitables ?\n4. PRIORITÉ : Urgent/Important/Nice-to-have/Hors-sujet ?\n\nPense étape par étape. Sois critique et honnête.\n</task>\n\n<output_format>\nRéponds UNIQUEMENT en JSON valide (pas de markdown) :\n{\n  \"pertinent\": true/false,\n  \"score\": 0-10,\n  \"categorie\": \"produit|tech|business|concurrence|tendance|hors-sujet\",\n  \"raison\": \"explication en 1 phrase\",\n  \"action_suggeree\": \"lire maintenant|lire plus tard|archiver|ignorer\"\n  \"lien\" : \"{{ $json.link }}\"\n}\n</output_format>\n\n<examples>\nTitre: \"Jow lève 18M€ pour sa plateforme de courses\"\n→ pertinent: true, score: 9, categorie: \"concurrence\", action: \"lire maintenant\", lien : https://www.lesechos.fr/start-up/deals/jow-leve-20-millions-de-dollars-pour-son-appli-qui-aide-a-faire-ses-courses-1354484\n\nTitre: \"Infineon investit dans l'alimentation des serveurs IA\"\n→ pertinent: false, score: 2, categorie: \"hors-sujet\", action: \"ignorer\", lien : https://investir.lesechos.fr/conseils-boursiers/selections-investir-10/infineon-a-trouve-un-relais-de-croissance-avec-lalimentation-electrique-des-serveurs-dintelligence-artificielle-2214150\n\nTitre: \"Yuka devient un levier pour l'agroalimentaire français\"\n→ pertinent: true, score: 7, categorie: \"tendance\", action: \"lire plus tard\", lien : https://www.cbnews.fr/mobile/yuka-est-devenu-levier-transformation-agroalimentaire-francais\n</examples>\n\nAnalyse maintenant : {{ $json.title }}\n\n",
           "options": {}
         },
         "type": "@n8n/n8n-nodes-langchain.agent",
         "typeVersion": 3.1,
         "position": [
-          1856,
-          112
+          1888,
+          -128
         ],
-        "id": "f659a3d2-6f95-4da1-a307-484a17f53798",
-        "name": "AI Agent"
+        "id": "90af40cd-16d1-40ce-9b4f-dd08e0fcd7cc",
+        "name": "AI Agent",
+        "retryOnFail": true
+      },
+      {
+        "parameters": {
+          "model": "mistral:7b-instruct-q4_0",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "typeVersion": 1,
+        "position": [
+          1896,
+          208
+        ],
+        "id": "639bb09e-d457-4ba9-98b8-3e5b04216385",
+        "name": "Ollama Chat Model1",
+        "credentials": {
+          "ollamaApi": {
+            "id": "C2ejebWhR6zEoNIL",
+            "name": "Ollama account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "7a25c552-6620-4358-8692-a26469d69a6f",
+                "leftValue": "={{ $json.score }}",
+                "rightValue": 6,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          2768,
+          -16
+        ],
+        "id": "68ea31cc-7592-41e9-9141-3e62cdd83ac4",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "jsCode": "let raw = $json.output;\n\nif (typeof raw !== \"string\") {\n  return [{ json: raw }];\n}\n\nraw = raw.trim();\n\n// Supprime ```json ``` si présent\nif (raw.startsWith(\"```\")) {\n  raw = raw.replace(/```json/g, \"\")\n           .replace(/```/g, \"\")\n           .trim();\n}\n\n// 🔥 Corrige TOUS les backslashes invalides\nraw = raw.replace(/\\\\(?![\"\\\\/bfnrtu])/g, \"\\\\\\\\\");\n\ntry {\n  const parsed = JSON.parse(raw);\n  return [{ json: parsed }];\n} catch (err) {\n  throw new Error(\"JSON invalide après nettoyage :\\n\" + raw);\n}\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2224,
+          -112
+        ],
+        "id": "00943f4f-9767-409a-9945-c50e95faf8b1",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          2528,
+          32
+        ],
+        "id": "c634aa5a-2955-4744-88d5-35e3b228b955",
+        "name": "Merge"
       }
     ],
     "connections": {
-      "Déclencheur horaire": {
-        "main": [
-          [
-            {
-              "node": "Config sources",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Config sources": {
-        "main": [
-          [
-            {
-              "node": "Split Google queries",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Split Reddit subs",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Split HN queries",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Split Google queries": {
-        "main": [
-          [
-            {
-              "node": "RSS Google News",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "RSS Google News": {
-        "main": [
-          [
-            {
-              "node": "Tag Google",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Tag Google": {
-        "main": [
-          [
-            {
-              "node": "Fusion sources",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Split Reddit subs": {
-        "main": [
-          [
-            {
-              "node": "RSS Reddit",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "RSS Reddit": {
-        "main": [
-          [
-            {
-              "node": "Tag Reddit",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Tag Reddit": {
-        "main": [
-          [
-            {
-              "node": "Fusion sources",
-              "type": "main",
-              "index": 1
-            }
-          ]
-        ]
-      },
-      "Split HN queries": {
-        "main": [
-          [
-            {
-              "node": "API Hacker News",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "API Hacker News": {
-        "main": [
-          [
-            {
-              "node": "Tag HN",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Fusion sources": {
-        "main": [
-          [
-            {
-              "node": "Filtre qualité",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Parse JSON": {
-        "main": [
-          [
-            {
-              "node": "Notion insert",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Tag HN": {
-        "main": [
-          [
-            {
-              "node": "Fusion sources",
-              "type": "main",
-              "index": 1
-            }
-          ]
-        ]
-      },
-      "Filtre qualité": {
+      "Parse Google XML": {
         "main": [
           [
             {
               "node": "AI Agent",
               "type": "main",
               "index": 0
+            },
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
             }
           ]
         ]
       },
-      "Analyse Ollama": {
+      "Parse Reddit XML": {
+        "main": [
+          [
+            {
+              "node": "Fusion sources1",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Ollama Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Déclencheur horaire1": {
+        "main": [
+          [
+            {
+              "node": "Config sources1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Config sources1": {
+        "main": [
+          [
+            {
+              "node": "Split Google queries1",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Split Reddit subs1",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Split HN queries1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Google queries1": {
+        "main": [
+          [
+            {
+              "node": "RSS Google News1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "RSS Google News1": {
+        "main": [
+          [
+            {
+              "node": "Parse Google XML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Reddit subs1": {
+        "main": [
+          [
+            {
+              "node": "RSS Reddit1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "RSS Reddit1": {
+        "main": [
+          [
+            {
+              "node": "Parse Reddit XML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split HN queries1": {
+        "main": [
+          [
+            {
+              "node": "API Hacker News1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "API Hacker News1": {
+        "main": [
+          [
+            {
+              "node": "Parse HN JSON",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fusion sources1": {
+        "main": [
+          [
+            {
+              "node": "Filtre qualité1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filtre qualité1": {
+        "main": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent1": {
+        "main": [
+          [
+            {
+              "node": "Parse JSON1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse JSON1": {
+        "main": [
+          [
+            {
+              "node": "Notion insert1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse HN JSON": {
+        "main": [
+          [
+            {
+              "node": "Fusion sources1",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Browserless Scrape": {
+        "main": [
+          [
+            {
+              "node": "Fusion sources1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ollama Chat Model1": {
         "ai_languageModel": [
           [
             {
@@ -540,11 +688,33 @@
           ]
         ]
       },
-      "AI Agent": {
+      "If": {
         "main": [
           [
             {
-              "node": "Parse JSON",
+              "node": "Browserless Scrape",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "If",
               "type": "main",
               "index": 0
             }
@@ -553,11 +723,11 @@
       }
     },
     "authors": "Camille Huguet",
-    "name": "Version f08565b7",
+    "name": "Version 54862013",
     "description": "",
     "autosaved": false
   },
-  "activeVersionId": "f08565b7-1b0c-414a-beea-043cabe8c5de",
+  "activeVersionId": "54862013-2ee4-4574-8f04-26e20dc1d1ef",
   "connections": {
     "Parse Google XML": {
       "main": [
@@ -566,6 +736,11 @@
             "node": "AI Agent",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
           }
         ]
       ]
@@ -749,7 +924,7 @@
       "main": [
         [
           {
-            "node": "Fusion sources1",
+            "node": "Code in JavaScript1",
             "type": "main",
             "index": 0
           }
@@ -760,7 +935,7 @@
       "main": [
         [
           {
-            "node": "If",
+            "node": "Code in JavaScript",
             "type": "main",
             "index": 0
           }
@@ -786,6 +961,46 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Browserless Scrape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Fusion sources1",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     }
@@ -807,7 +1022,7 @@
       "typeVersion": 2,
       "position": [
         1600,
-        0
+        -16
       ],
       "id": "4d3f93d8-6677-4cda-8ba2-0134df156161"
     },
@@ -819,8 +1034,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1600,
-        192
+        2624,
+        232
       ],
       "id": "45969928-b038-4152-9d4d-799d4cc8285d"
     },
@@ -832,8 +1047,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1600,
-        384
+        2624,
+        424
       ],
       "id": "26de70d7-5922-43d0-8524-2a3fcc432584"
     },
@@ -846,8 +1061,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        2720,
-        416
+        3736,
+        456
       ],
       "id": "8458a5ea-4840-47b7-9935-fb948cda541d",
       "credentials": {
@@ -873,7 +1088,7 @@
       "typeVersion": 1,
       "position": [
         704,
-        192
+        232
       ],
       "id": "ce3c01b0-c73e-49bd-860e-7a7805d85846"
     },
@@ -883,7 +1098,7 @@
           "assignments": [
             {
               "name": "requetes_google",
-              "value": "=[\"foodtech France\", \"nutrition personnalisée\", \"Yuka actualité\", \"Jow app\", \"Frigo Magic\", \"Seazon startup\", \"French Tech nutrition\", \"meal planning IA\", \"startup foodtech France\", \"gaspillage alimentaire\"]",
+              "value": "=[\"foodtech France\"]",
               "type": "array",
               "id": "cdee7f6f-dc98-4769-bd85-f3f6093bfe0d"
             },
@@ -908,7 +1123,7 @@
       "typeVersion": 3.3,
       "position": [
         928,
-        192
+        232
       ],
       "id": "d7e99e32-4566-43d3-bcdc-9444f70148d0"
     },
@@ -922,7 +1137,7 @@
       "typeVersion": 1,
       "position": [
         1152,
-        0
+        -16
       ],
       "id": "b8abb821-caa0-42f3-a24b-03fea5d9b446"
     },
@@ -930,12 +1145,6 @@
       "parameters": {
         "url": "=https://news.google.com/rss/search?q={{encodeURIComponent($json.requetes_google)}}&hl=fr&gl=FR&ceid=FR:fr",
         "options": {
-          "batching": {
-            "batch": {
-              "batchSize": 2,
-              "batchInterval": 1000
-            }
-          },
           "pagination": {}
         }
       },
@@ -944,7 +1153,7 @@
       "typeVersion": 4.2,
       "position": [
         1376,
-        0
+        -16
       ],
       "id": "7025a74a-5e55-4e91-84d3-09e0b5f47a5e"
     },
@@ -957,8 +1166,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1152,
-        192
+        2176,
+        232
       ],
       "id": "1de9e176-4a97-4510-8ba9-02c96680f1f0"
     },
@@ -971,8 +1180,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1376,
-        192
+        2400,
+        232
       ],
       "id": "3b76ce3d-87cf-4d50-a17f-f6af8c204f06"
     },
@@ -985,8 +1194,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1152,
-        384
+        2176,
+        424
       ],
       "id": "3b00557f-45d4-463b-b8ea-a4c7f302f1d3"
     },
@@ -999,8 +1208,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1376,
-        384
+        2400,
+        424
       ],
       "id": "c2290e73-50d0-4e3e-800e-64d124d2f534"
     },
@@ -1018,8 +1227,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
       "position": [
-        2304,
-        224
+        3216,
+        232
       ],
       "id": "6972d0a3-987c-4f4e-b02e-fd4bca182831"
     },
@@ -1043,8 +1252,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        2448,
-        224
+        3440,
+        232
       ],
       "id": "5357e5c3-7344-4ee0-bdad-7493f8f54353"
     },
@@ -1057,8 +1266,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [
-        2640,
-        192
+        3664,
+        232
       ],
       "id": "0345cca8-6bb4-4a6e-bc55-03b55561bd37",
       "name": "AI Agent1"
@@ -1071,8 +1280,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2992,
-        192
+        4016,
+        232
       ],
       "id": "ca16d761-ec0e-453a-a704-64c52e9e4740"
     },
@@ -1081,59 +1290,33 @@
         "resource": "databasePage",
         "databaseId": "8886261fa0cd4fb7bc831d3fdcd78a7d",
         "title": "={{$json.title}}",
-        "propertiesUi": {
-          "propertyValues": [
-            {
-              "key": "userDefined:URL",
-              "urlValue": "={{$json.link}}"
-            },
-            {
-              "key": "Source",
-              "selectValue": "={{$json.source}}"
-            },
-            {
-              "key": "Résumé"
-            },
-            {
-              "key": "Priorité",
-              "selectValue": "={{$json.priorite}}"
-            },
-            {
-              "key": "Tags",
-              "multiSelectValue": "={{$json.tags}}"
-            },
-            {
-              "key": "Lu"
-            }
-          ]
-        },
         "options": {}
       },
       "name": "Notion insert1",
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2,
       "position": [
-        3216,
-        192
+        4240,
+        232
       ],
-      "id": "d6ce10e5-d730-4c94-ad0f-b55ecf6ccefe"
+      "id": "d6ce10e5-d730-4c94-ad0f-b55ecf6ccefe",
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
     },
     {
       "parameters": {
         "method": "POST",
         "url": "http://browserless:3000/scrape",
         "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"User-Agent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\n  \"Accept-Language\": \"fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\",\n  \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\",\n  \"Referer\": \"https://www.google.com/\",\n  \"sec-ch-ua\": \"\\\"Not_A Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"120\\\", \\\"Google Chrome\\\";v=\\\"120\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"macOS\\\"\"\n}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"url\": \"{{ $json.link }}\",\n  \"elements\": [\n    {\n      \"selector\": \"script[type='application/ld+json']\"\n    }\n  ],\n  \"gotoOptions\": {\n    \"waitUntil\": \"networkidle2\"\n  },\n  \"waitFor\": 2000\n}",
+        "jsonBody": "={\n  \"url\": \"{{ $('Merge').item.json.lien }}\",\n  \"elements\": [\n    {\n      \"selector\": \"article, main, [role='main']\"\n    }\n  ],\n  \"gotoOptions\": {\n    \"waitUntil\": \"networkidle2\"\n  },\n  \"waitFor\": 2000\n}",
         "options": {
           "batching": {
             "batch": {
@@ -1152,8 +1335,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2304,
-        0
+        2960,
+        -160
       ]
     },
     {
@@ -1182,21 +1365,21 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2880,
-        752
+        704,
+        648
       ]
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=<Role>\nTu es un agent IA spécialisé dans l'analyse de pertinence d'articles tech/food pour entrepreneurs.\n</role>\n\n<context>\nL'utilisateur est Camille, entrepreneure qui développe \"IA Meal Planner\", une application de planification de repas alimentée par IA.\n\nProfil détaillé :\n- Stack technique : Ollama (modèles IA locaux), n8n (workflows), PostgreSQL, Qdrant (vector DB)\n- Intérêts principaux : foodtech, nutrition personnalisée, IA appliquée alimentation, UX meal planning, business models food apps\n- Projets actuels : système de matching ingrédients, workflows automatisation recettes, optimisation base données recettes\n- Veille active sur : startups foodtech (levées de fonds, pivots, innovations), apps concurrentes (Yuka, Jow, Frigo Magic), tendances nutrition IA\n</context>\n\n<article>\nTitre : \"{{ $json.title }}\"\nSource : {{ $json.source }}\nDate : {{ $json.pubDate }}\n</article>\n\n<task>\nAnalyse si cet article mérite l'attention de Camille en suivant ce raisonnement :\n\n1. IDENTIFICATION : De quoi parle vraiment l'article ?\n2. PERTINENCE DIRECTE : Est-ce lié à son produit ou sa stack technique ?\n3. PERTINENCE INDIRECTE : Y a-t-il des insights business/concurrence/tendances exploitables ?\n4. PRIORITÉ : Urgent/Important/Nice-to-have/Hors-sujet ?\n\nPense étape par étape. Sois critique et honnête.\n</task>\n\n<output_format>\nRéponds UNIQUEMENT en JSON valide (pas de markdown) :\n{\n  \"pertinent\": true/false,\n  \"score\": 0-10,\n  \"categorie\": \"produit|tech|business|concurrence|tendance|hors-sujet\",\n  \"raison\": \"explication en 1 phrase\",\n  \"action_suggeree\": \"lire maintenant|lire plus tard|archiver|ignorer\"\n}\n</output_format>\n\n<examples>\nTitre: \"Jow lève 18M€ pour sa plateforme de courses\"\n→ pertinent: true, score: 9, categorie: \"concurrence\", action: \"lire maintenant\"\n\nTitre: \"Infineon investit dans l'alimentation des serveurs IA\"\n→ pertinent: false, score: 2, categorie: \"hors-sujet\", action: \"ignorer\"\n\nTitre: \"Yuka devient un levier pour l'agroalimentaire français\"\n→ pertinent: true, score: 7, categorie: \"tendance\", action: \"lire plus tard\"\n</examples>\n\nAnalyse maintenant : {{ $json.title }}\n\n",
+        "text": "=<Role>\nTu es un agent IA spécialisé dans l'analyse de pertinence d'articles tech/food pour entrepreneurs.\n</role>\n\n<context>\nL'utilisateur est Camille, entrepreneure qui développe \"IA Meal Planner\", une application de planification de repas alimentée par IA.\n\nProfil détaillé :\n- Stack technique : Ollama (modèles IA locaux), n8n (workflows), PostgreSQL, Qdrant (vector DB)\n- Intérêts principaux : foodtech, nutrition personnalisée, IA appliquée alimentation, UX meal planning, business models food apps\n- Projets actuels : système de matching ingrédients, workflows automatisation recettes, optimisation base données recettes\n- Veille active sur : startups foodtech (levées de fonds, pivots, innovations), apps concurrentes (Yuka, Jow, Frigo Magic), tendances nutrition IA\n</context>\n\n<article>\nTitre : \"{{ $json.title }}\"\nSource : {{ $json.source }}\nDate : {{ $json.pubDate }}\n</article>\n\n<task>\nAnalyse si cet article mérite l'attention de Camille en suivant ce raisonnement :\n\n1. IDENTIFICATION : De quoi parle vraiment l'article ?\n2. PERTINENCE DIRECTE : Est-ce lié à son produit ou sa stack technique ?\n3. PERTINENCE INDIRECTE : Y a-t-il des insights business/concurrence/tendances exploitables ?\n4. PRIORITÉ : Urgent/Important/Nice-to-have/Hors-sujet ?\n\nPense étape par étape. Sois critique et honnête.\n</task>\n\n<output_format>\nRéponds UNIQUEMENT en JSON valide (pas de markdown) :\n{\n  \"pertinent\": true/false,\n  \"score\": 0-10,\n  \"categorie\": \"produit|tech|business|concurrence|tendance|hors-sujet\",\n  \"raison\": \"explication en 1 phrase\",\n  \"action_suggeree\": \"lire maintenant|lire plus tard|archiver|ignorer\"\n  \"lien\" : \"{{ $json.link }}\"\n}\n</output_format>\n\n<examples>\nTitre: \"Jow lève 18M€ pour sa plateforme de courses\"\n→ pertinent: true, score: 9, categorie: \"concurrence\", action: \"lire maintenant\", lien : https://www.lesechos.fr/start-up/deals/jow-leve-20-millions-de-dollars-pour-son-appli-qui-aide-a-faire-ses-courses-1354484\n\nTitre: \"Infineon investit dans l'alimentation des serveurs IA\"\n→ pertinent: false, score: 2, categorie: \"hors-sujet\", action: \"ignorer\", lien : https://investir.lesechos.fr/conseils-boursiers/selections-investir-10/infineon-a-trouve-un-relais-de-croissance-avec-lalimentation-electrique-des-serveurs-dintelligence-artificielle-2214150\n\nTitre: \"Yuka devient un levier pour l'agroalimentaire français\"\n→ pertinent: true, score: 7, categorie: \"tendance\", action: \"lire plus tard\", lien : https://www.cbnews.fr/mobile/yuka-est-devenu-levier-transformation-agroalimentaire-francais\n</examples>\n\nAnalyse maintenant : {{ $json.title }}\n\n",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1808,
-        0
+        1888,
+        -128
       ],
       "id": "90af40cd-16d1-40ce-9b4f-dd08e0fcd7cc",
       "name": "AI Agent",
@@ -1204,14 +1387,14 @@
     },
     {
       "parameters": {
-        "model": "mistral:7b-instruct",
+        "model": "mistral:7b-instruct-q4_0",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
         1856,
-        272
+        144
       ],
       "id": "639bb09e-d457-4ba9-98b8-3e5b04216385",
       "name": "Ollama Chat Model1",
@@ -1234,7 +1417,7 @@
           "conditions": [
             {
               "id": "7a25c552-6620-4358-8692-a26469d69a6f",
-              "leftValue": "={{ json. }}",
+              "leftValue": "={{ $json.score }}",
               "rightValue": 6,
               "operator": {
                 "type": "number",
@@ -1250,11 +1433,49 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2112,
-        0
+        2720,
+        -48
       ],
       "id": "68ea31cc-7592-41e9-9141-3e62cdd83ac4",
-      "name": "If"
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $json.output;\n\nif (typeof raw !== \"string\") {\n  return [{ json: raw }];\n}\n\nraw = raw.trim();\n\n// Supprime ```json ``` si présent\nif (raw.startsWith(\"```\")) {\n  raw = raw.replace(/```json/g, \"\")\n           .replace(/```/g, \"\")\n           .trim();\n}\n\n// 🔥 Gère les cas : \"lien\": \"<URL>\" ou \"lien\": \"<URL>\" ou \"lien\": URL\n// Solution : vire juste les < > qui entourent les URLs\nraw = raw.replace(/\"<(https?:\\/\\/[^>]+)>\"/g, '\"$1\"');  // \"lien\": \"<URL>\" → \"lien\": \"URL\"\nraw = raw.replace(/<(https?:\\/\\/[^>]+)>/g, '$1');       // <URL> → URL (sans quotes)\n\n// 🔥 Corrige les backslashes échappés\nraw = raw.replace(/\\\\\\//g, \"/\");\n\n// 🔥 Corrige TOUS les backslashes invalides (sauf ceux déjà valides)\nraw = raw.replace(/\\\\(?![\"\\\\/bfnrtu])/g, \"\\\\\\\\\");\n\ntry {\n  const parsed = JSON.parse(raw);\n  return [{ json: parsed }];\n} catch (err) {\n  throw new Error(\"JSON invalide après nettoyage :\\n\" + raw);\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2224,
+        -112
+      ],
+      "id": "00943f4f-9767-409a-9945-c50e95faf8b1",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2528,
+        32
+      ],
+      "id": "c634aa5a-2955-4744-88d5-35e3b228b955",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    // Récupère la réponse de Browserless\n    let data = item.json.data || item.json;\n    \n    // Si c'est un array, prend le premier élément\n    if (Array.isArray(data)) {\n      data = data[0];\n    }\n    \n    // Extrait le HTML brut\n    let html = '';\n    if (data.results && Array.isArray(data.results)) {\n      html = data.results.map(r => r.html || r.text || '').join('\\n');\n    } else if (data.html) {\n      html = data.html;\n    } else if (data.text) {\n      html = data.text;\n    } else {\n      html = JSON.stringify(data);\n    }\n    \n    // Nettoyage HTML\n    let text = html\n      // Supprime scripts et styles\n      .replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, '')\n      .replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, '')\n      // Supprime commentaires HTML\n      .replace(/<!--[\\s\\S]*?-->/g, '')\n      // Remplace les balises par des espaces/sauts\n      .replace(/<br\\s*\\/?>/gi, '\\n')\n      .replace(/<\\/p>/gi, '\\n\\n')\n      .replace(/<\\/div>/gi, '\\n')\n      .replace(/<\\/h[1-6]>/gi, '\\n\\n')\n      .replace(/<li>/gi, '• ')\n      .replace(/<\\/li>/gi, '\\n')\n      // Supprime toutes les balises restantes\n      .replace(/<[^>]+>/g, ' ')\n      // Décode les entités HTML\n      .replace(/&nbsp;/g, ' ')\n      .replace(/&amp;/g, '&')\n      .replace(/&lt;/g, '<')\n      .replace(/&gt;/g, '>')\n      .replace(/&quot;/g, '\"')\n      .replace(/&#39;/g, \"'\")\n      .replace(/&eacute;/g, 'é')\n      .replace(/&egrave;/g, 'è')\n      .replace(/&agrave;/g, 'à')\n      .replace(/&ccedil;/g, 'ç')\n      // Nettoie les espaces multiples\n      .replace(/\\s+/g, ' ')\n      .replace(/\\n\\s+/g, '\\n')\n      .replace(/\\n{3,}/g, '\\n\\n')\n      .trim();\n    \n    // Limite la taille (premiers 3000 caractères)\n    const contenu = text.substring(0, 3000);\n    \n    // Extrait un titre si possible (première ligne non vide)\n    const lignes = contenu.split('\\n').filter(l => l.trim().length > 0);\n    const titre = lignes[0]?.substring(0, 200) || '';\n    \n    results.push({\n      json: {\n        titre_scrape: titre,\n        contenu_nettoye: contenu,\n        longueur: contenu.length,\n        titre_original: item.json.title || '',\n        link: item.json.link || '',\n        source: item.json.source || ''\n      }\n    });\n    \n  } catch (e) {\n    // En cas d'erreur, retourne les données originales\n    results.push({\n      json: {\n        titre_scrape: '',\n        contenu_nettoye: '',\n        longueur: 0,\n        titre_original: item.json.title || '',\n        link: item.json.link || '',\n        source: item.json.source || '',\n        erreur: e.message\n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3168,
+        -160
+      ],
+      "id": "760778b9-b15c-40f5-a258-83ce9ee2f7d7",
+      "name": "Code in JavaScript1"
     }
   ],
   "origin": "n8n",
@@ -1279,6 +1500,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-10T21:28:15.564Z",
-  "versionId": "d8210072-8af4-4603-ab9e-0832501d61db"
+  "updatedAt": "2026-02-11T16:20:11.234Z",
+  "versionId": "d3286740-f2ba-440d-9109-1be4db982e8f"
 }
