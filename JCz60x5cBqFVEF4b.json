@@ -949,7 +949,7 @@
     "timeSavedMode": "fixed",
     "timezone": "Europe/Paris",
     "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": true
+    "availableInMCP": false
   },
   "shared": [
     {
@@ -967,6 +967,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-03T17:20:16.750Z",
+  "updatedAt": "2026-02-12T17:58:42.680Z",
   "versionId": "e8ded000-3364-4a77-8ab3-501a0e021826"
 }
