@@ -1497,7 +1497,11 @@
       "projectId": "ou1B4ZLA3LmPCUHk"
     }
   ],
-  "staticData": null,
+  "staticData": {
+    "node:Déclencheur horaire1": {
+      "recurrenceRules": []
+    }
+  },
   "tags": [],
   "triggerCount": 1,
   "updatedAt": "2026-02-11T16:20:11.234Z",
