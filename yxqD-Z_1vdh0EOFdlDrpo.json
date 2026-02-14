@@ -1499,7 +1499,9 @@
   ],
   "staticData": {
     "node:Déclencheur horaire1": {
-      "recurrenceRules": []
+      "recurrenceRules": [
+        6
+      ]
     }
   },
   "tags": [],
