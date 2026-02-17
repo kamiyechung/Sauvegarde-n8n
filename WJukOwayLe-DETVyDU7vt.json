@@ -1,7 +1,538 @@
 {
-  "active": false,
-  "activeVersion": null,
-  "activeVersionId": null,
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-17T08:33:23.392Z",
+    "createdAt": "2026-02-03T17:18:02.359Z",
+    "versionId": "d67a48ac-5b24-442c-b9c6-a2c86775f01f",
+    "workflowId": "WJukOwayLe-DETVyDU7vt",
+    "nodes": [
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "databaseId": "2fb02d84a06480128570c75a6efb4429"
+        },
+        "id": "17d315cd-98b2-4d6a-af38-e1c73025edaa",
+        "name": "Notion Trigger - Nouveau formulaire",
+        "type": "n8n-nodes-base.notionTrigger",
+        "typeVersion": 1,
+        "position": [
+          -608,
+          272
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "functionCode": "const dateDebut = new Date($input.item.json['date:Date de début de location:start']);\nconst mois = dateDebut.getMonth() + 1;\nconst annee = dateDebut.getFullYear();\n\nlet trimestre;\nif (mois >= 1 && mois <= 3) trimestre = `T4 ${annee - 1}`;\nelse if (mois >= 4 && mois <= 6) trimestre = `T1 ${annee}`;\nelse if (mois >= 7 && mois <= 9) trimestre = `T2 ${annee}`;\nelse trimestre = `T3 ${annee}`;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    reference_irl: trimestre\n  }\n};"
+        },
+        "id": "5bd1e240-af45-4bec-9e96-34ea6df61f4f",
+        "name": "Calculer IRL du trimestre",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [
+          -384,
+          272
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "f5f95fe1-fa19-4231-97a0-da90ac673194",
+        "name": "Calculer toutes les variables",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3,
+        "position": [
+          -160,
+          272
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "databaseId": {
+            "__rl": true,
+            "value": "20f02d84a064808b815acf29c8680feb",
+            "mode": "id"
+          },
+          "title": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
+          "simple": false,
+          "propertiesUi": {
+            "propertyValues": [
+              {
+                "key": "Address|rich_text",
+                "textContent": "22 rue Marie Duboccage 76100 Ro"
+              },
+              {
+                "key": "Ajout Assurance|select",
+                "selectValue": "pas fait"
+              },
+              {
+                "key": "Email|rich_text",
+                "textContent": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Email }}"
+              },
+              {
+                "key": "Etat des lieux d'entrée|select",
+                "selectValue": "Pas fait"
+              },
+              {
+                "key": "Etat des lieux de sortie|select",
+                "selectValue": "Pas fait"
+              },
+              {
+                "key": "Statut|select",
+                "selectValue": "Locataire"
+              },
+              {
+                "key": "Téléphone|rich_text",
+                "textContent": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Phone }}"
+              },
+              {
+                "key": "Lien de stockage des documents|url",
+                "urlValue": "={{ $json.webViewLink }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "4479898e-28c7-41e8-91d1-a54dd8f74905",
+        "name": "Créer locataire dans Notion",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2,
+        "position": [
+          288,
+          272
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "folder",
+          "name": "=Bail {{ $json['Nom et Prénom'] }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "14g31WI6MA9p5g1cq3akFiFC6kblnOpRY",
+            "mode": "id"
+          },
+          "options": {
+            "simplifyOutput": false
+          }
+        },
+        "id": "2d95b00b-a62a-4305-8ff9-4feff5f5b52a",
+        "name": "Créer dossier Google Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          64,
+          272
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentURL": "={{ $json.id }}",
+          "simple": false,
+          "actionsUi": {
+            "actionFields": [
+              {
+                "action": "replaceAll",
+                "text": "=nom_proprietaire",
+                "replaceText": "Thomas HUGUET"
+              },
+              {
+                "action": "replaceAll",
+                "text": "=adresse_proprietaire",
+                "replaceText": "8 rue Leyla Zana 93000 BOBIGNY"
+              }
+            ]
+          }
+        },
+        "id": "e2ce153d-969b-4858-b3d2-d7d1450ffd43",
+        "name": "Remplacer les variables dans le doc",
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          976,
+          240
+        ],
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "zTOoQckVyNOLkbH8",
+            "name": "Google Docs Camille"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.documentId }}",
+            "mode": "id"
+          },
+          "options": {
+            "googleFileConversion": {
+              "conversion": {
+                "docsToFormat": "application/pdf"
+              }
+            }
+          }
+        },
+        "id": "8f23dd48-c9dc-4b12-acd2-2ff46c84eaec",
+        "name": "Télécharger en PDF",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1136,
+          208
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "hikxjMvR4jNVVW5j",
+            "name": "Google Drive Checkin"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "={{ $('Calculer toutes les variables').item.json.nom_fichier + '.pdf' }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $('Créer dossier Google Drive').item.json.id }}",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "id": "a3fd70a9-a9a2-4ec9-89f1-848b2ab5dcb5",
+        "name": "Uploader PDF dans le dossier",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1392,
+          272
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "hikxjMvR4jNVVW5j",
+            "name": "Google Drive Checkin"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "deleteFile",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $('Remplacer les variables dans le doc').item.json.documentId }}",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "id": "63e74e1c-06ab-4a5d-bf58-a96d84408c05",
+        "name": "Supprimer le doc temporaire",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1616,
+          272
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "hikxjMvR4jNVVW5j",
+            "name": "Google Drive Checkin"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "databaseId": {
+            "__rl": true,
+            "mode": "list",
+            "value": ""
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          -608,
+          48
+        ],
+        "id": "acf335df-b920-488b-a556-e699a9e71627",
+        "name": "Create a database page",
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "c08552a8-8178-4aef-9695-d66e1c27938c",
+                "leftValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Bail anglais'] }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          496,
+          272
+        ],
+        "id": "16348a3e-a8d9-4634-8f8e-dc523049b2a3",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "operation": "copy",
+          "fileId": {
+            "__rl": true,
+            "value": "=1c3yVtjHZykGUZFhuhCSUkDmr0RLjLls70HKnqAZhfU8",
+            "mode": "id"
+          },
+          "name": "=Lease {{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
+          "sameFolder": false,
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $('Créer dossier Google Drive').item.json.webViewLink }}",
+            "mode": "url"
+          },
+          "options": {}
+        },
+        "id": "4ec9efc3-54f3-4ae5-91fd-55e3db32e59c",
+        "name": "Copier bail Anglais",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          736,
+          176
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "copy",
+          "fileId": {
+            "__rl": true,
+            "value": "=https://drive.google.com/file/d/1a95TUC_2faNlZySZ5-iSO4VmtJQf2lSE5n87tVAQtFI/view",
+            "mode": "url"
+          },
+          "name": "={{ $json.nom_fichier }}",
+          "options": {}
+        },
+        "id": "2914207d-82c9-4859-9099-473c1b5b48a9",
+        "name": "Copier bail français",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          704,
+          352
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Notion Trigger - Nouveau formulaire": {
+        "main": [
+          [
+            {
+              "node": "Calculer IRL du trimestre",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculer IRL du trimestre": {
+        "main": [
+          [
+            {
+              "node": "Calculer toutes les variables",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculer toutes les variables": {
+        "main": [
+          [
+            {
+              "node": "Créer dossier Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Remplacer les variables dans le doc": {
+        "main": [
+          [
+            {
+              "node": "Télécharger en PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Télécharger en PDF": {
+        "main": [
+          [
+            {
+              "node": "Uploader PDF dans le dossier",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Uploader PDF dans le dossier": {
+        "main": [
+          [
+            {
+              "node": "Supprimer le doc temporaire",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Créer locataire dans Notion": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Créer dossier Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Créer locataire dans Notion",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Copier bail Anglais",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Copier bail français",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Copier bail Anglais": {
+        "main": [
+          [
+            {
+              "node": "Remplacer les variables dans le doc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Copier bail français": {
+        "main": [
+          [
+            {
+              "node": "Remplacer les variables dans le doc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": "Version d67a48ac",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "d67a48ac-5b24-442c-b9c6-a2c86775f01f",
   "connections": {
     "Notion Trigger - Nouveau formulaire": {
       "main": [
@@ -313,8 +844,8 @@
       "type": "n8n-nodes-base.googleDocs",
       "typeVersion": 2,
       "position": [
-        976,
-        240
+        944,
+        144
       ],
       "credentials": {
         "googleDocsOAuth2Api": {
@@ -349,8 +880,8 @@
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "hikxjMvR4jNVVW5j",
-          "name": "Google Drive Checkin"
+          "id": "y2rnCZZdVP6LWjj6",
+          "name": "Google Drive account"
         }
       }
     },
@@ -379,8 +910,8 @@
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "hikxjMvR4jNVVW5j",
-          "name": "Google Drive Checkin"
+          "id": "y2rnCZZdVP6LWjj6",
+          "name": "Google Drive account"
         }
       }
     },
@@ -404,33 +935,8 @@
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "hikxjMvR4jNVVW5j",
-          "name": "Google Drive Checkin"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "resource": "databasePage",
-        "databaseId": {
-          "__rl": true,
-          "mode": "list",
-          "value": ""
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.notion",
-      "typeVersion": 2.2,
-      "position": [
-        -608,
-        48
-      ],
-      "id": "acf335df-b920-488b-a556-e699a9e71627",
-      "name": "Create a database page",
-      "credentials": {
-        "notionApi": {
-          "id": "rV7Q43daAHzHJJVH",
-          "name": "Notion account"
+          "id": "y2rnCZZdVP6LWjj6",
+          "name": "Google Drive account"
         }
       }
     },
@@ -550,9 +1056,13 @@
       "projectId": "ou1B4ZLA3LmPCUHk"
     }
   ],
-  "staticData": null,
+  "staticData": {
+    "node:Notion Trigger - Nouveau formulaire": {
+      "lastTimeChecked": "2026-02-17T08:33:00.000Z"
+    }
+  },
   "tags": [],
-  "triggerCount": 0,
-  "updatedAt": "2026-02-03T17:18:02.353Z",
-  "versionId": "d67a48ac-5b24-442c-b9c6-a2c86775f01f"
+  "triggerCount": 1,
+  "updatedAt": "2026-02-17T09:41:57.294Z",
+  "versionId": "58a8050f-22fb-45bd-8873-c1363bea7faa"
 }
