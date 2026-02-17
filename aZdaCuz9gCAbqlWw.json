@@ -1,0 +1,408 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Déclencheur horaire": {
+      "main": [
+        [
+          {
+            "node": "Notion – Récupérer posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion – Récupérer posts": {
+      "main": [
+        [
+          {
+            "node": "Filtrer post du jour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrer post du jour": {
+      "main": [
+        [
+          {
+            "node": "Extraire données",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire données": {
+      "main": [
+        [
+          {
+            "node": "Télécharger le fichier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Télécharger le fichier": {
+      "main": [
+        [
+          {
+            "node": "Définir type upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Définir type upload": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn – Enregistrer upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn – Enregistrer upload": {
+      "main": [
+        [
+          {
+            "node": "Préparer upload URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer upload URL": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn – Upload fichier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn – Upload fichier": {
+      "main": [
+        [
+          {
+            "node": "Construire body post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construire body post": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn – Publier post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn – Publier post": {
+      "main": [
+        [
+          {
+            "node": "Notion – Marquer Publié",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-17T10:38:11.871Z",
+  "id": "aZdaCuz9gCAbqlWw",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Publier sur LinkedIn depuis Notion (image + text)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "204339bc-94d2-492d-b8b5-af9c929ace05",
+      "name": "Déclencheur horaire",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1504,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "https://www.notion.so/30a02d84a06481e1b277c2588651255c?v=30a02d84a0648129af3b000ccdf61ac0",
+          "mode": "url"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "e44b180c-5a1a-4c9f-87a1-eddfb0504f39",
+      "name": "Notion – Récupérer posts",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1728,
+        144
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const today = new Date().toISOString().split('T')[0];\nfor (const item of $input.all()) {\n  const props = item.json.properties;\n  const status = props?.State?.status?.name || '';\n  const date = props?.Date?.date?.start || '';\n  if (status === 'Planifié' && date === today) return [item];\n}\nreturn [];"
+      },
+      "id": "4bc032aa-9e61-4057-9970-93f4003354b6",
+      "name": "Filtrer post du jour",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const props = $input.item.json.properties;\nconst type = props?.Type?.select?.name || 'image';\nconst files = props?.['Files & media']?.files || [];\nconst fileUrl = files[0]?.file?.url || '';\nconst fileName = files[0]?.name || 'file';\nconst postText = (props?.['Post text']?.rich_text || []).map(b => b.plain_text).join('');\nconst notionPageId = $input.item.json.id;\nreturn [{ json: { type, fileUrl, fileName, postText, notionPageId } }];"
+      },
+      "id": "cdb6ed82-694e-40af-812c-657fb7de2a4e",
+      "name": "Extraire données",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2176,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.fileUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "c990e108-11b9-4b68-b1ef-b82e980f8c2f",
+      "name": "Télécharger le fichier",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2384,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const type = $('Extraire données').item.json.type;\nconst isCarousel = type.toLowerCase() === 'carrousel';\nreturn [{ json: { ...($('Extraire données').item.json), isCarousel, recipe: isCarousel ? 'urn:li:digitalmediaRecipe:feedshare-document' : 'urn:li:digitalmediaRecipe:feedshare-image' }, binary: $input.item.binary }];"
+      },
+      "id": "0eeb9d40-456f-408b-bfde-31064a14f4f7",
+      "name": "Définir type upload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2608,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/v2/assets?action=registerUpload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Restli-Protocol-Version",
+              "value": "2.0.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ registerUploadRequest: { recipes: [$json.recipe], owner: 'urn:li:person:VOTRE_ID_LINKEDIN', serviceRelationships: [{ relationshipType: 'OWNER', identifier: 'urn:li:userGeneratedContent' }] } }) }}",
+        "options": {}
+      },
+      "id": "d2461782-9cb4-4687-a545-f568cf4d4b41",
+      "name": "LinkedIn – Enregistrer upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2832,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const registerData = $input.item.json;\nconst uploadUrl = registerData.value.uploadMechanism['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'].uploadUrl;\nconst asset = registerData.value.asset;\nconst prev = $('Définir type upload').item.json;\nreturn [{ json: { ...prev, uploadUrl, asset }, binary: $('Définir type upload').item.binary }];"
+      },
+      "id": "8ab870d7-8f26-4b09-976a-b4a6f391243d",
+      "name": "Préparer upload URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3056,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $json.uploadUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/octet-stream"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "2db8bbe9-c7f1-4efb-bf68-b39ee8b446fa",
+      "name": "LinkedIn – Upload fichier",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3264,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prev = $('Préparer upload URL').item.json;\nconst isCarousel = prev.isCarousel;\nlet specificContent;\nif (isCarousel) {\n  specificContent = {\n    'com.linkedin.ugc.ShareContent': {\n      shareCommentary: { text: prev.postText },\n      shareMediaCategory: 'DOCUMENT',\n      media: [{ status: 'READY', media: prev.asset, title: { text: prev.fileName } }]\n    }\n  };\n} else {\n  specificContent = {\n    'com.linkedin.ugc.ShareContent': {\n      shareCommentary: { text: prev.postText },\n      shareMediaCategory: 'IMAGE',\n      media: [{ status: 'READY', media: prev.asset }]\n    }\n  };\n}\nconst body = {\n  author: 'urn:li:person:VOTRE_ID_LINKEDIN',\n  lifecycleState: 'PUBLISHED',\n  specificContent,\n  visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' }\n};\nreturn [{ json: { body, notionPageId: prev.notionPageId } }];"
+      },
+      "id": "89ace469-8b15-4fa0-bca7-01718fd13fb0",
+      "name": "Construire body post",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3488,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Restli-Protocol-Version",
+              "value": "2.0.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {}
+      },
+      "id": "11625232-a87a-42c3-836c-0bddeb06a9d8",
+      "name": "LinkedIn – Publier post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3712,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "=",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "id": "a1dfa1ff-901f-46a5-aa91-378122afd867",
+      "name": "Notion – Marquer Publié",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        3936,
+        144
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-17T10:38:11.871Z",
+      "createdAt": "2026-02-17T10:38:11.871Z",
+      "role": "workflow:owner",
+      "workflowId": "aZdaCuz9gCAbqlWw",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-17T10:43:30.317Z",
+  "versionId": "e6383523-64a4-4755-a14c-6ab1f514a2f8"
+}
