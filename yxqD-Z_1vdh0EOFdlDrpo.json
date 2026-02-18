@@ -1486,7 +1486,7 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": true
+    "availableInMCP": false
   },
   "shared": [
     {
@@ -1506,6 +1506,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-11T16:20:11.234Z",
+  "updatedAt": "2026-02-17T17:47:09.210Z",
   "versionId": "d3286740-f2ba-440d-9109-1be4db982e8f"
 }
