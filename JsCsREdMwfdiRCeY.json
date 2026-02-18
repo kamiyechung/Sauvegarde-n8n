@@ -689,12 +689,14 @@
       ],
       "id": "73066ddc-07d9-4b0a-8ef2-a3677b0939c4",
       "name": "Ollama Chat Model",
+      "retryOnFail": true,
       "credentials": {
         "ollamaApi": {
           "id": "C2ejebWhR6zEoNIL",
           "name": "Ollama account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -999,19 +1001,19 @@
   },
   "tags": [
     {
-      "updatedAt": "2025-12-03T14:44:48.317Z",
-      "createdAt": "2025-12-03T14:44:48.317Z",
-      "id": "82sur1uQrVPQybew",
-      "name": "Administratif"
-    },
-    {
       "updatedAt": "2025-11-26T21:50:45.750Z",
       "createdAt": "2025-11-26T21:50:45.750Z",
       "id": "bVdv5uZuvSz9pfPC",
       "name": "OK"
+    },
+    {
+      "updatedAt": "2025-12-03T14:44:48.317Z",
+      "createdAt": "2025-12-03T14:44:48.317Z",
+      "id": "82sur1uQrVPQybew",
+      "name": "Administratif"
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-02-10T15:13:14.750Z",
-  "versionId": "d02f6529-b3c4-4323-9d56-5d95f632052a"
+  "updatedAt": "2026-02-17T13:30:44.560Z",
+  "versionId": "6a6ce11f-3894-424d-a617-f853143a4301"
 }
