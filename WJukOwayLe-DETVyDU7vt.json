@@ -1,61 +1,35 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-17T08:33:23.392Z",
-    "createdAt": "2026-02-03T17:18:02.359Z",
-    "versionId": "d67a48ac-5b24-442c-b9c6-a2c86775f01f",
+    "updatedAt": "2026-02-18T08:42:38.948Z",
+    "createdAt": "2026-02-17T19:27:53.408Z",
+    "versionId": "0aba4893-e264-4609-aeec-856d1fe96ef6",
     "workflowId": "WJukOwayLe-DETVyDU7vt",
     "nodes": [
       {
         "parameters": {
-          "pollTimes": {
-            "item": [
-              {
-                "mode": "everyMinute"
-              }
-            ]
-          },
-          "databaseId": "2fb02d84a06480128570c75a6efb4429"
+          "functionCode": "// Récupérer la date depuis le Trigger Notion (formulaire de création de bail)\nconst triggerData = $('Notion Trigger - Nouveau formulaire').item.json;\nconst dateObj = triggerData['Date de début de location'];\nconst dateDebutStr = dateObj?.start;\n\n// Vérifier que la date existe\nif (!dateDebutStr) {\n  throw new Error(`Date de début non trouvée dans le trigger. Propriétés : ${JSON.stringify(Object.keys(triggerData))}`);\n}\n\nconst dateDebut = new Date(dateDebutStr);\n\n// Vérifier que la date est valide\nif (isNaN(dateDebut.getTime())) {\n  throw new Error(`Date invalide : ${dateDebutStr}`);\n}\n\nconst mois = dateDebut.getMonth() + 1;\nconst annee = dateDebut.getFullYear();\n\nlet trimestre;\nif (mois >= 1 && mois <= 3) trimestre = `T4 ${annee - 1}`;\nelse if (mois >= 4 && mois <= 6) trimestre = `T1 ${annee}`;\nelse if (mois >= 7 && mois <= 9) trimestre = `T2 ${annee}`;\nelse trimestre = `T3 ${annee}`;\n\n// Calcul date de renouvellement (1 an après date début)\nconst dateRenouvellement = new Date(dateDebut);\ndateRenouvellement.setFullYear(dateRenouvellement.getFullYear() + 1);\n\nconst jour = dateRenouvellement.getDate().toString().padStart(2, '0');\nconst moisNom = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][dateRenouvellement.getMonth()];\nconst anneeRenouv = dateRenouvellement.getFullYear();\nconst dateRevision = `${jour} ${moisNom} ${anneeRenouv}`;\n\n// Calcul date du jour pour la signature\nconst aujourdhui = new Date();\nconst jourAujourdhui = aujourdhui.getDate().toString().padStart(2, '0');\nconst moisAujourdhui = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][aujourdhui.getMonth()];\nconst anneeAujourdhui = aujourdhui.getFullYear();\nconst dateSignature = `${jourAujourdhui} ${moisAujourdhui} ${anneeAujourdhui}`;\n\n// Calcul loyer total\nconst montantLoyer = parseFloat(triggerData['Montant du loyer hors-charge'] || 0);\nconst montantCharges = parseFloat(triggerData['Montant des charges'] || 0);\nconst montantLoyerTotal = montantLoyer + montantCharges;\n\n// Calcul premier versement (caution + loyer prorata)\nconst jourDebut = dateDebut.getDate();\nconst caution = montantLoyer; // 1 mois HC\nlet loyerPremierMois;\nlet detailPremierVersement;\n\nif (jourDebut <= 15) {\n  loyerPremierMois = montantLoyerTotal;\n  detailPremierVersement = `${caution}€ de caution + ${loyerPremierMois}€ de loyer (mois complet)`;\n} else {\n  loyerPremierMois = montantLoyerTotal / 2;\n  detailPremierVersement = `${caution}€ de caution + ${loyerPremierMois}€ de loyer (demi-mois)`;\n}\n\nconst montantPremierVersement = caution + loyerPremierMois;\n\nreturn {\n  json: {\n    ...$json,\n    reference_irl: trimestre,\n    date_revision: dateRevision,\n    date_signature: dateSignature,\n    montant_loyer: montantLoyer,\n    montant_charges: montantCharges,\n    montant_loyer_total: montantLoyerTotal,\n    depot_garantie: caution,\n    montant_premier_versement: montantPremierVersement,\n    detail_premier_versement: detailPremierVersement\n  }\n};"
         },
-        "id": "17d315cd-98b2-4d6a-af38-e1c73025edaa",
-        "name": "Notion Trigger - Nouveau formulaire",
-        "type": "n8n-nodes-base.notionTrigger",
-        "typeVersion": 1,
-        "position": [
-          -608,
-          272
-        ],
-        "credentials": {
-          "notionApi": {
-            "id": "rV7Q43daAHzHJJVH",
-            "name": "Notion account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "functionCode": "const dateDebut = new Date($input.item.json['date:Date de début de location:start']);\nconst mois = dateDebut.getMonth() + 1;\nconst annee = dateDebut.getFullYear();\n\nlet trimestre;\nif (mois >= 1 && mois <= 3) trimestre = `T4 ${annee - 1}`;\nelse if (mois >= 4 && mois <= 6) trimestre = `T1 ${annee}`;\nelse if (mois >= 7 && mois <= 9) trimestre = `T2 ${annee}`;\nelse trimestre = `T3 ${annee}`;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    reference_irl: trimestre\n  }\n};"
-        },
-        "id": "5bd1e240-af45-4bec-9e96-34ea6df61f4f",
-        "name": "Calculer IRL du trimestre",
+        "id": "0aa2a4f4-f6cb-41a5-b3fc-baf93cd2b670",
+        "name": "Calculer IRL du trimestre1",
         "type": "n8n-nodes-base.function",
         "typeVersion": 1,
         "position": [
-          -384,
-          272
+          -176,
+          832
         ]
       },
       {
         "parameters": {
           "options": {}
         },
-        "id": "f5f95fe1-fa19-4231-97a0-da90ac673194",
-        "name": "Calculer toutes les variables",
+        "id": "2037fda8-3a54-4de9-a9f9-bc36b0a4c33e",
+        "name": "Calculer toutes les variables1",
         "type": "n8n-nodes-base.set",
         "typeVersion": 3,
         "position": [
-          -160,
-          272
+          48,
+          832
         ]
       },
       {
@@ -106,13 +80,13 @@
           },
           "options": {}
         },
-        "id": "4479898e-28c7-41e8-91d1-a54dd8f74905",
-        "name": "Créer locataire dans Notion",
+        "id": "654f16a5-1048-4ab5-ae95-494424a96d88",
+        "name": "Créer locataire dans Notion1",
         "type": "n8n-nodes-base.notion",
         "typeVersion": 2,
         "position": [
-          288,
-          272
+          496,
+          832
         ],
         "credentials": {
           "notionApi": {
@@ -139,13 +113,13 @@
             "simplifyOutput": false
           }
         },
-        "id": "2d95b00b-a62a-4305-8ff9-4feff5f5b52a",
-        "name": "Créer dossier Google Drive",
+        "id": "5285c9fb-0fe3-45df-aaa3-7b3866e0e48d",
+        "name": "Créer dossier Google Drive1",
         "type": "n8n-nodes-base.googleDrive",
         "typeVersion": 3,
         "position": [
-          64,
-          272
+          272,
+          832
         ],
         "credentials": {
           "googleDriveOAuth2Api": {
@@ -163,24 +137,169 @@
             "actionFields": [
               {
                 "action": "replaceAll",
-                "text": "=nom_proprietaire",
+                "text": "nom_proprietaire",
                 "replaceText": "Thomas HUGUET"
               },
               {
                 "action": "replaceAll",
-                "text": "=adresse_proprietaire",
+                "text": "adresse_proprietaire",
                 "replaceText": "8 rue Leyla Zana 93000 BOBIGNY"
+              },
+              {
+                "action": "replaceAll",
+                "text": "email_proprietaire",
+                "replaceText": "thomas.huguet@gmail.com"
+              },
+              {
+                "action": "replaceAll",
+                "text": "telephone_proprietaire",
+                "replaceText": "06 60 39 53 88"
+              },
+              {
+                "action": "replaceAll",
+                "text": "activite_proprietaire",
+                "replaceText": "Entrepreneur"
+              },
+              {
+                "action": "replaceAll",
+                "text": "nom_locataire",
+                "replaceText": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "email_locataire",
+                "replaceText": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Email }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "adresse_logement",
+                "replaceText": "22 rue Marie Duboccage 76100 Rouen"
+              },
+              {
+                "action": "replaceAll",
+                "text": "classe_dpe",
+                "replaceText": "E"
+              },
+              {
+                "action": "replaceAll",
+                "text": "date_debut",
+                "replaceText": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Date de début de location'].start }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "duree_bail",
+                "replaceText": "1 an renouvelable tacitement"
+              },
+              {
+                "action": "replaceAll",
+                "text": "date_revision",
+                "replaceText": "={{ $('Calculer IRL du trimestre1').item.json.date_revision }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "reference_irl",
+                "replaceText": "={{ $('Calculer IRL du trimestre1').item.json.reference_irl }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "date_signature",
+                "replaceText": "={{ $('Calculer IRL du trimestre1').item.json.date_signature }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "lieu_signature",
+                "replaceText": "Rouen"
+              },
+              {
+                "action": "replaceAll",
+                "text": "montant_loyer_total",
+                "replaceText": "={{ $('Calculer IRL du trimestre1').item.json.montant_loyer_total + '' }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "montant_loyer",
+                "replaceText": "={{ $('Calculer IRL du trimestre1').item.json.montant_loyer + '' }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "montant_charges",
+                "replaceText": "={{ $('Calculer IRL du trimestre1').item.json.montant_charges + '' }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "methode_charges",
+                "replaceText": "Provisions pour charges avec régularisation annuelle"
+              },
+              {
+                "action": "replaceAll",
+                "text": "assurance_colocation",
+                "replaceText": "Oui"
+              },
+              {
+                "action": "replaceAll",
+                "text": "assurance_annuelle",
+                "replaceText": "60"
+              },
+              {
+                "action": "replaceAll",
+                "text": "assurance_mensuelle",
+                "replaceText": "5"
+              },
+              {
+                "action": "replaceAll",
+                "text": "frequence_paiement",
+                "replaceText": "Mensuel"
+              },
+              {
+                "action": "replaceAll",
+                "text": "terme_paiement",
+                "replaceText": "À terme échu"
+              },
+              {
+                "action": "replaceAll",
+                "text": "date_paiement",
+                "replaceText": "1er du mois"
+              },
+              {
+                "action": "replaceAll",
+                "text": "iban",
+                "replaceText": "FR76 1451 8292 6708 9974 5294 012"
+              },
+              {
+                "action": "replaceAll",
+                "text": "montant_premier_versement",
+                "replaceText": "={{ ($('Calculer IRL du trimestre1').item.json.montant_loyer_total * 2) + '' }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "detail_premier_versement",
+                "replaceText": "1 mois de loyer + 1 mois de dépôt de garantie"
+              },
+              {
+                "action": "replaceAll",
+                "text": "depot_garantie",
+                "replaceText": "={{ $('Calculer IRL du trimestre1').item.json.montant_loyer + '' }}"
+              },
+              {
+                "action": "replaceAll",
+                "text": "travaux_realises",
+                "replaceText": "Aucun"
+              },
+              {
+                "action": "replaceAll",
+                "text": "lien_notices",
+                "replaceText": "https://drive.google.com/drive/folders/xxx"
               }
             ]
           }
         },
-        "id": "e2ce153d-969b-4858-b3d2-d7d1450ffd43",
-        "name": "Remplacer les variables dans le doc",
+        "id": "023a8852-4753-427c-b698-0a44ab6cba70",
+        "name": "Remplacer les variables dans le doc1",
         "type": "n8n-nodes-base.googleDocs",
         "typeVersion": 2,
         "position": [
-          976,
-          240
+          1392,
+          928
         ],
         "credentials": {
           "googleDocsOAuth2Api": {
@@ -205,24 +324,24 @@
             }
           }
         },
-        "id": "8f23dd48-c9dc-4b12-acd2-2ff46c84eaec",
-        "name": "Télécharger en PDF",
+        "id": "51ce2686-15aa-469e-8f32-f988bd06b63f",
+        "name": "Télécharger en PDF1",
         "type": "n8n-nodes-base.googleDrive",
         "typeVersion": 3,
         "position": [
-          1136,
-          208
+          1616,
+          928
         ],
         "credentials": {
           "googleDriveOAuth2Api": {
-            "id": "hikxjMvR4jNVVW5j",
-            "name": "Google Drive Checkin"
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
           }
         }
       },
       {
         "parameters": {
-          "name": "={{ $('Calculer toutes les variables').item.json.nom_fichier + '.pdf' }}",
+          "name": "={{ $('Calculer toutes les variables1').item.json.nom_fichier + '.pdf' }}",
           "driveId": {
             "__rl": true,
             "mode": "list",
@@ -230,23 +349,23 @@
           },
           "folderId": {
             "__rl": true,
-            "value": "={{ $('Créer dossier Google Drive').item.json.id }}",
+            "value": "={{ $('Créer dossier Google Drive1').item.json.id }}",
             "mode": "id"
           },
           "options": {}
         },
-        "id": "a3fd70a9-a9a2-4ec9-89f1-848b2ab5dcb5",
-        "name": "Uploader PDF dans le dossier",
+        "id": "69b76e40-1745-40f6-8020-43fb5e37ec6c",
+        "name": "Uploader PDF dans le dossier1",
         "type": "n8n-nodes-base.googleDrive",
         "typeVersion": 3,
         "position": [
-          1392,
-          272
+          1840,
+          928
         ],
         "credentials": {
           "googleDriveOAuth2Api": {
-            "id": "hikxjMvR4jNVVW5j",
-            "name": "Google Drive Checkin"
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
           }
         }
       },
@@ -255,48 +374,23 @@
           "operation": "deleteFile",
           "fileId": {
             "__rl": true,
-            "value": "={{ $('Remplacer les variables dans le doc').item.json.documentId }}",
+            "value": "={{ $('Remplacer les variables dans le doc1').item.json.documentId }}",
             "mode": "id"
           },
           "options": {}
         },
-        "id": "63e74e1c-06ab-4a5d-bf58-a96d84408c05",
-        "name": "Supprimer le doc temporaire",
+        "id": "4f9bd0eb-f8b5-494b-86cd-19bff3517cd8",
+        "name": "Supprimer le doc temporaire1",
         "type": "n8n-nodes-base.googleDrive",
         "typeVersion": 3,
         "position": [
-          1616,
-          272
+          2064,
+          928
         ],
         "credentials": {
           "googleDriveOAuth2Api": {
-            "id": "hikxjMvR4jNVVW5j",
-            "name": "Google Drive Checkin"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "resource": "databasePage",
-          "databaseId": {
-            "__rl": true,
-            "mode": "list",
-            "value": ""
-          },
-          "options": {}
-        },
-        "type": "n8n-nodes-base.notion",
-        "typeVersion": 2.2,
-        "position": [
-          -608,
-          48
-        ],
-        "id": "acf335df-b920-488b-a556-e699a9e71627",
-        "name": "Create a database page",
-        "credentials": {
-          "notionApi": {
-            "id": "rV7Q43daAHzHJJVH",
-            "name": "Notion account"
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
           }
         }
       },
@@ -327,11 +421,11 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.3,
         "position": [
-          496,
-          272
+          720,
+          928
         ],
-        "id": "16348a3e-a8d9-4634-8f8e-dc523049b2a3",
-        "name": "If"
+        "id": "23bf772f-76aa-42bb-80a5-279f4aa6c2c3",
+        "name": "If3"
       },
       {
         "parameters": {
@@ -350,18 +444,18 @@
           },
           "folderId": {
             "__rl": true,
-            "value": "={{ $('Créer dossier Google Drive').item.json.webViewLink }}",
+            "value": "={{ $('Créer dossier Google Drive1').item.json.webViewLink }}",
             "mode": "url"
           },
           "options": {}
         },
-        "id": "4ec9efc3-54f3-4ae5-91fd-55e3db32e59c",
-        "name": "Copier bail Anglais",
+        "id": "7612a2c2-88b9-4e59-9d79-d318c79c2323",
+        "name": "Copier bail Anglais1",
         "type": "n8n-nodes-base.googleDrive",
         "typeVersion": 3,
         "position": [
-          736,
-          176
+          1168,
+          736
         ],
         "credentials": {
           "googleDriveOAuth2Api": {
@@ -381,13 +475,13 @@
           "name": "={{ $json.nom_fichier }}",
           "options": {}
         },
-        "id": "2914207d-82c9-4859-9099-473c1b5b48a9",
-        "name": "Copier bail français",
+        "id": "db91c10c-4561-4de5-af2b-7c2f09f8f110",
+        "name": "Copier bail français1",
         "type": "n8n-nodes-base.googleDrive",
         "typeVersion": 3,
         "position": [
-          704,
-          352
+          1168,
+          928
         ],
         "credentials": {
           "googleDriveOAuth2Api": {
@@ -395,131 +489,385 @@
             "name": "Google Drive account"
           }
         }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "a7841e37-c59e-41db-a2b9-283d32a0de6b",
+                "leftValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Couple }}",
+                "rightValue": "oui",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          944,
+          1024
+        ],
+        "id": "757cffc5-7720-4768-9dad-d3e14ddacec2",
+        "name": "If5"
+      },
+      {
+        "parameters": {
+          "operation": "copy",
+          "fileId": {
+            "__rl": true,
+            "value": "=1aREkKtb2MnVMEP0pjjRalZK_dFC7EkP9LvhJoIU8yLM",
+            "mode": "id"
+          },
+          "name": "=Bail {{ $('Créer locataire dans Notion1').item.json.properties.Name.title[0].text.content }}",
+          "options": {}
+        },
+        "id": "52fba7a4-b7c1-402c-86aa-6a6360f62457",
+        "name": "Copier bail français couple1",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1168,
+          1120
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "20f02d84a064808b815acf29c8680feb",
+            "mode": "id"
+          },
+          "returnAll": true,
+          "options": {}
+        },
+        "id": "2eef0d2a-1876-4c42-846e-68d04ec25625",
+        "name": "Vérifier email dans Parties",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          -848,
+          928
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "leftValue": "={{ $json.id }}",
+                "rightValue": null,
+                "operator": {
+                  "type": "number",
+                  "operation": "equals"
+                },
+                "id": "2b55e69b-a2fc-44bd-a794-677389b47989"
+              }
+            ],
+            "combinator": "and"
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "id": "3f600790-3d4d-468b-acaf-adafb5d650ff",
+        "name": "Email existe déjà ?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -624,
+          928
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "bcb92cba-e8aa-4eb5-afcc-6a04f1ff3589",
+        "name": "Nouveau locataire",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -400,
+          832
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "c0238820-1436-46f4-832b-2db4508bfb76",
+        "name": "Locataire existant",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          496,
+          1024
+        ]
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "databaseId": "2fb02d84a06480128570c75a6efb4429"
+        },
+        "id": "748277b3-390d-49ce-b40a-149fb5e1c711",
+        "name": "Notion Trigger - Nouveau formulaire",
+        "type": "n8n-nodes-base.notionTrigger",
+        "typeVersion": 1,
+        "position": [
+          -1072,
+          928
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
       }
     ],
     "connections": {
-      "Notion Trigger - Nouveau formulaire": {
+      "Calculer IRL du trimestre1": {
         "main": [
           [
             {
-              "node": "Calculer IRL du trimestre",
+              "node": "Calculer toutes les variables1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Calculer IRL du trimestre": {
+      "Calculer toutes les variables1": {
         "main": [
           [
             {
-              "node": "Calculer toutes les variables",
+              "node": "Créer dossier Google Drive1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Calculer toutes les variables": {
+      "Créer locataire dans Notion1": {
         "main": [
           [
             {
-              "node": "Créer dossier Google Drive",
+              "node": "If3",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Remplacer les variables dans le doc": {
+      "Créer dossier Google Drive1": {
         "main": [
           [
             {
-              "node": "Télécharger en PDF",
+              "node": "Créer locataire dans Notion1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Télécharger en PDF": {
+      "Remplacer les variables dans le doc1": {
         "main": [
           [
             {
-              "node": "Uploader PDF dans le dossier",
+              "node": "Télécharger en PDF1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Uploader PDF dans le dossier": {
+      "Télécharger en PDF1": {
         "main": [
           [
             {
-              "node": "Supprimer le doc temporaire",
+              "node": "Uploader PDF dans le dossier1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Créer locataire dans Notion": {
+      "Uploader PDF dans le dossier1": {
         "main": [
           [
             {
-              "node": "If",
+              "node": "Supprimer le doc temporaire1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Créer dossier Google Drive": {
+      "If3": {
         "main": [
           [
             {
-              "node": "Créer locataire dans Notion",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "If": {
-        "main": [
-          [
-            {
-              "node": "Copier bail Anglais",
+              "node": "Copier bail Anglais1",
               "type": "main",
               "index": 0
             }
           ],
           [
             {
-              "node": "Copier bail français",
+              "node": "If5",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Copier bail Anglais": {
+      "Copier bail Anglais1": {
         "main": [
           [
             {
-              "node": "Remplacer les variables dans le doc",
+              "node": "Remplacer les variables dans le doc1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Copier bail français": {
+      "Copier bail français1": {
         "main": [
           [
             {
-              "node": "Remplacer les variables dans le doc",
+              "node": "Remplacer les variables dans le doc1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If5": {
+        "main": [
+          [
+            {
+              "node": "Copier bail français couple1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Copier bail français1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Copier bail français couple1": {
+        "main": [
+          [
+            {
+              "node": "Remplacer les variables dans le doc1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vérifier email dans Parties": {
+        "main": [
+          [
+            {
+              "node": "Email existe déjà ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email existe déjà ?": {
+        "main": [
+          [
+            {
+              "node": "Nouveau locataire",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Locataire existant",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Nouveau locataire": {
+        "main": [
+          [
+            {
+              "node": "Calculer IRL du trimestre1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Locataire existant": {
+        "main": [
+          [
+            {
+              "node": "If3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion Trigger - Nouveau formulaire": {
+        "main": [
+          [
+            {
+              "node": "Vérifier email dans Parties",
               "type": "main",
               "index": 0
             }
@@ -528,17 +876,39 @@
       }
     },
     "authors": "Camille Huguet",
-    "name": "Version d67a48ac",
+    "name": "Version 0aba4893",
     "description": "",
-    "autosaved": false
+    "autosaved": true
   },
-  "activeVersionId": "d67a48ac-5b24-442c-b9c6-a2c86775f01f",
+  "activeVersionId": "0aba4893-e264-4609-aeec-856d1fe96ef6",
   "connections": {
-    "Notion Trigger - Nouveau formulaire": {
+    "Set lien_drive (nouveau)": {
       "main": [
         [
           {
-            "node": "Calculer IRL du trimestre",
+            "node": "Merge lien_drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set lien_drive (existant)": {
+      "main": [
+        [
+          {
+            "node": "Merge lien_drive",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge lien_drive": {
+      "main": [
+        [
+          {
+            "node": "If",
             "type": "main",
             "index": 0
           }
@@ -560,7 +930,29 @@
       "main": [
         [
           {
-            "node": "Créer dossier Google Drive",
+            "node": "Vérifier email dans Parties1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Créer locataire dans Notion": {
+      "main": [
+        [
+          {
+            "node": "Set lien_drive (nouveau)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Créer dossier Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Créer locataire dans Notion",
             "type": "main",
             "index": 0
           }
@@ -600,28 +992,6 @@
         ]
       ]
     },
-    "Créer locataire dans Notion": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Créer dossier Google Drive": {
-      "main": [
-        [
-          {
-            "node": "Créer locataire dans Notion",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "If": {
       "main": [
         [
@@ -633,7 +1003,7 @@
         ],
         [
           {
-            "node": "Copier bail français",
+            "node": "If6",
             "type": "main",
             "index": 0
           }
@@ -661,6 +1031,102 @@
           }
         ]
       ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Copier bail français couple",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Copier bail français",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copier bail français couple": {
+      "main": [
+        [
+          {
+            "node": "Remplacer les variables dans le doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier email dans Parties1": {
+      "main": [
+        [
+          {
+            "node": "Email existe déjà ?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email existe déjà ?1": {
+      "main": [
+        [
+          {
+            "node": "Nouveau locataire1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nouveau locataire1": {
+      "main": [
+        [
+          {
+            "node": "Créer dossier Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion Trigger - Nouveau formulaire1": {
+      "main": [
+        [
+          {
+            "node": "Calculer IRL du trimestre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Set lien_drive (existant)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a database page1": {
+      "main": [
+        []
+      ]
     }
   },
   "createdAt": "2026-02-02T16:16:12.534Z",
@@ -669,58 +1135,105 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "name": "Génération automatique de bail locatif",
+  "name": "Vérification locataire existant",
   "nodes": [
     {
       "parameters": {
-        "pollTimes": {
-          "item": [
+        "assignments": {
+          "assignments": [
             {
-              "mode": "everyMinute"
+              "id": "lien-drive-nouveau",
+              "name": "lien_drive",
+              "value": "={{ $('Créer dossier Google Drive').item.json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "folder-id-nouveau",
+              "name": "folder_id",
+              "value": "={{ $('Créer dossier Google Drive').item.json.id }}",
+              "type": "string"
             }
           ]
         },
-        "databaseId": "2fb02d84a06480128570c75a6efb4429"
+        "options": {}
       },
-      "id": "17d315cd-98b2-4d6a-af38-e1c73025edaa",
-      "name": "Notion Trigger - Nouveau formulaire",
-      "type": "n8n-nodes-base.notionTrigger",
-      "typeVersion": 1,
+      "id": "9fe5f057-0b5e-4599-9a55-0b75d6ce072d",
+      "name": "Set lien_drive (nouveau)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
-        -608,
-        272
-      ],
-      "credentials": {
-        "notionApi": {
-          "id": "rV7Q43daAHzHJJVH",
-          "name": "Notion account"
-        }
-      }
+        544,
+        1440
+      ]
     },
     {
       "parameters": {
-        "functionCode": "const dateDebut = new Date($input.item.json['date:Date de début de location:start']);\nconst mois = dateDebut.getMonth() + 1;\nconst annee = dateDebut.getFullYear();\n\nlet trimestre;\nif (mois >= 1 && mois <= 3) trimestre = `T4 ${annee - 1}`;\nelse if (mois >= 4 && mois <= 6) trimestre = `T1 ${annee}`;\nelse if (mois >= 7 && mois <= 9) trimestre = `T2 ${annee}`;\nelse trimestre = `T3 ${annee}`;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    reference_irl: trimestre\n  }\n};"
+        "assignments": {
+          "assignments": [
+            {
+              "id": "lien-drive-existant",
+              "name": "lien_drive",
+              "value": "={{ $('Filter1').item.json.property_lien_de_stockage_des_documents }}",
+              "type": "string"
+            },
+            {
+              "id": "folder-id-existant",
+              "name": "folder_id",
+              "value": "={{ $('Filter1').item.json.property_lien_de_stockage_des_documents }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
       },
-      "id": "5bd1e240-af45-4bec-9e96-34ea6df61f4f",
+      "id": "c01a5eab-79a7-4519-9296-f7834cb22992",
+      "name": "Set lien_drive (existant)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        1632
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "f484350c-54f4-4472-971b-b106bfa21738",
+      "name": "Merge lien_drive",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        768,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Récupérer la date depuis le Trigger Notion (formulaire de création de bail)\nconst triggerData = $('Notion Trigger - Nouveau formulaire').item.json;\nconst dateObj = triggerData['Date de début de location'];\nconst dateDebutStr = dateObj?.start;\n\n// Vérifier que la date existe\nif (!dateDebutStr) {\n  throw new Error(`Date de début non trouvée dans le trigger. Propriétés : ${JSON.stringify(Object.keys(triggerData))}`);\n}\n\nconst dateDebut = new Date(dateDebutStr);\n\n// Vérifier que la date est valide\nif (isNaN(dateDebut.getTime())) {\n  throw new Error(`Date invalide : ${dateDebutStr}`);\n}\n\nconst mois = dateDebut.getMonth() + 1;\nconst annee = dateDebut.getFullYear();\n\nlet trimestre;\nif (mois >= 1 && mois <= 3) trimestre = `T4 ${annee - 1}`;\nelse if (mois >= 4 && mois <= 6) trimestre = `T1 ${annee}`;\nelse if (mois >= 7 && mois <= 9) trimestre = `T2 ${annee}`;\nelse trimestre = `T3 ${annee}`;\n\n// Calcul date de renouvellement (1 an après date début)\nconst dateRenouvellement = new Date(dateDebut);\ndateRenouvellement.setFullYear(dateRenouvellement.getFullYear() + 1);\n\nconst jour = dateRenouvellement.getDate().toString().padStart(2, '0');\nconst moisNom = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][dateRenouvellement.getMonth()];\nconst anneeRenouv = dateRenouvellement.getFullYear();\nconst dateRevision = `${jour} ${moisNom} ${anneeRenouv}`;\n\n// Calcul date du jour pour la signature\nconst aujourdhui = new Date();\nconst jourAujourdhui = aujourdhui.getDate().toString().padStart(2, '0');\nconst moisAujourdhui = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][aujourdhui.getMonth()];\nconst anneeAujourdhui = aujourdhui.getFullYear();\nconst dateSignature = `${jourAujourdhui} ${moisAujourdhui} ${anneeAujourdhui}`;\n\n// Calcul loyer total\nconst montantLoyer = parseFloat(triggerData['Montant du loyer hors-charge'] || 0);\nconst montantCharges = parseFloat(triggerData['Montant des charges'] || 0);\nconst montantLoyerTotal = montantLoyer + montantCharges;\n\n// Calcul premier versement (caution + loyer prorata)\nconst jourDebut = dateDebut.getDate();\nconst caution = montantLoyer; // 1 mois HC\nlet loyerPremierMois;\nlet detailPremierVersement;\n\nif (jourDebut <= 15) {\n  loyerPremierMois = montantLoyerTotal;\n  detailPremierVersement = `${caution}€ de caution + ${loyerPremierMois}€ de loyer (mois complet)`;\n} else {\n  loyerPremierMois = montantLoyerTotal / 2;\n  detailPremierVersement = `${caution}€ de caution + ${loyerPremierMois}€ de loyer (demi-mois)`;\n}\n\nconst montantPremierVersement = caution + loyerPremierMois;\n\nreturn {\n  json: {\n    ...$json,\n    reference_irl: trimestre,\n    date_revision: dateRevision,\n    date_signature: dateSignature,\n    montant_loyer: montantLoyer,\n    montant_charges: montantCharges,\n    montant_loyer_total: montantLoyerTotal,\n    depot_garantie: caution,\n    montant_premier_versement: montantPremierVersement,\n    detail_premier_versement: detailPremierVersement\n  }\n};"
+      },
+      "id": "bd79e89e-b8d4-4183-94ee-2e1631674c4b",
       "name": "Calculer IRL du trimestre",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        -384,
-        272
+        -1024,
+        1536
       ]
     },
     {
       "parameters": {
         "options": {}
       },
-      "id": "f5f95fe1-fa19-4231-97a0-da90ac673194",
+      "id": "c495dda7-0243-4eda-831c-607f622ab999",
       "name": "Calculer toutes les variables",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3,
       "position": [
-        -160,
-        272
+        -800,
+        1536
       ]
     },
     {
@@ -731,7 +1244,7 @@
           "value": "20f02d84a064808b815acf29c8680feb",
           "mode": "id"
         },
-        "title": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
+        "title": "={{ $('Notion Trigger - Nouveau formulaire1').item.json['Nom et Prénom'] }}",
         "simple": false,
         "propertiesUi": {
           "propertyValues": [
@@ -745,7 +1258,7 @@
             },
             {
               "key": "Email|rich_text",
-              "textContent": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Email }}"
+              "textContent": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Email }}"
             },
             {
               "key": "Etat des lieux d'entrée|select",
@@ -761,23 +1274,23 @@
             },
             {
               "key": "Téléphone|rich_text",
-              "textContent": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Phone }}"
+              "textContent": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Phone }}"
             },
             {
               "key": "Lien de stockage des documents|url",
-              "urlValue": "={{ $json.webViewLink }}"
+              "urlValue": "={{ $('Créer dossier Google Drive').item.json.webViewLink }}"
             }
           ]
         },
         "options": {}
       },
-      "id": "4479898e-28c7-41e8-91d1-a54dd8f74905",
+      "id": "0c67ac35-130d-4239-84b7-00da14581653",
       "name": "Créer locataire dans Notion",
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2,
       "position": [
-        288,
-        272
+        320,
+        1440
       ],
       "credentials": {
         "notionApi": {
@@ -804,13 +1317,13 @@
           "simplifyOutput": false
         }
       },
-      "id": "2d95b00b-a62a-4305-8ff9-4feff5f5b52a",
+      "id": "e1b98d4a-16c2-4df9-92bc-b1cbbb9bd525",
       "name": "Créer dossier Google Drive",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        64,
-        272
+        96,
+        1440
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -828,24 +1341,169 @@
           "actionFields": [
             {
               "action": "replaceAll",
-              "text": "=nom_proprietaire",
+              "text": "nom_proprietaire",
               "replaceText": "Thomas HUGUET"
             },
             {
               "action": "replaceAll",
-              "text": "=adresse_proprietaire",
+              "text": "adresse_proprietaire",
               "replaceText": "8 rue Leyla Zana 93000 BOBIGNY"
+            },
+            {
+              "action": "replaceAll",
+              "text": "email_proprietaire",
+              "replaceText": "thomas.huguet@gmail.com"
+            },
+            {
+              "action": "replaceAll",
+              "text": "telephone_proprietaire",
+              "replaceText": "06 60 39 53 88"
+            },
+            {
+              "action": "replaceAll",
+              "text": "activite_proprietaire",
+              "replaceText": "Entrepreneur"
+            },
+            {
+              "action": "replaceAll",
+              "text": "nom_locataire",
+              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire1').item.json['Nom et Prénom'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "email_locataire",
+              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Email }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "adresse_logement",
+              "replaceText": "22 rue Marie Duboccage 76100 Rouen"
+            },
+            {
+              "action": "replaceAll",
+              "text": "classe_dpe",
+              "replaceText": "E"
+            },
+            {
+              "action": "replaceAll",
+              "text": "date_debut",
+              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire1').item.json['Date de début de location'].start }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "duree_bail",
+              "replaceText": "1 an renouvelable tacitement"
+            },
+            {
+              "action": "replaceAll",
+              "text": "date_revision",
+              "replaceText": "={{ $('Calculer IRL du trimestre').item.json.date_revision }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "reference_irl",
+              "replaceText": "={{ $('Calculer IRL du trimestre').item.json.reference_irl }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "date_signature",
+              "replaceText": "={{ $('Calculer IRL du trimestre').item.json.date_signature }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "lieu_signature",
+              "replaceText": "Rouen"
+            },
+            {
+              "action": "replaceAll",
+              "text": "montant_loyer_total",
+              "replaceText": "={{ $('Calculer IRL du trimestre').item.json.montant_loyer_total + '' }} €"
+            },
+            {
+              "action": "replaceAll",
+              "text": "montant_loyer",
+              "replaceText": "={{ $('Calculer IRL du trimestre').item.json.montant_loyer + '' }} €"
+            },
+            {
+              "action": "replaceAll",
+              "text": "montant_charges",
+              "replaceText": "={{ $('Calculer IRL du trimestre').item.json.montant_charges + '' }} €"
+            },
+            {
+              "action": "replaceAll",
+              "text": "methode_charges",
+              "replaceText": "Provisions pour charges avec régularisation annuelle"
+            },
+            {
+              "action": "replaceAll",
+              "text": "assurance_colocation",
+              "replaceText": "Oui"
+            },
+            {
+              "action": "replaceAll",
+              "text": "assurance_annuelle",
+              "replaceText": "60"
+            },
+            {
+              "action": "replaceAll",
+              "text": "assurance_mensuelle",
+              "replaceText": "5"
+            },
+            {
+              "action": "replaceAll",
+              "text": "frequence_paiement",
+              "replaceText": "Mensuel"
+            },
+            {
+              "action": "replaceAll",
+              "text": "terme_paiement",
+              "replaceText": "à échoir"
+            },
+            {
+              "action": "replaceAll",
+              "text": "date_paiement",
+              "replaceText": "1er du mois"
+            },
+            {
+              "action": "replaceAll",
+              "text": "iban",
+              "replaceText": "FR76 1451 8292 6708 9974 5294 012"
+            },
+            {
+              "action": "replaceAll",
+              "text": "montant_premier_versement",
+              "replaceText": "={{ ($('Calculer IRL du trimestre').item.json.montant_loyer_total * 2) + '' }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "detail_premier_versement",
+              "replaceText": "1 mois de loyer + 1 mois de dépôt de garantie"
+            },
+            {
+              "action": "replaceAll",
+              "text": "depot_garantie",
+              "replaceText": "={{ $('Calculer IRL du trimestre').item.json.montant_loyer + '' }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "travaux_realises",
+              "replaceText": "Aucun"
+            },
+            {
+              "action": "replaceAll",
+              "text": "lien_notices",
+              "replaceText": "https://www.notion.so/Notices-de-l-lectro-m-nager-25a02d84a06480039220f0f199cb2d94"
             }
           ]
         }
       },
-      "id": "e2ce153d-969b-4858-b3d2-d7d1450ffd43",
+      "id": "47e966c8-644d-4e81-bce7-c2c5374c17c5",
       "name": "Remplacer les variables dans le doc",
       "type": "n8n-nodes-base.googleDocs",
       "typeVersion": 2,
       "position": [
-        944,
-        144
+        1664,
+        1536
       ],
       "credentials": {
         "googleDocsOAuth2Api": {
@@ -870,13 +1528,13 @@
           }
         }
       },
-      "id": "8f23dd48-c9dc-4b12-acd2-2ff46c84eaec",
+      "id": "7d9f78c9-c088-4b09-be81-da6dc98e2612",
       "name": "Télécharger en PDF",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        1136,
-        208
+        1888,
+        1536
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -895,18 +1553,18 @@
         },
         "folderId": {
           "__rl": true,
-          "value": "={{ $('Créer dossier Google Drive').item.json.id }}",
+          "value": "={{ $('Merge lien_drive').item.json.folder_id }}",
           "mode": "id"
         },
         "options": {}
       },
-      "id": "a3fd70a9-a9a2-4ec9-89f1-848b2ab5dcb5",
+      "id": "6f7337bf-552b-4cad-9262-fd93a70a0581",
       "name": "Uploader PDF dans le dossier",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        1392,
-        272
+        2112,
+        1536
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -925,13 +1583,13 @@
         },
         "options": {}
       },
-      "id": "63e74e1c-06ab-4a5d-bf58-a96d84408c05",
+      "id": "a9ad2c56-f2e0-4c48-9153-6d8007b69389",
       "name": "Supprimer le doc temporaire",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        1616,
-        272
+        2336,
+        1536
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -952,7 +1610,7 @@
           "conditions": [
             {
               "id": "c08552a8-8178-4aef-9695-d66e1c27938c",
-              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Bail anglais'] }}",
+              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire1').item.json['Bail anglais'] }}",
               "rightValue": true,
               "operator": {
                 "type": "boolean",
@@ -967,10 +1625,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        496,
-        272
+        992,
+        1536
       ],
-      "id": "16348a3e-a8d9-4634-8f8e-dc523049b2a3",
+      "id": "2e1255ac-1f02-4a73-8beb-cef75d211f3f",
       "name": "If"
     },
     {
@@ -981,7 +1639,7 @@
           "value": "=1c3yVtjHZykGUZFhuhCSUkDmr0RLjLls70HKnqAZhfU8",
           "mode": "id"
         },
-        "name": "=Lease {{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
+        "name": "=Lease {{ $('Notion Trigger - Nouveau formulaire1').item.json['Nom et Prénom'] }}",
         "sameFolder": false,
         "driveId": {
           "__rl": true,
@@ -990,18 +1648,18 @@
         },
         "folderId": {
           "__rl": true,
-          "value": "={{ $('Créer dossier Google Drive').item.json.webViewLink }}",
+          "value": "={{ $('Merge lien_drive').item.json.lien_drive }}",
           "mode": "url"
         },
         "options": {}
       },
-      "id": "4ec9efc3-54f3-4ae5-91fd-55e3db32e59c",
+      "id": "6b07c8cd-878a-4ea5-9409-c47f74b9a001",
       "name": "Copier bail Anglais",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        736,
-        176
+        1440,
+        1344
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -1018,21 +1676,242 @@
           "value": "=https://drive.google.com/file/d/1a95TUC_2faNlZySZ5-iSO4VmtJQf2lSE5n87tVAQtFI/view",
           "mode": "url"
         },
-        "name": "={{ $json.nom_fichier }}",
+        "name": "={{ $('Calculer toutes les variables').item.json.nom_fichier }}",
         "options": {}
       },
-      "id": "2914207d-82c9-4859-9099-473c1b5b48a9",
+      "id": "1e0b2989-9db7-4e36-82b8-f00ef6e5b958",
       "name": "Copier bail français",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        704,
-        352
+        1440,
+        1536
       ],
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "y2rnCZZdVP6LWjj6",
           "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a7841e37-c59e-41db-a2b9-283d32a0de6b",
+              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Couple }}",
+              "rightValue": "oui",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1216,
+        1632
+      ],
+      "id": "9631e011-1a47-4d76-81aa-8f86f62cf8a6",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "=1aREkKtb2MnVMEP0pjjRalZK_dFC7EkP9LvhJoIU8yLM",
+          "mode": "id"
+        },
+        "name": "=Bail {{ $('Notion Trigger - Nouveau formulaire1').item.json['Nom et Prénom'] }}",
+        "options": {}
+      },
+      "id": "c290b41c-1565-4550-ba84-9b9a9446d8e9",
+      "name": "Copier bail français couple",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        1728
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "y2rnCZZdVP6LWjj6",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "20f02d84a064808b815acf29c8680feb",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "simple": false,
+        "options": {}
+      },
+      "id": "648232c7-d8eb-4c8e-97d0-423dfcf78d93",
+      "name": "Vérifier email dans Parties1",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -576,
+        1536
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.property_email }}",
+              "rightValue": {},
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "id": "2b55e69b-a2fc-44bd-a794-677389b47989"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "87e75a47-3fa1-4427-9fc2-e3e0e83e20ab",
+      "name": "Email existe déjà ?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -352,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "64138c03-0db5-4bcb-a7fc-2a6421504680",
+      "name": "Nouveau locataire1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "databaseId": "2fb02d84a06480128570c75a6efb4429"
+      },
+      "id": "29a14ea6-fc7a-4f39-852f-0b3941bc3324",
+      "name": "Notion Trigger - Nouveau formulaire1",
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1248,
+        1536
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "740059c2-9ad1-453e-b90d-fabecc5b5344",
+              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Email }}",
+              "rightValue": "={{ $('Vérifier email dans Parties1').item.json.properties.Email.rich_text[0].text.content }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        320,
+        1632
+      ],
+      "id": "7de27ff0-1633-4aa3-8ea6-2ad6f2dbb7ec",
+      "name": "Filter1"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -1248,
+        1952
+      ],
+      "id": "48528716-70e9-43a2-96f4-33c3101a9af4",
+      "name": "Get a database page1",
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
         }
       }
     }
@@ -1058,11 +1937,11 @@
   ],
   "staticData": {
     "node:Notion Trigger - Nouveau formulaire": {
-      "lastTimeChecked": "2026-02-17T08:33:00.000Z"
+      "lastTimeChecked": "2026-02-18T08:42:00.000Z"
     }
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-17T09:41:57.294Z",
-  "versionId": "58a8050f-22fb-45bd-8873-c1363bea7faa"
+  "updatedAt": "2026-02-18T09:32:42.185Z",
+  "versionId": "17ed02fd-2be3-4508-b392-9b6394d6ae19"
 }
