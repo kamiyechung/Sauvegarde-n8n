@@ -597,16 +597,16 @@
   "staticData": null,
   "tags": [
     {
-      "updatedAt": "2025-11-26T21:50:45.756Z",
-      "createdAt": "2025-11-26T21:50:45.756Z",
-      "id": "TfKV0Tw6506gk5QE",
-      "name": "Gestion locative"
-    },
-    {
       "updatedAt": "2025-11-26T21:50:45.750Z",
       "createdAt": "2025-11-26T21:50:45.750Z",
       "id": "bVdv5uZuvSz9pfPC",
       "name": "OK"
+    },
+    {
+      "updatedAt": "2025-11-26T21:50:45.756Z",
+      "createdAt": "2025-11-26T21:50:45.756Z",
+      "id": "TfKV0Tw6506gk5QE",
+      "name": "Gestion locative"
     }
   ],
   "triggerCount": 0,
