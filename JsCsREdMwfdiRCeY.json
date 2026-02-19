@@ -676,7 +676,7 @@
   "nodes": [
     {
       "parameters": {
-        "model": "mistral:7b-instruct",
+        "model": "qwen2.5:7b",
         "options": {
           "temperature": 0.3
         }
@@ -840,7 +840,7 @@
     },
     {
       "parameters": {
-        "model": "mistral:7b-instruct",
+        "model": "qwen2.5:7b",
         "options": {
           "temperature": 0.2
         }
@@ -1014,6 +1014,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-02-17T13:30:44.560Z",
-  "versionId": "6a6ce11f-3894-424d-a617-f853143a4301"
+  "updatedAt": "2026-02-18T13:10:57.351Z",
+  "versionId": "73c37758-356f-40e6-8ad3-e894c7a22aac"
 }
