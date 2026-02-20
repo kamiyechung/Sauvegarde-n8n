@@ -1,0 +1,535 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Browserless - Scrape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Browserless - Scrape": {
+      "main": [
+        [
+          {
+            "node": "Extract JSON-LD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract JSON-LD": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Reformulation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama - mistral:7b": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Reformulation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Reformulation": {
+      "main": [
+        [
+          {
+            "node": "Parse recette",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse recette": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Prompt Flux",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama - qwen2.5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Prompt Flux",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Prompt Flux": {
+      "main": [
+        [
+          {
+            "node": "Merge recette + prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge recette + prompt": {
+      "main": [
+        [
+          {
+            "node": "fal.ai - Flux Pro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fal.ai - Flux Pro": {
+      "main": [
+        [
+          {
+            "node": "Prépare INSERT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prépare INSERT": {
+      "main": [
+        [
+          {
+            "node": "Postgres - INSERT recipes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-19T15:38:32.621Z",
+  "id": "yBOyxfVVsx72Efoa",
+  "isArchived": false,
+  "meta": null,
+  "name": "Import recette par URL",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Ajouter une recette",
+        "formDescription": "Colle l'URL d'une recette pour l'importer dans Yummigo",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "URL de la recette",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ae881016-fee6-4ec9-a65f-c8263b7e4182",
+      "name": "Form Trigger",
+      "webhookId": "16d750ef-2d79-44ae-8079-07240efafb0e"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://browserless:3000/scrape",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"elements\": [\n    {\n      \"selector\": \"script[type='application/ld+json']\"\n    }\n  ],\n  \"gotoOptions\": {\n    \"waitUntil\": \"networkidle2\"\n  },\n  \"waitFor\": 2000\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "9f3a5c18-025f-4d64-83d5-eaca807f3805",
+      "name": "Browserless - Scrape"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst recipes = [];\n\nfor (const item of items) {\n  const dataString = item.json.data;\n  \n  if (!dataString || typeof dataString !== 'string') continue;\n  \n  try {\n    const parsedData = JSON.parse(dataString);\n    \n    if (!parsedData.data || !Array.isArray(parsedData.data)) continue;\n    \n    for (const element of parsedData.data) {\n      if (!element.results || !Array.isArray(element.results)) continue;\n      \n      for (const result of element.results) {\n        try {\n          const jsonData = JSON.parse(result.html);\n          \n          let recipeData = null;\n          if (jsonData['@type'] === 'Recipe') {\n            recipeData = jsonData;\n          } else if (jsonData['@graph']) {\n            recipeData = jsonData['@graph'].find(item => item['@type'] === 'Recipe');\n          }\n          \n          if (recipeData) {\n            recipes.push({\n              titre: recipeData.name,\n              description: recipeData.description?.replace(/<[^>]*>/g, ''),\n              categorie: recipeData.recipeCategory,\n              temps_preparation: recipeData.prepTime,\n              temps_cuisson: recipeData.cookTime,\n              temps_total: recipeData.totalTime,\n              portions: recipeData.recipeYield,\n              ingredients: recipeData.recipeIngredient || [],\n              etapes: (recipeData.recipeInstructions || []).map(step => ({\n                nom: step.name || '',\n                texte: step.text || step\n              })),\n              auteur: recipeData.author?.name || recipeData.author,\n              image: Array.isArray(recipeData.image) ? recipeData.image[0] : recipeData.image,\n              note: recipeData.aggregateRating ? {\n                valeur: recipeData.aggregateRating.ratingValue,\n                nombre_avis: recipeData.aggregateRating.reviewCount\n              } : null,\n              url: recipeData.url\n            });\n          }\n        } catch (e) {\n          console.error('Erreur parsing result.html:', e.message);\n        }\n      }\n    }\n  } catch (e) {\n    console.error('Erreur parsing dataString:', e.message);\n  }\n}\n\nreturn [{\n  json: {\n    recette_json: JSON.stringify(recipes[0] || {}, null, 2)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "efffc20d-fbb3-4f21-bac9-cb7db3389b0a",
+      "name": "Extract JSON-LD"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un rédacteur de recettes qui transforme des recettes brutes en recettes structurées pour une base de données.\n\nENTRÉE :\n{{ $json.recette_json }}\n\nTÂCHE :\nReformule les instructions uniquement. Garde les ingrédients et temps identiques. Si c'est une tarte au citron, ça reste une tarte au citron.\n\nSTYLE :\n- Ton chaleureux et accessible pour débutants\n- Étapes à l'impératif, courtes, avec repères visuels (couleur, texture, durée)\n- Recette appétissante, pas de techniques compliquées\n- Unités françaises normalisées (g, cl, cuillères à soupe)\n\nRÈGLES JSON STRICTES :\n- Réponds UNIQUEMENT avec le JSON brut, sans texte avant/après\n- AUCUNE balise markdown, AUCUN triple backtick\n- AUCUN préfixe dans les textes (pas de \"01:\" ou numérotation)\n- Quantités en nombres décimaux, JAMAIS de fractions\n- Si info absente : laisse vide\n- Category : UNE SEULE valeur parmi \"entrée\", \"plat\", \"dessert\", \"accompagnement\"\n- Difficulty : \"facile\", \"moyen\" ou \"difficile\"\n- Season : UNE OU DEUX saisons max séparées par virgule (\"été\" ou \"printemps, été\")\n- Temps en minutes (nombres uniquement, sans \"min\")\n- Si la recette indique \"sel\" et \"poivre\" créé 2 ingrédients distincts\n- Mets l'ingrédient principal au début et la cuisson/format ensuite: \"céléri, branche\", \"veau, sauté de\"\n- Ne mets pas de \"(s)\" accorde s'il y a plusieurs éléments mais ne mets pas de parenthèses. Exemple : \"1 carotte\", \"2 carottes\"\n\nSTRUCTURE EXACTE :\n{\n  \"title\": \"string\",\n  \"description\": \"string (2 phrases max décrivant le plat)\",\n  \"category\": \"plat\",\n  \"servings_default\": 6,\n  \"prep_time\": \"30\",\n  \"cook_time\": \"25\",\n  \"minutes_total\": \"55\",\n  \"difficulty\": \"moyen\",\n  \"season\": \"automne\",\n  \"instructions\": [\n    {\"step\": 1, \"text\": \"Préchauffez le four à 180°C\"},\n    {\"step\": 2, \"text\": \"Mélangez la farine et le beurre jusqu'à obtenir une pâte sablée\"}\n  ],\n  \"ingredients\": [\n    {\"name\": \"farine\", \"quantity\": 250, \"unit\": \"g\"},\n    {\"name\": \"beurre\", \"quantity\": 125, \"unit\": \"g\"}\n  ]\n}\n\nAvant de répondre, vérifie que ton JSON est valide (virgules, guillemets, accolades).\nRéponds maintenant avec le JSON uniquement :",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "3325775c-3ffc-49d4-b752-07f86d91adca",
+      "name": "AI Agent - Reformulation",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {
+          "temperature": 0.3,
+          "topK": 10,
+          "topP": 0.1,
+          "frequencyPenalty": 0.3,
+          "numCtx": 4096
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        672,
+        224
+      ],
+      "id": "709cdccf-3624-48d9-80bf-61efb87e11af",
+      "name": "Ollama - mistral:7b",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nlet data = item.json.output;\n\ntry {\n  if (typeof data === 'string') {\n    // Nettoyer les éventuels backticks markdown\n    data = data.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    data = JSON.parse(data);\n  }\n  \n  if (!data || !data.title) {\n    throw new Error('Données recette incomplètes : title manquant');\n  }\n  \n  return [{\n    json: {\n      title: data.title,\n      description: data.description || '',\n      category: data.category || null,\n      servings: parseInt(data.servings_default) || null,\n      minutes_prep: parseInt(data.prep_time) || null,\n      minutes_cook: parseInt(data.cook_time) || null,\n      minutes_total: parseInt(data.minutes_total) || null,\n      difficulty: data.difficulty || null,\n      season: data.season || null,\n      instructions: JSON.stringify(data.instructions || []),\n      ingredients: data.ingredients || []\n    }\n  }];\n  \n} catch (error) {\n  throw new Error('Erreur parsing recette : ' + error.message + ' | Data: ' + JSON.stringify(data).substring(0, 200));\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "659ef8ef-7639-491d-b791-8ab318de3c8b",
+      "name": "Parse recette"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert en prompts pour Flux Pro spécialisé en photographie culinaire professionnelle.\n\nGénère un prompt détaillé pour générer une image d'illustration de recette façon blog culinaire : {{ $json.title }}\n\nSTRUCTURE OBLIGATOIRE :\n1. Type de vue (overhead/slightly angled/side view selon le plat)\n2. Description précise du plat avec ses caractéristiques visuelles réelles\n3. Finition spécifique (matte/glossy/caramelized/crispy selon le plat)\n4. Environnement et styling\n5. Lumière et atmosphère\n6. Style technique\n\nRÈGLES CRITIQUES :\n- Pour les tartes aux fruits : précise \"matte caramelized [fruit], no glaze, golden brown edges\"\n- Pour les pâtisseries : \"powdered sugar dusting\" ou \"golden crust\" selon le type\n- Pour les plats chauds : \"steam rising gently, hot surface\"\n- Pour les salades : \"vibrant fresh colors, crisp leaves\"\n- Pour les gratins/crumbles : \"golden crispy top, bubbling edges\"\n- Toujours : \"natural daylight, soft shadows, rustic wooden table\"\n\nENVIRONNEMENT STANDARD :\n- Table en bois rustique\n- Serviette en lin (couleur neutre : blanc cassé, beige, gris clair)\n- Couverts simples et discrets en arrière-plan\n- Quelques ingrédients frais comme décor subtil\n\nSTYLE PHOTOGRAPHIQUE :\n- Profondeur de champ réduite (focus sur le plat)\n- Lumière naturelle douce (golden hour ou lumière diffuse)\n- Ombres subtiles et douces\n- Composition équilibrée et aérée\n- Aspect authentique et fait maison, pas trop stylisé\n- Haute résolution, qualité professionnelle\n\nLONGUEUR : 150-200 mots\n\nINTERDICTIONS :\n- Pas de termes génériques vagues\n- Pas de contradictions visuelles\n- Pas de sur-stylisation artificielle\n- Évite \"glossy\" sauf pour les plats qui le nécessitent vraiment (glaçage chocolat, nappage miroir)\n\nGénère uniquement le prompt Flux Pro, sans introduction ni explication. Ne prends pas d'initiative et n'ajoute pas d'ingrédient, fais juste la description la plus précise possible.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1168,
+        0
+      ],
+      "id": "02dcd126-bc06-4c85-952f-0dd7dd4bc7b2",
+      "name": "AI Agent - Prompt Flux"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:1.5b-instruct-q4_K_M",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        224
+      ],
+      "id": "35b585d4-b4cb-4eb7-b76f-0127104abdbf",
+      "name": "Ollama - qwen2.5",
+      "credentials": {
+        "ollamaApi": {
+          "id": "C2ejebWhR6zEoNIL",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const recipeData = $('Parse recette').first().json;\nconst fluxPrompt = $input.first().json.output || '';\n\nreturn [{\n  json: {\n    ...recipeData,\n    flux_prompt: fluxPrompt.trim()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1424,
+        0
+      ],
+      "id": "e177f072-20ba-4d34-b57d-d9c1e8d39282",
+      "name": "Merge recette + prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/flux-pro",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key VOTRE_FAL_API_KEY_ICI"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $json.flux_prompt }}\",\n  \"image_size\": \"square_hd\",\n  \"num_images\": 1,\n  \"output_format\": \"jpeg\",\n  \"safety_tolerance\": \"5\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        0
+      ],
+      "id": "16c5b966-2e54-465f-ab1b-704404bfc837",
+      "name": "fal.ai - Flux Pro"
+    },
+    {
+      "parameters": {
+        "jsCode": "const falResponse = $input.first().json;\nconst recipeData = $('Parse recette').first().json;\n\n// Extraire l'URL de l'image depuis la réponse fal.ai\nconst imageUrl = falResponse?.images?.[0]?.url || null;\n\nif (!imageUrl) {\n  throw new Error('Pas d\\'image reçue depuis fal.ai : ' + JSON.stringify(falResponse).substring(0, 200));\n}\n\nreturn [{\n  json: {\n    title: recipeData.title,\n    description: recipeData.description,\n    category: recipeData.category,\n    servings: recipeData.servings,\n    minutes_prep: recipeData.minutes_prep,\n    minutes_cook: recipeData.minutes_cook,\n    minutes_total: recipeData.minutes_total,\n    difficulty: recipeData.difficulty,\n    season: recipeData.season,\n    instructions: recipeData.instructions,\n    image_url: imageUrl\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        0
+      ],
+      "id": "750eb126-055a-4258-b510-3376710bbf3e",
+      "name": "Prépare INSERT"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "recipes",
+          "mode": "list",
+          "cachedResultName": "recipes"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "description": "={{ $json.description }}",
+            "category": "={{ $json.category }}",
+            "servings": "={{ $json.servings }}",
+            "minutes_prep": "={{ $json.minutes_prep }}",
+            "minutes_cook": "={{ $json.minutes_cook }}",
+            "minutes_total": "={{ $json.minutes_total }}",
+            "difficulty": "={{ $json.difficulty }}",
+            "season": "={{ $json.season }}",
+            "instructions": "={{ $json.instructions }}",
+            "image_url": "={{ $json.image_url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "servings",
+              "displayName": "servings",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "minutes_prep",
+              "displayName": "minutes_prep",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "minutes_cook",
+              "displayName": "minutes_cook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "minutes_total",
+              "displayName": "minutes_total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "difficulty",
+              "displayName": "difficulty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "season",
+              "displayName": "season",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "instructions",
+              "displayName": "instructions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "image_url",
+              "displayName": "image_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2096,
+        0
+      ],
+      "id": "4cab682a-690c-4e67-98ba-9021b6d950dd",
+      "name": "Postgres - INSERT recipes",
+      "credentials": {
+        "postgres": {
+          "id": "i3VK3mU16DyNdZFA",
+          "name": "Postgres account 2"
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": {},
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-19T15:38:32.621Z",
+      "createdAt": "2026-02-19T15:38:32.621Z",
+      "role": "workflow:owner",
+      "workflowId": "yBOyxfVVsx72Efoa",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-02-20T09:24:13.699Z",
+  "versionId": "194e492f-ac7b-46b4-a394-4fda7fe23242"
+}
