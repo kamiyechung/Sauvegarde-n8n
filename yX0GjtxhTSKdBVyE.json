@@ -1,0 +1,464 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-23T18:05:23.215Z",
+    "createdAt": "2026-02-23T18:05:23.215Z",
+    "versionId": "251ba2ad-2446-4793-8496-a4f5882f2bc4",
+    "workflowId": "yX0GjtxhTSKdBVyE",
+    "nodes": [
+      {
+        "id": "wh-dcs-1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "edl-docuseal",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": ""
+          }
+        },
+        "webhookId": "62d98637-306f-4e0d-8282-945eee771208"
+      },
+      {
+        "id": "code-dcs-html",
+        "name": "Code - Build HTML",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const body = $input.first().json;\nconst { meta, pieces, cles, observations } = body;\n\nconst ROOM_LABELS = {\n  entree:'Entrée', salon:'Salon / Séjour', cuisine:'Cuisine',\n  wc_communs:'WC communs', buanderie:'Buanderie',\n  chambre_1:'Chambre 1', chambre_2:'Chambre 2', chambre_3:'Chambre 3',\n  chambre_4:'Chambre 4', chambre_5:'Chambre 5',\n  salle_eau_12:\"Salle d'eau (ch. 1 & 2)\", salle_bain_34:'Salle de bain (ch. 3 & 4)',\n  salle_eau_privee_5:\"Salle d'eau privée (ch. 5)\",\n  wc_partages_12:'WC partagés (ch. 1 & 2)', wc_partages_34:'WC partagés (ch. 3 & 4)',\n  wc_prives_5:'WC privés (ch. 5)'\n};\nconst ETAT_LABELS = { TB:'Très Bon', B:'Bon', P:'Passable', M:'Mauvais', 'N/A':'N/A' };\nconst ETAT_COLORS = { TB:'#2E7D32', B:'#66BB6A', P:'#FFA726', M:'#EF5350', 'N/A':'#BDBDBD' };\nconst ELEM_LABELS = {\n  sol:'Sol', murs:'Murs', plafond:'Plafond', fenetres:'Fenêtres', porte_s:'Porte(s)',\n  eclairage:'Éclairage', prises_interrupteurs:'Prises/Interrupteurs',\n  projecteur:'Projecteur', ecran:'Écran', enceinte:'Enceinte',\n  plaques:'Plaques', four:'Four', hotte:'Hotte', refrigerateur:'Réfrigérateur',\n  congelateur:'Congélateur', lave_vaisselle:'Lave-vaisselle', evier:'Évier',\n  machine_1:'Machine 1', machine_2:'Machine 2', seche_linge:'Sèche-linge'\n};\n\nfunction esc(s) {\n  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\n}\nfunction unslug(k) { return ELEM_LABELS[k] || (k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g,' ')); }\n\nconst typeLabel = meta.type === 'entree' ? \"d'entrée\" : \"de sortie\";\nconst d = new Date(meta.date + 'T12:00:00');\nconst dateFormatted = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });\n\nlet roomsHtml = '';\nfor (const [roomId, room] of Object.entries(pieces || {})) {\n  const label = ROOM_LABELS[roomId] || unslug(roomId);\n  let rows = '';\n  for (const [k, v] of Object.entries(room.elements || {})) {\n    const color = ETAT_COLORS[v.etat] || '#666';\n    rows += `<tr>\n      <td style=\"padding:5px 8px;border-bottom:1px solid #eee;font-size:13px\">${esc(unslug(k))}</td>\n      <td style=\"padding:5px 8px;border-bottom:1px solid #eee;font-size:13px;color:${color};font-weight:600\">${esc(ETAT_LABELS[v.etat] || v.etat || '—')}</td>\n      <td style=\"padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;color:#555\">${esc(v.commentaire || '')}</td>\n    </tr>`;\n  }\n  const photosNote = (room.photoUrls && room.photoUrls.length > 0)\n    ? `<p style=\"font-size:11px;color:#888;margin:3px 0 10px;font-style:italic\">${room.photoUrls.length} photo(s) disponible(s) dans le dossier Drive</p>` : '';\n  roomsHtml += `<div style=\"margin-bottom:18px\">\n    <div style=\"background:#4A7C59;color:#fff;padding:6px 12px;border-radius:4px 4px 0 0;font-size:13px;font-weight:700\">${esc(label)}</div>\n    <table style=\"width:100%;border-collapse:collapse;border:1px solid #ddd;border-top:none\">\n      <thead><tr style=\"background:#f5f3f0\">\n        <th style=\"padding:5px 8px;text-align:left;font-size:11px;color:#888\">ÉLÉMENT</th>\n        <th style=\"padding:5px 8px;text-align:left;font-size:11px;color:#888\">ÉTAT</th>\n        <th style=\"padding:5px 8px;text-align:left;font-size:11px;color:#888\">COMMENTAIRE</th>\n      </tr></thead>\n      <tbody>${rows}</tbody>\n    </table>${photosNote}\n  </div>`;\n}\n\nconst obsHtml = observations\n  ? `<div style=\"background:#fff8e1;padding:12px 16px;border-radius:6px;margin-bottom:20px;border-left:4px solid #FFA726\"><strong>Observations générales :</strong><br><span style=\"font-size:13px\">${esc(observations)}</span></div>`\n  : '';\n\nconst templateName = `EDL ${meta.type === 'entree' ? 'Entrée' : 'Sortie'} — Ch.${meta.chambre} — ${meta.locataire} — ${meta.date}`;\n\nconst html = `<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"></head>\n<body style=\"font-family:Arial,sans-serif;max-width:780px;margin:0 auto;padding:20px;color:#333\">\n  <div style=\"border-bottom:3px solid #4A7C59;padding-bottom:10px;margin-bottom:18px\">\n    <h1 style=\"color:#345A3E;margin:0 0 3px;font-size:20px\">État des lieux ${esc(typeLabel)}</h1>\n    <p style=\"color:#666;margin:0;font-size:12px\">rue Marie Duboccage, Rouen</p>\n  </div>\n  <table style=\"width:100%;background:#f5f3f0;border-radius:6px;padding:10px;margin-bottom:18px;font-size:13px\"><tr>\n    <td style=\"padding:3px 10px\"><span style=\"color:#888;font-size:10px;font-weight:600\">LOCATAIRE</span><br>${esc(meta.locataire)}</td>\n    <td style=\"padding:3px 10px\"><span style=\"color:#888;font-size:10px;font-weight:600\">CHAMBRE</span><br>${meta.chambre}</td>\n    <td style=\"padding:3px 10px\"><span style=\"color:#888;font-size:10px;font-weight:600\">DATE</span><br>${esc(dateFormatted)}</td>\n    <td style=\"padding:3px 10px\"><span style=\"color:#888;font-size:10px;font-weight:600\">CLÉS REMISES</span><br>${cles}</td>\n  </tr></table>\n  ${roomsHtml}\n  ${obsHtml}\n  <hr style=\"margin:24px 0;border:none;border-top:2px solid #eee\">\n  <h2 style=\"color:#345A3E;font-size:15px;margin-bottom:6px\">Remarques et signature du locataire</h2>\n  <p style=\"color:#666;font-size:12px;margin-bottom:14px\">Lisez attentivement cet état des lieux. Indiquez vos éventuelles réserves avant de signer.</p>\n  <p style=\"font-size:13px;font-weight:600;margin-bottom:4px\">Remarques (optionnel) :</p>\n  <textarea name=\"Remarques\" role=\"Locataire\" required=\"false\" style=\"width:100%;height:90px;font-size:13px;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box\"></textarea>\n  <br><br>\n  <p style=\"font-size:13px;font-weight:600;margin-bottom:6px\">Signature :</p>\n  <signature-field name=\"Signature\" role=\"Locataire\" required=\"true\" style=\"display:block;width:260px;height:75px\"></signature-field>\n  <p style=\"font-size:10px;color:#bbb;margin-top:24px\">Document généré le ${new Date().toLocaleDateString('fr-FR')} — ${esc(templateName)}</p>\n</body></html>`;\n\nreturn [{ json: { ...body, html, templateName } }];"
+        }
+      },
+      {
+        "id": "http-dcs-tpl",
+        "name": "HTTP Request - Create Template",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          690,
+          300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://docuseal.checkintrust.com/api/templates/html",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "X-Auth-Token",
+                "value": "FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "json",
+          "body": "={{ JSON.stringify({ name: $json.templateName, html: $json.html, size: \"A4\", roles: [{ name: \"Locataire\" }] }) }}",
+          "options": {
+            "timeout": 30000
+          }
+        }
+      },
+      {
+        "id": "code-dcs-tid",
+        "name": "Code - Extract Template ID",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          910,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const tpl = $input.first().json;\nconst originalData = $('Code - Build HTML').first().json;\nconst templateId = tpl.id;\nif (!templateId) throw new Error('DocuSeal template creation failed: ' + JSON.stringify(tpl));\nreturn [{ json: { ...originalData, docusealTemplateId: templateId } }];"
+        }
+      },
+      {
+        "id": "code-dcs-sub",
+        "name": "Code - Build Submission",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1130,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const d = $input.first().json;\nconst prenom = (d.meta.locataire || '').split(' ')[0];\nconst typeLabel = d.meta.type === 'entree' ? \"d'entrée\" : \"de sortie\";\nconst submissionBody = {\n  template_id: d.docusealTemplateId,\n  send_email: true,\n  message: {\n    subject: `État des lieux ${typeLabel} — ${d.meta.locataire} — Signature requise`,\n    body: `Bonjour ${prenom},\\n\\nVotre état des lieux ${typeLabel} pour la chambre ${d.meta.chambre} (${d.meta.date}) est disponible pour signature.\\n\\nMerci de le relire attentivement, ajouter vos éventuelles remarques, et le signer via le bouton ci-dessous.\\n\\nCordialement,\\nCamille`\n  },\n  submitters: [{\n    email: d.meta.locataireEmail,\n    role: 'Locataire',\n    name: d.meta.locataire\n  }]\n};\nreturn [{ json: submissionBody }];"
+        }
+      },
+      {
+        "id": "http-dcs-sub",
+        "name": "HTTP Request - Create Submission",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1350,
+          300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://docuseal.checkintrust.com/api/submissions",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "X-Auth-Token",
+                "value": "FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "json",
+          "body": "={{ JSON.stringify($json) }}",
+          "options": {
+            "timeout": 30000
+          }
+        }
+      },
+      {
+        "id": "resp-dcs-ok",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1570,
+          300
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify({ success: true, submissionId: $json[0].id, submitters: $json[0].submitters }) }}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Code - Build HTML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Build HTML": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request - Create Template",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request - Create Template": {
+        "main": [
+          [
+            {
+              "node": "Code - Extract Template ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Extract Template ID": {
+        "main": [
+          [
+            {
+              "node": "Code - Build Submission",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Build Submission": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request - Create Submission",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request - Create Submission": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "251ba2ad-2446-4793-8496-a4f5882f2bc4",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build HTML": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Create Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Create Template": {
+      "main": [
+        [
+          {
+            "node": "Code - Extract Template ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Extract Template ID": {
+      "main": [
+        [
+          {
+            "node": "Code - Build Submission",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build Submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Create Submission",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Create Submission": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-23T15:35:05.870Z",
+  "id": "yX0GjtxhTSKdBVyE",
+  "isArchived": false,
+  "meta": null,
+  "name": "EDL — Agent 5 — DocuSeal",
+  "nodes": [
+    {
+      "id": "wh-dcs-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "edl-docuseal",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": ""
+        }
+      },
+      "webhookId": "62d98637-306f-4e0d-8282-945eee771208"
+    },
+    {
+      "id": "code-dcs-html",
+      "name": "Code - Build HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\nconst { meta, pieces, cles, observations } = body;\n\nconst ROOM_LABELS = {\n  entree:'Entrée', salon:'Salon / Séjour', cuisine:'Cuisine',\n  wc_communs:'WC communs', buanderie:'Buanderie',\n  chambre_1:'Chambre 1', chambre_2:'Chambre 2', chambre_3:'Chambre 3',\n  chambre_4:'Chambre 4', chambre_5:'Chambre 5',\n  salle_eau_12:\"Salle d'eau (ch. 1 & 2)\", salle_bain_34:'Salle de bain (ch. 3 & 4)',\n  salle_eau_privee_5:\"Salle d'eau privée (ch. 5)\",\n  wc_partages_12:'WC partagés (ch. 1 & 2)', wc_partages_34:'WC partagés (ch. 3 & 4)',\n  wc_prives_5:'WC privés (ch. 5)'\n};\nconst ETAT_LABELS = { TB:'Très Bon', B:'Bon', P:'Passable', M:'Mauvais', 'N/A':'N/A' };\nconst ETAT_COLORS = { TB:'#2E7D32', B:'#66BB6A', P:'#FFA726', M:'#EF5350', 'N/A':'#BDBDBD' };\nconst ELEM_LABELS = {\n  sol:'Sol', murs:'Murs', plafond:'Plafond', fenetres:'Fenêtres', porte_s:'Porte(s)',\n  eclairage:'Éclairage', prises_interrupteurs:'Prises/Interrupteurs',\n  projecteur:'Projecteur', ecran:'Écran', enceinte:'Enceinte',\n  plaques:'Plaques', four:'Four', hotte:'Hotte', refrigerateur:'Réfrigérateur',\n  congelateur:'Congélateur', lave_vaisselle:'Lave-vaisselle', evier:'Évier',\n  machine_1:'Machine 1', machine_2:'Machine 2', seche_linge:'Sèche-linge'\n};\n\nfunction esc(s) {\n  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\n}\nfunction unslug(k) { return ELEM_LABELS[k] || (k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g,' ')); }\n\nconst typeLabel = meta.type === 'entree' ? \"d'entrée\" : \"de sortie\";\nconst d = new Date(meta.date + 'T12:00:00');\nconst dateFormatted = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });\n\nlet roomsHtml = '';\nfor (const [roomId, room] of Object.entries(pieces || {})) {\n  const label = ROOM_LABELS[roomId] || unslug(roomId);\n  let rows = '';\n  for (const [k, v] of Object.entries(room.elements || {})) {\n    const color = ETAT_COLORS[v.etat] || '#666';\n    rows += `<tr>\n      <td style=\"padding:5px 8px;border-bottom:1px solid #eee;font-size:13px\">${esc(unslug(k))}</td>\n      <td style=\"padding:5px 8px;border-bottom:1px solid #eee;font-size:13px;color:${color};font-weight:600\">${esc(ETAT_LABELS[v.etat] || v.etat || '—')}</td>\n      <td style=\"padding:5px 8px;border-bottom:1px solid #eee;font-size:12px;color:#555\">${esc(v.commentaire || '')}</td>\n    </tr>`;\n  }\n  const photosNote = (room.photoUrls && room.photoUrls.length > 0)\n    ? `<p style=\"font-size:11px;color:#888;margin:3px 0 10px;font-style:italic\">${room.photoUrls.length} photo(s) disponible(s) dans le dossier Drive</p>` : '';\n  roomsHtml += `<div style=\"margin-bottom:18px\">\n    <div style=\"background:#4A7C59;color:#fff;padding:6px 12px;border-radius:4px 4px 0 0;font-size:13px;font-weight:700\">${esc(label)}</div>\n    <table style=\"width:100%;border-collapse:collapse;border:1px solid #ddd;border-top:none\">\n      <thead><tr style=\"background:#f5f3f0\">\n        <th style=\"padding:5px 8px;text-align:left;font-size:11px;color:#888\">ÉLÉMENT</th>\n        <th style=\"padding:5px 8px;text-align:left;font-size:11px;color:#888\">ÉTAT</th>\n        <th style=\"padding:5px 8px;text-align:left;font-size:11px;color:#888\">COMMENTAIRE</th>\n      </tr></thead>\n      <tbody>${rows}</tbody>\n    </table>${photosNote}\n  </div>`;\n}\n\nconst obsHtml = observations\n  ? `<div style=\"background:#fff8e1;padding:12px 16px;border-radius:6px;margin-bottom:20px;border-left:4px solid #FFA726\"><strong>Observations générales :</strong><br><span style=\"font-size:13px\">${esc(observations)}</span></div>`\n  : '';\n\nconst templateName = `EDL ${meta.type === 'entree' ? 'Entrée' : 'Sortie'} — Ch.${meta.chambre} — ${meta.locataire} — ${meta.date}`;\n\nconst html = `<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"UTF-8\"></head>\n<body style=\"font-family:Arial,sans-serif;max-width:780px;margin:0 auto;padding:20px;color:#333\">\n  <div style=\"border-bottom:3px solid #4A7C59;padding-bottom:10px;margin-bottom:18px\">\n    <h1 style=\"color:#345A3E;margin:0 0 3px;font-size:20px\">État des lieux ${esc(typeLabel)}</h1>\n    <p style=\"color:#666;margin:0;font-size:12px\">rue Marie Duboccage, Rouen</p>\n  </div>\n  <table style=\"width:100%;background:#f5f3f0;border-radius:6px;padding:10px;margin-bottom:18px;font-size:13px\"><tr>\n    <td style=\"padding:3px 10px\"><span style=\"color:#888;font-size:10px;font-weight:600\">LOCATAIRE</span><br>${esc(meta.locataire)}</td>\n    <td style=\"padding:3px 10px\"><span style=\"color:#888;font-size:10px;font-weight:600\">CHAMBRE</span><br>${meta.chambre}</td>\n    <td style=\"padding:3px 10px\"><span style=\"color:#888;font-size:10px;font-weight:600\">DATE</span><br>${esc(dateFormatted)}</td>\n    <td style=\"padding:3px 10px\"><span style=\"color:#888;font-size:10px;font-weight:600\">CLÉS REMISES</span><br>${cles}</td>\n  </tr></table>\n  ${roomsHtml}\n  ${obsHtml}\n  <hr style=\"margin:24px 0;border:none;border-top:2px solid #eee\">\n  <h2 style=\"color:#345A3E;font-size:15px;margin-bottom:6px\">Remarques et signature du locataire</h2>\n  <p style=\"color:#666;font-size:12px;margin-bottom:14px\">Lisez attentivement cet état des lieux. Indiquez vos éventuelles réserves avant de signer.</p>\n  <p style=\"font-size:13px;font-weight:600;margin-bottom:4px\">Remarques (optionnel) :</p>\n  <textarea name=\"Remarques\" role=\"Locataire\" required=\"false\" style=\"width:100%;height:90px;font-size:13px;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box\"></textarea>\n  <br><br>\n  <p style=\"font-size:13px;font-weight:600;margin-bottom:6px\">Signature :</p>\n  <signature-field name=\"Signature\" role=\"Locataire\" required=\"true\" style=\"display:block;width:260px;height:75px\"></signature-field>\n  <p style=\"font-size:10px;color:#bbb;margin-top:24px\">Document généré le ${new Date().toLocaleDateString('fr-FR')} — ${esc(templateName)}</p>\n</body></html>`;\n\nreturn [{ json: { ...body, html, templateName } }];"
+      }
+    },
+    {
+      "id": "http-dcs-tpl",
+      "name": "HTTP Request - Create Template",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        690,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://docuseal.checkintrust.com/api/templates/html",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Auth-Token",
+              "value": "FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ name: $json.templateName, html: $json.html, size: \"A4\", roles: [{ name: \"Locataire\" }] }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    },
+    {
+      "id": "code-dcs-tid",
+      "name": "Code - Extract Template ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        910,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const tpl = $input.first().json;\nconst originalData = $('Code - Build HTML').first().json;\nconst templateId = tpl.id;\nif (!templateId) throw new Error('DocuSeal template creation failed: ' + JSON.stringify(tpl));\nreturn [{ json: { ...originalData, docusealTemplateId: templateId } }];"
+      }
+    },
+    {
+      "id": "code-dcs-sub",
+      "name": "Code - Build Submission",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1130,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const d = $input.first().json;\nconst prenom = (d.meta.locataire || '').split(' ')[0];\nconst typeLabel = d.meta.type === 'entree' ? \"d'entrée\" : \"de sortie\";\nconst submissionBody = {\n  template_id: d.docusealTemplateId,\n  send_email: true,\n  message: {\n    subject: `État des lieux ${typeLabel} — ${d.meta.locataire} — Signature requise`,\n    body: `Bonjour ${prenom},\\n\\nVotre état des lieux ${typeLabel} pour la chambre ${d.meta.chambre} (${d.meta.date}) est disponible pour signature.\\n\\nMerci de le relire attentivement, ajouter vos éventuelles remarques, et le signer via le bouton ci-dessous.\\n\\nCordialement,\\nCamille`\n  },\n  submitters: [{\n    email: d.meta.locataireEmail,\n    role: 'Locataire',\n    name: d.meta.locataire\n  }]\n};\nreturn [{ json: submissionBody }];"
+      }
+    },
+    {
+      "id": "http-dcs-sub",
+      "name": "HTTP Request - Create Submission",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1350,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://docuseal.checkintrust.com/api/submissions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Auth-Token",
+              "value": "FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    },
+    {
+      "id": "resp-dcs-ok",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1570,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, submissionId: $json[0].id, submitters: $json[0].submitters }) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": ""
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": null,
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T15:35:05.870Z",
+      "createdAt": "2026-02-23T15:35:05.870Z",
+      "role": "workflow:owner",
+      "workflowId": "yX0GjtxhTSKdBVyE",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-23T18:05:23.213Z",
+  "versionId": "251ba2ad-2446-4793-8496-a4f5882f2bc4"
+}
