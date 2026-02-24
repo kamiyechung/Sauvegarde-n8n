@@ -1,0 +1,418 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-23T18:05:23.626Z",
+    "createdAt": "2026-02-23T18:05:23.626Z",
+    "versionId": "7ad024ab-daf0-4b4f-bf5f-3200e55c77ef",
+    "workflowId": "an20WNZwShSacf77",
+    "nodes": [
+      {
+        "id": "wh-sec-1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "edl-secure",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": "http://localhost:8765"
+          }
+        },
+        "webhookId": "429d815c-f099-42e2-b8ce-8de6ee2d4c20"
+      },
+      {
+        "id": "code-sec-auth",
+        "name": "Code - Auth + Validation",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst INT_TOKEN = 'edl_int_4Xp8nQfMvW2j';\n\nfunction sanitize(s) {\n  if (s === null || s === undefined) return '';\n  return String(s)\n    .replace(/[<>&\"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','\"':'&quot;',\"'\":'&#x27;'}[c]))\n    .replace(/[\\x00-\\x1F\\x7F]/g, '')\n    .trim()\n    .substring(0, 1000);\n}\n\nconst body = JSON.parse(JSON.stringify($input.first().json));\n\n// 1. Vérification du token externe\nif (!body._token || body._token !== EXT_TOKEN) {\n  return [{ json: { _authFailed: true, error: 'Non autorisé' } }];\n}\ndelete body._token;\n\n// 2. Validation du schéma\nconst meta = body.meta;\nif (!meta || !['entree', 'sortie'].includes(meta.type)) {\n  return [{ json: { _authFailed: true, error: 'Type invalide (entree/sortie attendu)' } }];\n}\nif (!meta.chambre || typeof meta.chambre !== 'number' || meta.chambre < 1 || meta.chambre > 99) {\n  return [{ json: { _authFailed: true, error: 'Chambre invalide (1-99)' } }];\n}\nif (!meta.locataire || typeof meta.locataire !== 'string' || meta.locataire.trim().length === 0 || meta.locataire.length > 200) {\n  return [{ json: { _authFailed: true, error: 'Locataire invalide' } }];\n}\nif (!meta.date || !/^\\d{4}-\\d{2}-\\d{2}$/.test(meta.date)) {\n  return [{ json: { _authFailed: true, error: 'Date invalide (YYYY-MM-DD attendu)' } }];\n}\nif (!body.pieces || typeof body.pieces !== 'object' || Array.isArray(body.pieces)) {\n  return [{ json: { _authFailed: true, error: 'Pièces manquantes ou invalides' } }];\n}\n\n// 3. Nettoyage XSS de tous les champs texte\nmeta.locataire = sanitize(meta.locataire);\nif (body.observations) body.observations = sanitize(body.observations);\nfor (const room of Object.values(body.pieces)) {\n  for (const elem of Object.values(room.elements || {})) {\n    if (elem.commentaire) elem.commentaire = sanitize(elem.commentaire);\n    if (elem.etat) elem.etat = sanitize(elem.etat);\n  }\n}\n\n// 4. Injection du token interne (pour Agent 2)\nbody._intToken = INT_TOKEN;\n\nreturn [{ json: body }];"
+        }
+      },
+      {
+        "id": "if-sec-auth",
+        "name": "IF - Auth échouée ?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          690,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose"
+            },
+            "conditions": [
+              {
+                "id": "cond-auth",
+                "leftValue": "={{ $json._authFailed ? 1 : 0 }}",
+                "rightValue": 1,
+                "operator": {
+                  "type": "number",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "resp-sec-401",
+        "name": "Respond to Webhook - 401",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          910,
+          420
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify({ success: false, error: $json.error || 'Non autorisé' }) }}",
+          "options": {
+            "responseCode": 401,
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:8765"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "http-sec-fwd",
+        "name": "HTTP Request - Vers Agent 2",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          910,
+          180
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://n8n.checkintrust.com/webhook/etat-des-lieux",
+          "sendBody": true,
+          "contentType": "json",
+          "body": "={{ JSON.stringify($json) }}",
+          "options": {
+            "timeout": 120000
+          }
+        }
+      },
+      {
+        "id": "resp-sec-ok",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1130,
+          180
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify($json) }}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:8765"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Code - Auth + Validation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Auth + Validation": {
+        "main": [
+          [
+            {
+              "node": "IF - Auth échouée ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF - Auth échouée ?": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook - 401",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "HTTP Request - Vers Agent 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request - Vers Agent 2": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "7ad024ab-daf0-4b4f-bf5f-3200e55c77ef",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Auth + Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Auth + Validation": {
+      "main": [
+        [
+          {
+            "node": "IF - Auth échouée ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Auth échouée ?": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook - 401",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request - Vers Agent 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Vers Agent 2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-23T16:43:48.652Z",
+  "id": "an20WNZwShSacf77",
+  "isArchived": false,
+  "meta": null,
+  "name": "EDL — Agent 6 — Sécurité",
+  "nodes": [
+    {
+      "id": "wh-sec-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "edl-secure",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:8765"
+        }
+      },
+      "webhookId": "429d815c-f099-42e2-b8ce-8de6ee2d4c20"
+    },
+    {
+      "id": "code-sec-auth",
+      "name": "Code - Auth + Validation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst INT_TOKEN = 'edl_int_4Xp8nQfMvW2j';\n\nfunction sanitize(s) {\n  if (s === null || s === undefined) return '';\n  return String(s)\n    .replace(/[<>&\"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','\"':'&quot;',\"'\":'&#x27;'}[c]))\n    .replace(/[\\x00-\\x1F\\x7F]/g, '')\n    .trim()\n    .substring(0, 1000);\n}\n\nconst body = JSON.parse(JSON.stringify($input.first().json));\n\n// 1. Vérification du token externe\nif (!body._token || body._token !== EXT_TOKEN) {\n  return [{ json: { _authFailed: true, error: 'Non autorisé' } }];\n}\ndelete body._token;\n\n// 2. Validation du schéma\nconst meta = body.meta;\nif (!meta || !['entree', 'sortie'].includes(meta.type)) {\n  return [{ json: { _authFailed: true, error: 'Type invalide (entree/sortie attendu)' } }];\n}\nif (!meta.chambre || typeof meta.chambre !== 'number' || meta.chambre < 1 || meta.chambre > 99) {\n  return [{ json: { _authFailed: true, error: 'Chambre invalide (1-99)' } }];\n}\nif (!meta.locataire || typeof meta.locataire !== 'string' || meta.locataire.trim().length === 0 || meta.locataire.length > 200) {\n  return [{ json: { _authFailed: true, error: 'Locataire invalide' } }];\n}\nif (!meta.date || !/^\\d{4}-\\d{2}-\\d{2}$/.test(meta.date)) {\n  return [{ json: { _authFailed: true, error: 'Date invalide (YYYY-MM-DD attendu)' } }];\n}\nif (!body.pieces || typeof body.pieces !== 'object' || Array.isArray(body.pieces)) {\n  return [{ json: { _authFailed: true, error: 'Pièces manquantes ou invalides' } }];\n}\n\n// 3. Nettoyage XSS de tous les champs texte\nmeta.locataire = sanitize(meta.locataire);\nif (body.observations) body.observations = sanitize(body.observations);\nfor (const room of Object.values(body.pieces)) {\n  for (const elem of Object.values(room.elements || {})) {\n    if (elem.commentaire) elem.commentaire = sanitize(elem.commentaire);\n    if (elem.etat) elem.etat = sanitize(elem.etat);\n  }\n}\n\n// 4. Injection du token interne (pour Agent 2)\nbody._intToken = INT_TOKEN;\n\nreturn [{ json: body }];"
+      }
+    },
+    {
+      "id": "if-sec-auth",
+      "name": "IF - Auth échouée ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        690,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-auth",
+              "leftValue": "={{ $json._authFailed ? 1 : 0 }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "resp-sec-401",
+      "name": "Respond to Webhook - 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        910,
+        420
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: $json.error || 'Non autorisé' }) }}",
+        "options": {
+          "responseCode": 401,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "http://localhost:8765"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "http-sec-fwd",
+      "name": "HTTP Request - Vers Agent 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        910,
+        180
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.checkintrust.com/webhook/etat-des-lieux",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 120000
+        }
+      }
+    },
+    {
+      "id": "resp-sec-ok",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1130,
+        180
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "http://localhost:8765"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": null,
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T16:43:48.652Z",
+      "createdAt": "2026-02-23T16:43:48.652Z",
+      "role": "workflow:owner",
+      "workflowId": "an20WNZwShSacf77",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-23T18:05:23.625Z",
+  "versionId": "7ad024ab-daf0-4b4f-bf5f-3200e55c77ef"
+}
