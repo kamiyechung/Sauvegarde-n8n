@@ -1,0 +1,216 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-23T18:05:23.979Z",
+    "createdAt": "2026-02-23T18:05:23.979Z",
+    "versionId": "b3bba792-2f9d-4933-9507-e6e0ab01442a",
+    "workflowId": "FBAZlkXmEVtRDaZy",
+    "nodes": [
+      {
+        "id": "wh-test-1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {
+          "httpMethod": "GET",
+          "path": "edl-tests",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": "*"
+          }
+        },
+        "webhookId": "0721eae7-9a74-461b-ba06-67885f3eb73d"
+      },
+      {
+        "id": "code-test-run",
+        "name": "Code - Run Tests",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const BASE = 'https://n8n.checkintrust.com/webhook';\nconst EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst DOCUSEAL_TOKEN = 'FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu';\n\nconst results = [];\n\nasync function t(name, fn) {\n  try {\n    await fn();\n    results.push({ test: name, status: 'PASS' });\n  } catch (e) {\n    results.push({ test: name, status: 'FAIL', error: e.message });\n  }\n}\n\nasync function http(opts) {\n  try {\n    return await this.helpers.httpRequest(opts);\n  } catch (e) {\n    if (e.statusCode) return { _statusCode: e.statusCode };\n    throw e;\n  }\n}\nconst h = http.bind(this);\n\n// T1: Agent 0 — token valide\nawait t('Agent 0 — Token valide → liste', async () => {\n  const data = await h({ method: 'GET', url: `${BASE}/edl-locataires?t=${EXT_TOKEN}` });\n  if (!Array.isArray(data)) throw new Error('Pas un tableau');\n  if (data.length === 0) throw new Error('Liste vide');\n});\n\n// T2: Agent 0 — sans token\nawait t('Agent 0 — Token manquant → 401', async () => {\n  const r = await h({ method: 'GET', url: `${BASE}/edl-locataires`, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T3: Agent 6 — token invalide\nawait t('Agent 6 — Token invalide → 401', async () => {\n  const r = await h({ method: 'POST', url: `${BASE}/edl-secure`, body: { _token: 'BAD', meta: {}, pieces: {} }, headers: { 'Content-Type': 'application/json' }, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T4: Agent 6 — schéma invalide\nawait t('Agent 6 — Schéma invalide → 401', async () => {\n  const r = await h({ method: 'POST', url: `${BASE}/edl-secure`, body: { _token: EXT_TOKEN, meta: { type: 'INVALIDE', chambre: 999 }, pieces: {} }, headers: { 'Content-Type': 'application/json' }, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T5: DocuSeal — API accessible\nawait t('DocuSeal — API accessible', async () => {\n  const data = await h({ method: 'GET', url: 'https://docuseal.checkintrust.com/api/templates?limit=1', headers: { 'X-Auth-Token': DOCUSEAL_TOKEN } });\n  if (!data) throw new Error('Réponse vide');\n});\n\nconst passed = results.filter(r => r.status === 'PASS').length;\nconst total = results.length;\nreturn [{ json: { summary: `${passed}/${total} tests passés`, passed, total, allPassed: passed === total, results, timestamp: new Date().toISOString() } }];"
+        }
+      },
+      {
+        "id": "resp-test-1",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          690,
+          300
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify($json) }}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Code - Run Tests",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Run Tests": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "b3bba792-2f9d-4933-9507-e6e0ab01442a",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Run Tests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Run Tests": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-23T16:43:48.906Z",
+  "id": "FBAZlkXmEVtRDaZy",
+  "isArchived": false,
+  "meta": null,
+  "name": "EDL — Agent 7 — Tests",
+  "nodes": [
+    {
+      "id": "wh-test-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "edl-tests",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "0721eae7-9a74-461b-ba06-67885f3eb73d"
+    },
+    {
+      "id": "code-test-run",
+      "name": "Code - Run Tests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const BASE = 'https://n8n.checkintrust.com/webhook';\nconst EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst DOCUSEAL_TOKEN = 'FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu';\n\nconst results = [];\n\nasync function t(name, fn) {\n  try {\n    await fn();\n    results.push({ test: name, status: 'PASS' });\n  } catch (e) {\n    results.push({ test: name, status: 'FAIL', error: e.message });\n  }\n}\n\nasync function http(opts) {\n  try {\n    return await this.helpers.httpRequest(opts);\n  } catch (e) {\n    if (e.statusCode) return { _statusCode: e.statusCode };\n    throw e;\n  }\n}\nconst h = http.bind(this);\n\n// T1: Agent 0 — token valide\nawait t('Agent 0 — Token valide → liste', async () => {\n  const data = await h({ method: 'GET', url: `${BASE}/edl-locataires?t=${EXT_TOKEN}` });\n  if (!Array.isArray(data)) throw new Error('Pas un tableau');\n  if (data.length === 0) throw new Error('Liste vide');\n});\n\n// T2: Agent 0 — sans token\nawait t('Agent 0 — Token manquant → 401', async () => {\n  const r = await h({ method: 'GET', url: `${BASE}/edl-locataires`, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T3: Agent 6 — token invalide\nawait t('Agent 6 — Token invalide → 401', async () => {\n  const r = await h({ method: 'POST', url: `${BASE}/edl-secure`, body: { _token: 'BAD', meta: {}, pieces: {} }, headers: { 'Content-Type': 'application/json' }, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T4: Agent 6 — schéma invalide\nawait t('Agent 6 — Schéma invalide → 401', async () => {\n  const r = await h({ method: 'POST', url: `${BASE}/edl-secure`, body: { _token: EXT_TOKEN, meta: { type: 'INVALIDE', chambre: 999 }, pieces: {} }, headers: { 'Content-Type': 'application/json' }, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T5: DocuSeal — API accessible\nawait t('DocuSeal — API accessible', async () => {\n  const data = await h({ method: 'GET', url: 'https://docuseal.checkintrust.com/api/templates?limit=1', headers: { 'X-Auth-Token': DOCUSEAL_TOKEN } });\n  if (!data) throw new Error('Réponse vide');\n});\n\nconst passed = results.filter(r => r.status === 'PASS').length;\nconst total = results.length;\nreturn [{ json: { summary: `${passed}/${total} tests passés`, passed, total, allPassed: passed === total, results, timestamp: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "resp-test-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        690,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": null,
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T16:43:48.906Z",
+      "createdAt": "2026-02-23T16:43:48.906Z",
+      "role": "workflow:owner",
+      "workflowId": "FBAZlkXmEVtRDaZy",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-23T18:05:23.977Z",
+  "versionId": "b3bba792-2f9d-4933-9507-e6e0ab01442a"
+}
