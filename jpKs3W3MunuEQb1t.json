@@ -1,0 +1,808 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-23T15:54:56.568Z",
+    "createdAt": "2026-02-23T15:54:56.568Z",
+    "versionId": "1c4c7601-e910-4f96-92dd-63aabec1cd7b",
+    "workflowId": "jpKs3W3MunuEQb1t",
+    "nodes": [
+      {
+        "id": "wh-ph-1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "edl-photos",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "webhookId": "edl-photos-post"
+      },
+      {
+        "id": "code-ph-explode",
+        "name": "Code - Exploser photos",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "jsCode": "const { photoPayload } = $input.first().json;\nconst items = [];\n\nfor (const entry of photoPayload) {\n  for (let i = 0; i < entry.photos.length; i++) {\n    items.push({\n      json: {\n        roomId:     entry.roomId,\n        elemKey:    entry.elemKey,\n        photoIndex: i,\n        base64:     entry.photos[i],\n        meta:       entry.meta\n      }\n    });\n  }\n}\n\nreturn items;"
+        }
+      },
+      {
+        "id": "split-ph-1",
+        "name": "Split In Batches",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          690,
+          300
+        ],
+        "parameters": {
+          "batchSize": 1,
+          "options": {}
+        }
+      },
+      {
+        "id": "code-ph-decode",
+        "name": "Code - Decode + Nommage",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          910,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const { roomId, elemKey, photoIndex, base64, meta } = $input.first().json;\n\nconst rawBase64 = base64.replace(/^data:image\\/\\w+;base64,/, '');\nconst idx = String(photoIndex + 1).padStart(2, '0');\nconst filename = `ch${meta.chambre}_${roomId}_${elemKey}_${meta.date}_${idx}.jpg`;\n\nreturn [{\n  json: { roomId, elemKey, meta, filename },\n  binary: {\n    data: {\n      data:     rawBase64,\n      mimeType: 'image/jpeg',\n      fileName: filename\n    }\n  }\n}];"
+        }
+      },
+      {
+        "id": "drive-ph-search",
+        "name": "Google Drive - Chercher dossier",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1130,
+          300
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        },
+        "parameters": {
+          "operation": "search",
+          "queryString": "=name = 'EDL_{{ $('Code - Decode + Nommage').item.json.meta.locataire }}_{{ $('Code - Decode + Nommage').item.json.meta.date }}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+          "returnAll": false,
+          "limit": 1,
+          "options": {}
+        }
+      },
+      {
+        "id": "if-ph-folder",
+        "name": "IF - Dossier existe ?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          1350,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose"
+            },
+            "conditions": [
+              {
+                "id": "cond-folder",
+                "leftValue": "={{ $json.id }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "drive-ph-mkdir",
+        "name": "Google Drive - Créer dossier",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1570,
+          420
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        },
+        "parameters": {
+          "operation": "createFolder",
+          "name": "=EDL_{{ $('Code - Decode + Nommage').item.json.meta.locataire }}_{{ $('Code - Decode + Nommage').item.json.meta.date }}",
+          "driveId": {
+            "__rl": true,
+            "value": "My Drive",
+            "mode": "list"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $('Code - Decode + Nommage').item.json.meta.dossierDrive.match(/folders\\/([^?/]+)/)?.[1] }}",
+            "mode": "id"
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "drive-ph-upload",
+        "name": "Google Drive - Upload",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1790,
+          300
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        },
+        "parameters": {
+          "operation": "upload",
+          "name": "={{ $('Code - Decode + Nommage').item.json.filename }}",
+          "driveId": {
+            "__rl": true,
+            "value": "My Drive",
+            "mode": "list"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          },
+          "inputDataFieldName": "data",
+          "options": {}
+        }
+      },
+      {
+        "id": "drive-ph-share",
+        "name": "Google Drive - Partager",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2010,
+          300
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "y2rnCZZdVP6LWjj6",
+            "name": "Google Drive account"
+          }
+        },
+        "parameters": {
+          "operation": "share",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          },
+          "permissionsUi": {
+            "permissionsValues": {
+              "role": "reader",
+              "type": "anyone"
+            }
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "split-ph-done",
+        "name": "Split In Batches - Fin",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          2230,
+          300
+        ],
+        "parameters": {
+          "batchSize": 1,
+          "options": {}
+        }
+      },
+      {
+        "id": "code-ph-agg",
+        "name": "Code - Agréger URLs",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2450,
+          300
+        ],
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "jsCode": "const allItems = $input.all();\nconst decodeItems = $('Code - Decode + Nommage').all();\nconst result = [];\n\nfor (let i = 0; i < allItems.length; i++) {\n  const fileId = allItems[i].json.id;\n  const url = `https://drive.google.com/file/d/${fileId}/view`;\n  const dec = decodeItems[i] ? decodeItems[i].json : {};\n  const roomId = dec.roomId || '';\n  const elemKey = dec.elemKey || '';\n\n  const existing = result.find(r => r.roomId === roomId && r.elemKey === elemKey);\n  if (existing) {\n    existing.urls.push(url);\n  } else {\n    result.push({ roomId, elemKey, urls: [url] });\n  }\n}\n\nreturn [{ json: result }];"
+        }
+      },
+      {
+        "id": "resp-ph-1",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          2670,
+          300
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify($json) }}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Code - Exploser photos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Exploser photos": {
+        "main": [
+          [
+            {
+              "node": "Split In Batches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split In Batches": {
+        "main": [
+          [
+            {
+              "node": "Code - Decode + Nommage",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Decode + Nommage": {
+        "main": [
+          [
+            {
+              "node": "Google Drive - Chercher dossier",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive - Chercher dossier": {
+        "main": [
+          [
+            {
+              "node": "IF - Dossier existe ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF - Dossier existe ?": {
+        "main": [
+          [
+            {
+              "node": "Google Drive - Upload",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Google Drive - Créer dossier",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive - Créer dossier": {
+        "main": [
+          [
+            {
+              "node": "Google Drive - Upload",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive - Upload": {
+        "main": [
+          [
+            {
+              "node": "Google Drive - Partager",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive - Partager": {
+        "main": [
+          [
+            {
+              "node": "Split In Batches - Fin",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split In Batches - Fin": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Code - Agréger URLs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Agréger URLs": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "1c4c7601-e910-4f96-92dd-63aabec1cd7b",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Exploser photos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Exploser photos": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Code - Decode + Nommage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Decode + Nommage": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Chercher dossier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Chercher dossier": {
+      "main": [
+        [
+          {
+            "node": "IF - Dossier existe ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Dossier existe ?": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Drive - Créer dossier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Créer dossier": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Upload": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Partager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Partager": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches - Fin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches - Fin": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Code - Agréger URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Agréger URLs": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-23T12:17:43.754Z",
+  "id": "jpKs3W3MunuEQb1t",
+  "isArchived": false,
+  "meta": null,
+  "name": "EDL — Agent 3 — Photos Google Drive",
+  "nodes": [
+    {
+      "id": "wh-ph-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "edl-photos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "edl-photos-post"
+    },
+    {
+      "id": "code-ph-explode",
+      "name": "Code - Exploser photos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const { photoPayload } = $input.first().json;\nconst items = [];\n\nfor (const entry of photoPayload) {\n  for (let i = 0; i < entry.photos.length; i++) {\n    items.push({\n      json: {\n        roomId:     entry.roomId,\n        elemKey:    entry.elemKey,\n        photoIndex: i,\n        base64:     entry.photos[i],\n        meta:       entry.meta\n      }\n    });\n  }\n}\n\nreturn items;"
+      }
+    },
+    {
+      "id": "split-ph-1",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        690,
+        300
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "code-ph-decode",
+      "name": "Code - Decode + Nommage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        910,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const { roomId, elemKey, photoIndex, base64, meta } = $input.first().json;\n\nconst rawBase64 = base64.replace(/^data:image\\/\\w+;base64,/, '');\nconst idx = String(photoIndex + 1).padStart(2, '0');\nconst filename = `ch${meta.chambre}_${roomId}_${elemKey}_${meta.date}_${idx}.jpg`;\n\nreturn [{\n  json: { roomId, elemKey, meta, filename },\n  binary: {\n    data: {\n      data:     rawBase64,\n      mimeType: 'image/jpeg',\n      fileName: filename\n    }\n  }\n}];"
+      }
+    },
+    {
+      "id": "drive-ph-search",
+      "name": "Google Drive - Chercher dossier",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1130,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "y2rnCZZdVP6LWjj6",
+          "name": "Google Drive account"
+        }
+      },
+      "parameters": {
+        "operation": "search",
+        "queryString": "=name = 'EDL_{{ $('Code - Decode + Nommage').item.json.meta.locataire }}_{{ $('Code - Decode + Nommage').item.json.meta.date }}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "if-ph-folder",
+      "name": "IF - Dossier existe ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-folder",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "drive-ph-mkdir",
+      "name": "Google Drive - Créer dossier",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1570,
+        420
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "y2rnCZZdVP6LWjj6",
+          "name": "Google Drive account"
+        }
+      },
+      "parameters": {
+        "operation": "createFolder",
+        "name": "=EDL_{{ $('Code - Decode + Nommage').item.json.meta.locataire }}_{{ $('Code - Decode + Nommage').item.json.meta.date }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Code - Decode + Nommage').item.json.meta.dossierDrive.match(/folders\\/([^?/]+)/)?.[1] }}",
+          "mode": "id"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "drive-ph-upload",
+      "name": "Google Drive - Upload",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1790,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "y2rnCZZdVP6LWjj6",
+          "name": "Google Drive account"
+        }
+      },
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $('Code - Decode + Nommage').item.json.filename }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "inputDataFieldName": "data",
+        "options": {}
+      }
+    },
+    {
+      "id": "drive-ph-share",
+      "name": "Google Drive - Partager",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2010,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "y2rnCZZdVP6LWjj6",
+          "name": "Google Drive account"
+        }
+      },
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "split-ph-done",
+      "name": "Split In Batches - Fin",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2230,
+        300
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "code-ph-agg",
+      "name": "Code - Agréger URLs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2450,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const allItems = $input.all();\nconst decodeItems = $('Code - Decode + Nommage').all();\nconst result = [];\n\nfor (let i = 0; i < allItems.length; i++) {\n  const fileId = allItems[i].json.id;\n  const url = `https://drive.google.com/file/d/${fileId}/view`;\n  const dec = decodeItems[i] ? decodeItems[i].json : {};\n  const roomId = dec.roomId || '';\n  const elemKey = dec.elemKey || '';\n\n  const existing = result.find(r => r.roomId === roomId && r.elemKey === elemKey);\n  if (existing) {\n    existing.urls.push(url);\n  } else {\n    result.push({ roomId, elemKey, urls: [url] });\n  }\n}\n\nreturn [{ json: result }];"
+      }
+    },
+    {
+      "id": "resp-ph-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2670,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": null,
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T12:17:43.754Z",
+      "createdAt": "2026-02-23T12:17:43.754Z",
+      "role": "workflow:owner",
+      "workflowId": "jpKs3W3MunuEQb1t",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-23T15:54:56.567Z",
+  "versionId": "1c4c7601-e910-4f96-92dd-63aabec1cd7b"
+}
