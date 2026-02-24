@@ -1,0 +1,736 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-23T18:05:22.798Z",
+    "createdAt": "2026-02-23T18:05:22.798Z",
+    "versionId": "57e1e165-30f4-4f2e-a811-419732c67063",
+    "workflowId": "axAkcOVeMEO1fHdz",
+    "nodes": [
+      {
+        "id": "wh-orch-1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "etat-des-lieux",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": ""
+          }
+        },
+        "webhookId": "95931796-1d99-4245-b0df-eecf4b245340"
+      },
+      {
+        "id": "code-orch-val",
+        "name": "Code - Validation",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const body = $input.first().json;\nconst INT_TOKEN = 'edl_int_4Xp8nQfMvW2j';\n\n// Vérification token interne (la requête doit transiter par Agent 6)\nif (!body._intToken || body._intToken !== INT_TOKEN) {\n  throw new Error('Accès non autorisé : appelez /webhook/edl-secure');\n}\ndelete body._intToken;\n\nif (!body.meta?.type || !body.meta?.chambre || !body.meta?.locataire || !body.meta?.date) {\n  throw new Error('Payload invalide : meta manquant (type, chambre, locataire, date)');\n}\nif (!body.pieces || typeof body.pieces !== 'object') {\n  throw new Error('Payload invalide : pieces manquant');\n}\nreturn [{ json: body }];"
+        }
+      },
+      {
+        "id": "code-orch-sep",
+        "name": "Code - Séparer photos",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          690,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const body = $input.first().json;\nconst dataPayload = JSON.parse(JSON.stringify(body));\nconst photoPayload = [];\nfor (const [roomId, room] of Object.entries(dataPayload.pieces)) {\n  for (const [elemKey, elem] of Object.entries(room.elements || {})) {\n    if (elem.photos && elem.photos.length > 0) {\n      photoPayload.push({ roomId, elemKey, photos: elem.photos, meta: body.meta });\n      dataPayload.pieces[roomId].elements[elemKey].photos = [];\n    }\n  }\n}\nreturn [{ json: { dataPayload, photoPayload } }];"
+        }
+      },
+      {
+        "id": "if-orch-photos",
+        "name": "IF - Photos ?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          910,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "cond-photos",
+                "leftValue": "={{ $json.photoPayload.length }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "http-orch-photos",
+        "name": "HTTP Request - edl-photos",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1130,
+          180
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://n8n.checkintrust.com/webhook/edl-photos",
+          "sendBody": true,
+          "contentType": "json",
+          "body": "={{ JSON.stringify({ photoPayload: $json.photoPayload, meta: $json.dataPayload.meta }) }}",
+          "options": {
+            "timeout": 120000
+          }
+        }
+      },
+      {
+        "id": "code-orch-merge",
+        "name": "Code - Merge URLs",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1350,
+          180
+        ],
+        "parameters": {
+          "jsCode": "const photoResponse = $input.first().json;\nconst dataPayload = $('Code - Séparer photos').first().json.dataPayload;\nif (Array.isArray(photoResponse)) {\n  for (const item of photoResponse) {\n    const room = dataPayload.pieces[item.roomId];\n    if (room && room.elements && room.elements[item.elemKey]) {\n      room.elements[item.elemKey].photoUrls = item.urls;\n    }\n  }\n}\nreturn [{ json: dataPayload }];"
+        }
+      },
+      {
+        "id": "code-orch-norm",
+        "name": "Code - Normaliser",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1570,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const item = $input.first().json;\n// Chemin avec photos : item = dataPayload (flat, a meta directement)\n// Chemin sans photos : item = { dataPayload, photoPayload } (wrappé)\nconst data = (item.meta !== undefined) ? item : (item.dataPayload || item);\nreturn [{ json: data }];"
+        }
+      },
+      {
+        "id": "http-orch-notion",
+        "name": "HTTP Request - edl-notion",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1790,
+          300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://n8n.checkintrust.com/webhook/edl-notion",
+          "sendBody": true,
+          "contentType": "json",
+          "body": "={{ JSON.stringify($json) }}",
+          "options": {
+            "timeout": 60000
+          }
+        }
+      },
+      {
+        "id": "http-orch-docuseal",
+        "name": "HTTP Request - edl-docuseal",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2010,
+          300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://n8n.checkintrust.com/webhook/edl-docuseal",
+          "sendBody": true,
+          "contentType": "json",
+          "body": "={{ JSON.stringify($('Code - Normaliser').first().json) }}",
+          "options": {
+            "timeout": 60000
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "resp-orch-ok",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          2230,
+          300
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={ \"success\": true }",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "code-orch-err",
+        "name": "Code - Erreur",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1130,
+          480
+        ],
+        "parameters": {
+          "jsCode": "return [{ json: { success: false, error: $input.first().json.message || 'Erreur inconnue' } }];"
+        }
+      },
+      {
+        "id": "resp-orch-err",
+        "name": "Respond to Webhook - Erreur",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1350,
+          480
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify($json) }}",
+          "options": {
+            "responseCode": 500,
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Code - Validation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Validation": {
+        "main": [
+          [
+            {
+              "node": "Code - Séparer photos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Séparer photos": {
+        "main": [
+          [
+            {
+              "node": "IF - Photos ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF - Photos ?": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request - edl-photos",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Code - Normaliser",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request - edl-photos": {
+        "main": [
+          [
+            {
+              "node": "Code - Merge URLs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Merge URLs": {
+        "main": [
+          [
+            {
+              "node": "Code - Normaliser",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Normaliser": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request - edl-notion",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request - edl-notion": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request - edl-docuseal",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request - edl-docuseal": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Erreur": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook - Erreur",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "57e1e165-30f4-4f2e-a811-419732c67063",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Validation": {
+      "main": [
+        [
+          {
+            "node": "Code - Séparer photos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Séparer photos": {
+      "main": [
+        [
+          {
+            "node": "IF - Photos ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Photos ?": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - edl-photos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Normaliser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - edl-photos": {
+      "main": [
+        [
+          {
+            "node": "Code - Merge URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Merge URLs": {
+      "main": [
+        [
+          {
+            "node": "Code - Normaliser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Normaliser": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - edl-notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - edl-notion": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - edl-docuseal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - edl-docuseal": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Erreur": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook - Erreur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-23T12:16:18.515Z",
+  "id": "axAkcOVeMEO1fHdz",
+  "isArchived": false,
+  "meta": null,
+  "name": "EDL — Agent 2 — Orchestrateur",
+  "nodes": [
+    {
+      "id": "wh-orch-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "etat-des-lieux",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": ""
+        }
+      },
+      "webhookId": "95931796-1d99-4245-b0df-eecf4b245340"
+    },
+    {
+      "id": "code-orch-val",
+      "name": "Code - Validation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\nconst INT_TOKEN = 'edl_int_4Xp8nQfMvW2j';\n\n// Vérification token interne (la requête doit transiter par Agent 6)\nif (!body._intToken || body._intToken !== INT_TOKEN) {\n  throw new Error('Accès non autorisé : appelez /webhook/edl-secure');\n}\ndelete body._intToken;\n\nif (!body.meta?.type || !body.meta?.chambre || !body.meta?.locataire || !body.meta?.date) {\n  throw new Error('Payload invalide : meta manquant (type, chambre, locataire, date)');\n}\nif (!body.pieces || typeof body.pieces !== 'object') {\n  throw new Error('Payload invalide : pieces manquant');\n}\nreturn [{ json: body }];"
+      }
+    },
+    {
+      "id": "code-orch-sep",
+      "name": "Code - Séparer photos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        690,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\nconst dataPayload = JSON.parse(JSON.stringify(body));\nconst photoPayload = [];\nfor (const [roomId, room] of Object.entries(dataPayload.pieces)) {\n  for (const [elemKey, elem] of Object.entries(room.elements || {})) {\n    if (elem.photos && elem.photos.length > 0) {\n      photoPayload.push({ roomId, elemKey, photos: elem.photos, meta: body.meta });\n      dataPayload.pieces[roomId].elements[elemKey].photos = [];\n    }\n  }\n}\nreturn [{ json: { dataPayload, photoPayload } }];"
+      }
+    },
+    {
+      "id": "if-orch-photos",
+      "name": "IF - Photos ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        910,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-photos",
+              "leftValue": "={{ $json.photoPayload.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "http-orch-photos",
+      "name": "HTTP Request - edl-photos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1130,
+        180
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.checkintrust.com/webhook/edl-photos",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ photoPayload: $json.photoPayload, meta: $json.dataPayload.meta }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      }
+    },
+    {
+      "id": "code-orch-merge",
+      "name": "Code - Merge URLs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        180
+      ],
+      "parameters": {
+        "jsCode": "const photoResponse = $input.first().json;\nconst dataPayload = $('Code - Séparer photos').first().json.dataPayload;\nif (Array.isArray(photoResponse)) {\n  for (const item of photoResponse) {\n    const room = dataPayload.pieces[item.roomId];\n    if (room && room.elements && room.elements[item.elemKey]) {\n      room.elements[item.elemKey].photoUrls = item.urls;\n    }\n  }\n}\nreturn [{ json: dataPayload }];"
+      }
+    },
+    {
+      "id": "code-orch-norm",
+      "name": "Code - Normaliser",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1570,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n// Chemin avec photos : item = dataPayload (flat, a meta directement)\n// Chemin sans photos : item = { dataPayload, photoPayload } (wrappé)\nconst data = (item.meta !== undefined) ? item : (item.dataPayload || item);\nreturn [{ json: data }];"
+      }
+    },
+    {
+      "id": "http-orch-notion",
+      "name": "HTTP Request - edl-notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1790,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.checkintrust.com/webhook/edl-notion",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 60000
+        }
+      }
+    },
+    {
+      "id": "http-orch-docuseal",
+      "name": "HTTP Request - edl-docuseal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2010,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.checkintrust.com/webhook/edl-docuseal",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($('Code - Normaliser').first().json) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "resp-orch-ok",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2230,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true }",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": ""
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "code-orch-err",
+      "name": "Code - Erreur",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1130,
+        480
+      ],
+      "parameters": {
+        "jsCode": "return [{ json: { success: false, error: $input.first().json.message || 'Erreur inconnue' } }];"
+      }
+    },
+    {
+      "id": "resp-orch-err",
+      "name": "Respond to Webhook - Erreur",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1350,
+        480
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 500,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": ""
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": null,
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T12:16:18.515Z",
+      "createdAt": "2026-02-23T12:16:18.515Z",
+      "role": "workflow:owner",
+      "workflowId": "axAkcOVeMEO1fHdz",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-23T18:05:22.797Z",
+  "versionId": "57e1e165-30f4-4f2e-a811-419732c67063"
+}
