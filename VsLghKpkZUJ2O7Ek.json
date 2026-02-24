@@ -1,0 +1,754 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-23T12:30:05.601Z",
+    "createdAt": "2026-02-23T12:30:05.601Z",
+    "versionId": "3d05d9a3-e2c7-4676-8177-b0a001be60f9",
+    "workflowId": "VsLghKpkZUJ2O7Ek",
+    "nodes": [
+      {
+        "id": "wh-not-1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "edl-notion",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "webhookId": "edl-notion-post"
+      },
+      {
+        "id": "code-not-resolve",
+        "name": "Code - Résoudre locataire",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const body = $input.first().json;\nconst notionId = body.meta?.locataireNotionId || '';\nreturn [{ json: { ...body, _locatairePageId: notionId || null } }];"
+        }
+      },
+      {
+        "id": "if-not-has-id",
+        "name": "IF - ID Notion fourni ?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          690,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose"
+            },
+            "conditions": [
+              {
+                "id": "cond-notionid",
+                "leftValue": "={{ $json._locatairePageId }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "notion-not-search",
+        "name": "Notion - Rechercher locataire",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          910,
+          420
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        },
+        "parameters": {
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "20f02d84-a064-808b-815a-cf29c8680feb",
+            "mode": "id"
+          },
+          "returnAll": false,
+          "limit": 1,
+          "filterType": "manual",
+          "filters": {
+            "conditions": [
+              {
+                "key": "Name|title",
+                "condition": "equals",
+                "titleValue": "={{ $('Code - Résoudre locataire').first().json.meta.locataire }}"
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "code-not-merge-id",
+        "name": "Code - Préparer page ID",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1130,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const body = $('Code - Résoudre locataire').first().json;\nlet locatairePageId = body._locatairePageId;\nif (!locatairePageId) {\n  const searchResults = $('Notion - Rechercher locataire').all();\n  if (!searchResults || searchResults.length === 0) {\n    throw new Error('Locataire introuvable dans Notion : ' + body.meta.locataire);\n  }\n  locatairePageId = searchResults[0].json.id;\n}\nreturn [{ json: { ...body, _locatairePageId: locatairePageId } }];"
+        }
+      },
+      {
+        "id": "code-not-blocs",
+        "name": "Code - Construire blocs",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1350,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const payload = $input.first().json;\nconst { meta, pieces, cles, observations } = payload;\nconst ETAT = { TB: 'Très Bon', B: 'Bon', P: 'Passable', M: 'Mauvais', 'N/A': 'N/A' };\nconst ROOMS = { entree: 'Entrée', salon: 'Salon / Séjour', cuisine: 'Cuisine', wc_communs: 'WC communs', buanderie: 'Buanderie', chambre_1: 'Chambre 1', chambre_2: 'Chambre 2', chambre_3: 'Chambre 3', chambre_4: 'Chambre 4', chambre_5: 'Chambre 5', salle_eau_12: \"Salle d'eau (ch. 1 & 2)\", salle_bain_34: 'Salle de bain (ch. 3 & 4)', salle_eau_privee_5: \"Salle d'eau privée (ch. 5)\", wc_partages_12: 'WC partagés (ch. 1 & 2)', wc_partages_34: 'WC partagés (ch. 3 & 4)', wc_prives_5: 'WC privés (ch. 5)' };\nconst ELEMS = { sol: 'Sol', murs: 'Murs', plafond: 'Plafond', fenetres: 'Fenêtres', porte_s: 'Porte(s)', eclairage: 'Éclairage', prises_interrupteurs: 'Prises/Interrupteurs', projecteur: 'Projecteur', ecran: 'Écran', enceinte: 'Enceinte', plaques: 'Plaques', four: 'Four', hotte: 'Hotte', refrigerateur: 'Réfrigérateur', congelateur: 'Congélateur', lave_vaisselle: 'Lave-vaisselle', evier: 'Évier', machine_1: 'Machine 1', machine_2: 'Machine 2', seche_linge: 'Sèche-linge' };\nfunction t(c, b) { return { type: 'text', text: { content: String(c) }, annotations: b ? { bold: true } : {} }; }\nconst blocks = [];\nblocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Type : ' + (meta.type === 'entree' ? 'Entrée' : 'Sortie') + '  |  Chambre ' + meta.chambre + '  |  ' + meta.date)] } });\nfor (const [roomId, room] of Object.entries(pieces)) {\n  blocks.push({ type: 'heading_2', heading_2: { rich_text: [t(ROOMS[roomId] || roomId)] } });\n  const rows = [{ type: 'table_row', table_row: { cells: [[t('Élément', true)], [t('État', true)], [t('Commentaire', true)]] } }, ...Object.entries(room.elements || {}).map(([k, v]) => ({ type: 'table_row', table_row: { cells: [[t(ELEMS[k] || k)], [t(v.etat ? (ETAT[v.etat] || v.etat) : '—')], [t(v.commentaire || '')]] } }))];\n  blocks.push({ type: 'table', table: { table_width: 3, has_column_header: true, has_row_header: false, children: rows } });\n  if (room.photoUrls) for (const url of room.photoUrls) blocks.push({ type: 'image', image: { type: 'external', external: { url } } });\n}\nblocks.push({ type: 'divider', divider: {} });\nblocks.push({ type: 'heading_3', heading_3: { rich_text: [t('Récapitulatif')] } });\nblocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Nombre de clés remises : ' + cles)] } });\nif (observations) blocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Observations : ' + observations)] } });\nconst chunks = [];\nfor (let i = 0; i < blocks.length; i += 100) chunks.push(blocks.slice(i, i + 100));\nreturn [{ json: { chunks, totalBlocks: blocks.length, meta, locatairePageId: payload._locatairePageId } }];"
+        }
+      },
+      {
+        "id": "notion-not-create",
+        "name": "Notion - Créer page EDL",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          1570,
+          300
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        },
+        "parameters": {
+          "resource": "page",
+          "operation": "create",
+          "pageId": {
+            "__rl": true,
+            "value": "={{ $json.locatairePageId }}",
+            "mode": "id"
+          },
+          "title": "=État des lieux — {{ $json.meta.type === 'entree' ? 'Entrée' : 'Sortie' }} — {{ $json.meta.date }}",
+          "blockUi": {
+            "blockValues": "={{ $json.chunks[0] }}"
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "if-not-more-chunks",
+        "name": "IF - Blocs restants ?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          1790,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "cond-chunks",
+                "leftValue": "={{ $('Code - Construire blocs').first().json.chunks.length }}",
+                "rightValue": 1,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "code-not-append",
+        "name": "Code - Append blocs restants",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2010,
+          200
+        ],
+        "parameters": {
+          "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst chunks = $('Code - Construire blocs').first().json.chunks;\nconst notionKey = $credentials?.notionApi?.apiKey || '';\nfor (let i = 1; i < chunks.length; i++) {\n  await $http.request({ method: 'PATCH', url: 'https://api.notion.com/v1/blocks/' + pageId + '/children', headers: { 'Authorization': 'Bearer ' + notionKey, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' }, body: JSON.stringify({ children: chunks[i] }) });\n}\nconst pageUrl = 'https://notion.so/' + pageId.replace(/-/g, '');\nreturn [{ json: { pageId, pageUrl } }];"
+        }
+      },
+      {
+        "id": "code-not-pageurl",
+        "name": "Code - Page URL",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2010,
+          400
+        ],
+        "parameters": {
+          "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst pageUrl = 'https://notion.so/' + pageId.replace(/-/g, '');\nreturn [{ json: { pageId, pageUrl } }];"
+        }
+      },
+      {
+        "id": "resp-not-ok",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          2230,
+          300
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify({ success: true, pageUrl: $json.pageUrl }) }}",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Code - Résoudre locataire",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Résoudre locataire": {
+        "main": [
+          [
+            {
+              "node": "IF - ID Notion fourni ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF - ID Notion fourni ?": {
+        "main": [
+          [
+            {
+              "node": "Code - Préparer page ID",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Notion - Rechercher locataire",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion - Rechercher locataire": {
+        "main": [
+          [
+            {
+              "node": "Code - Préparer page ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Préparer page ID": {
+        "main": [
+          [
+            {
+              "node": "Code - Construire blocs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Construire blocs": {
+        "main": [
+          [
+            {
+              "node": "Notion - Créer page EDL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion - Créer page EDL": {
+        "main": [
+          [
+            {
+              "node": "IF - Blocs restants ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF - Blocs restants ?": {
+        "main": [
+          [
+            {
+              "node": "Code - Append blocs restants",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Code - Page URL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Append blocs restants": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Page URL": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "3d05d9a3-e2c7-4676-8177-b0a001be60f9",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Résoudre locataire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Résoudre locataire": {
+      "main": [
+        [
+          {
+            "node": "IF - ID Notion fourni ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - ID Notion fourni ?": {
+      "main": [
+        [
+          {
+            "node": "Code - Préparer page ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notion - Rechercher locataire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion - Rechercher locataire": {
+      "main": [
+        [
+          {
+            "node": "Code - Préparer page ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Préparer page ID": {
+      "main": [
+        [
+          {
+            "node": "Code - Construire blocs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Construire blocs": {
+      "main": [
+        [
+          {
+            "node": "Notion - Créer page EDL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion - Créer page EDL": {
+      "main": [
+        [
+          {
+            "node": "IF - Blocs restants ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Blocs restants ?": {
+      "main": [
+        [
+          {
+            "node": "Code - Append blocs restants",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Append blocs restants": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Page URL": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-23T12:17:43.825Z",
+  "id": "VsLghKpkZUJ2O7Ek",
+  "isArchived": false,
+  "meta": null,
+  "name": "EDL — Agent 4 — Notion Creator",
+  "nodes": [
+    {
+      "id": "wh-not-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "edl-notion",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "edl-notion-post"
+    },
+    {
+      "id": "code-not-resolve",
+      "name": "Code - Résoudre locataire",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\nconst notionId = body.meta?.locataireNotionId || '';\nreturn [{ json: { ...body, _locatairePageId: notionId || null } }];"
+      }
+    },
+    {
+      "id": "if-not-has-id",
+      "name": "IF - ID Notion fourni ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        690,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-notionid",
+              "leftValue": "={{ $json._locatairePageId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "notion-not-search",
+      "name": "Notion - Rechercher locataire",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        910,
+        420
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      },
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "20f02d84-a064-808b-815a-cf29c8680feb",
+          "mode": "id"
+        },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Name|title",
+              "condition": "equals",
+              "titleValue": "={{ $('Code - Résoudre locataire').first().json.meta.locataire }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "code-not-merge-id",
+      "name": "Code - Préparer page ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1130,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const body = $('Code - Résoudre locataire').first().json;\nlet locatairePageId = body._locatairePageId;\nif (!locatairePageId) {\n  const searchResults = $('Notion - Rechercher locataire').all();\n  if (!searchResults || searchResults.length === 0) {\n    throw new Error('Locataire introuvable dans Notion : ' + body.meta.locataire);\n  }\n  locatairePageId = searchResults[0].json.id;\n}\nreturn [{ json: { ...body, _locatairePageId: locatairePageId } }];"
+      }
+    },
+    {
+      "id": "code-not-blocs",
+      "name": "Code - Construire blocs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const payload = $input.first().json;\nconst { meta, pieces, cles, observations } = payload;\nconst ETAT = { TB: 'Très Bon', B: 'Bon', P: 'Passable', M: 'Mauvais', 'N/A': 'N/A' };\nconst ROOMS = { entree: 'Entrée', salon: 'Salon / Séjour', cuisine: 'Cuisine', wc_communs: 'WC communs', buanderie: 'Buanderie', chambre_1: 'Chambre 1', chambre_2: 'Chambre 2', chambre_3: 'Chambre 3', chambre_4: 'Chambre 4', chambre_5: 'Chambre 5', salle_eau_12: \"Salle d'eau (ch. 1 & 2)\", salle_bain_34: 'Salle de bain (ch. 3 & 4)', salle_eau_privee_5: \"Salle d'eau privée (ch. 5)\", wc_partages_12: 'WC partagés (ch. 1 & 2)', wc_partages_34: 'WC partagés (ch. 3 & 4)', wc_prives_5: 'WC privés (ch. 5)' };\nconst ELEMS = { sol: 'Sol', murs: 'Murs', plafond: 'Plafond', fenetres: 'Fenêtres', porte_s: 'Porte(s)', eclairage: 'Éclairage', prises_interrupteurs: 'Prises/Interrupteurs', projecteur: 'Projecteur', ecran: 'Écran', enceinte: 'Enceinte', plaques: 'Plaques', four: 'Four', hotte: 'Hotte', refrigerateur: 'Réfrigérateur', congelateur: 'Congélateur', lave_vaisselle: 'Lave-vaisselle', evier: 'Évier', machine_1: 'Machine 1', machine_2: 'Machine 2', seche_linge: 'Sèche-linge' };\nfunction t(c, b) { return { type: 'text', text: { content: String(c) }, annotations: b ? { bold: true } : {} }; }\nconst blocks = [];\nblocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Type : ' + (meta.type === 'entree' ? 'Entrée' : 'Sortie') + '  |  Chambre ' + meta.chambre + '  |  ' + meta.date)] } });\nfor (const [roomId, room] of Object.entries(pieces)) {\n  blocks.push({ type: 'heading_2', heading_2: { rich_text: [t(ROOMS[roomId] || roomId)] } });\n  const rows = [{ type: 'table_row', table_row: { cells: [[t('Élément', true)], [t('État', true)], [t('Commentaire', true)]] } }, ...Object.entries(room.elements || {}).map(([k, v]) => ({ type: 'table_row', table_row: { cells: [[t(ELEMS[k] || k)], [t(v.etat ? (ETAT[v.etat] || v.etat) : '—')], [t(v.commentaire || '')]] } }))];\n  blocks.push({ type: 'table', table: { table_width: 3, has_column_header: true, has_row_header: false, children: rows } });\n  if (room.photoUrls) for (const url of room.photoUrls) blocks.push({ type: 'image', image: { type: 'external', external: { url } } });\n}\nblocks.push({ type: 'divider', divider: {} });\nblocks.push({ type: 'heading_3', heading_3: { rich_text: [t('Récapitulatif')] } });\nblocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Nombre de clés remises : ' + cles)] } });\nif (observations) blocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Observations : ' + observations)] } });\nconst chunks = [];\nfor (let i = 0; i < blocks.length; i += 100) chunks.push(blocks.slice(i, i + 100));\nreturn [{ json: { chunks, totalBlocks: blocks.length, meta, locatairePageId: payload._locatairePageId } }];"
+      }
+    },
+    {
+      "id": "notion-not-create",
+      "name": "Notion - Créer page EDL",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1570,
+        300
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      },
+      "parameters": {
+        "resource": "page",
+        "operation": "create",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.locatairePageId }}",
+          "mode": "id"
+        },
+        "title": "=État des lieux — {{ $json.meta.type === 'entree' ? 'Entrée' : 'Sortie' }} — {{ $json.meta.date }}",
+        "blockUi": {
+          "blockValues": "={{ $json.chunks[0] }}"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "if-not-more-chunks",
+      "name": "IF - Blocs restants ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1790,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-chunks",
+              "leftValue": "={{ $('Code - Construire blocs').first().json.chunks.length }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "code-not-append",
+      "name": "Code - Append blocs restants",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2010,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst chunks = $('Code - Construire blocs').first().json.chunks;\nconst notionKey = $credentials?.notionApi?.apiKey || '';\nfor (let i = 1; i < chunks.length; i++) {\n  await $http.request({ method: 'PATCH', url: 'https://api.notion.com/v1/blocks/' + pageId + '/children', headers: { 'Authorization': 'Bearer ' + notionKey, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' }, body: JSON.stringify({ children: chunks[i] }) });\n}\nconst pageUrl = 'https://notion.so/' + pageId.replace(/-/g, '');\nreturn [{ json: { pageId, pageUrl } }];"
+      }
+    },
+    {
+      "id": "code-not-pageurl",
+      "name": "Code - Page URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2010,
+        400
+      ],
+      "parameters": {
+        "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst pageUrl = 'https://notion.so/' + pageId.replace(/-/g, '');\nreturn [{ json: { pageId, pageUrl } }];"
+      }
+    },
+    {
+      "id": "resp-not-ok",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2230,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, pageUrl: $json.pageUrl }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": null,
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T12:17:43.825Z",
+      "createdAt": "2026-02-23T12:17:43.825Z",
+      "role": "workflow:owner",
+      "workflowId": "VsLghKpkZUJ2O7Ek",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-23T12:30:05.599Z",
+  "versionId": "3d05d9a3-e2c7-4676-8177-b0a001be60f9"
+}
