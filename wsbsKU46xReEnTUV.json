@@ -1,0 +1,120 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Run Tests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Run Tests": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-23T16:43:25.659Z",
+  "id": "wsbsKU46xReEnTUV",
+  "isArchived": false,
+  "meta": null,
+  "name": "EDL — Agent 7 — Tests",
+  "nodes": [
+    {
+      "id": "wh-test-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "edl-tests",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      }
+    },
+    {
+      "id": "code-test-run",
+      "name": "Code - Run Tests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const BASE = 'https://n8n.checkintrust.com/webhook';\nconst EXT_TOKEN = (process.env && process.env.EDL_WEBHOOK_SECRET) || 'edl_wh_7Kx2mPn9sRtL';\nconst DOCUSEAL_TOKEN = (process.env && process.env.EDL_DOCUSEAL_TOKEN) || 'FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu';\n\nconst results = [];\n\nasync function test(name, fn) {\n  try {\n    await fn();\n    results.push({ test: name, status: 'PASS' });\n  } catch (e) {\n    results.push({ test: name, status: 'FAIL', error: e.message });\n  }\n}\n\n// T1: Agent 0 — accessible avec token valide\nawait test('Agent 0 — Token valide → liste retournée', async () => {\n  const r = await fetch(`${BASE}/edl-locataires?t=${EXT_TOKEN}`);\n  if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText}`);\n  const data = await r.json();\n  if (!Array.isArray(data)) throw new Error('Format invalide : tableau attendu');\n  if (data.length === 0) throw new Error('Liste vide — vérifier Notion');\n});\n\n// T2: Agent 0 — rejet sans token\nawait test('Agent 0 — Token manquant → 401', async () => {\n  const r = await fetch(`${BASE}/edl-locataires`);\n  if (r.status !== 401) throw new Error(`Attendu 401, reçu ${r.status}`);\n});\n\n// T3: Agent 6 — rejet token invalide\nawait test('Agent 6 — Token invalide → 401', async () => {\n  const r = await fetch(`${BASE}/edl-secure`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ _token: 'MAUVAIS_TOKEN', meta: {}, pieces: {} })\n  });\n  if (r.status !== 401) throw new Error(`Attendu 401, reçu ${r.status}`);\n});\n\n// T4: Agent 6 — rejet schéma invalide (token ok mais schéma ko)\nawait test('Agent 6 — Schéma invalide → 401', async () => {\n  const r = await fetch(`${BASE}/edl-secure`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ _token: EXT_TOKEN, meta: { type: 'INVALIDE', chambre: 999 }, pieces: {} })\n  });\n  if (r.status !== 401) throw new Error(`Attendu 401, reçu ${r.status}`);\n});\n\n// T5: DocuSeal — API accessible\nawait test('DocuSeal — API accessible', async () => {\n  const r = await fetch('https://docuseal.checkintrust.com/api/templates?limit=1', {\n    headers: { 'X-Auth-Token': DOCUSEAL_TOKEN }\n  });\n  if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText}`);\n});\n\nconst passed = results.filter(r => r.status === 'PASS').length;\nconst total = results.length;\nreturn [{ json: {\n  summary: `${passed}/${total} tests passés`,\n  passed, total,\n  allPassed: passed === total,\n  results,\n  timestamp: new Date().toISOString()\n} }];"
+      }
+    },
+    {
+      "id": "resp-test-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        690,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": null,
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T16:43:25.659Z",
+      "createdAt": "2026-02-23T16:43:25.659Z",
+      "role": "workflow:owner",
+      "workflowId": "wsbsKU46xReEnTUV",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-23T16:43:25.659Z",
+  "versionId": "0ca91932-ab94-413f-8cb8-6053549b2b87"
+}
