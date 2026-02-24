@@ -1,0 +1,748 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-02-23T18:05:22.343Z",
+    "createdAt": "2026-02-23T18:05:22.343Z",
+    "versionId": "ddeda800-3151-4fec-b5f9-eee98929dab4",
+    "workflowId": "Nbfecry6KboThbp8",
+    "nodes": [
+      {
+        "id": "wh-loc-1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {
+          "httpMethod": "GET",
+          "path": "edl-locataires",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": "http://localhost:8765"
+          }
+        },
+        "webhookId": "157f465f-7068-42cb-95ac-f26dce13d47f"
+      },
+      {
+        "id": "code-loc-token",
+        "name": "Code - Check Token",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "jsCode": "const EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst inp = $input.first().json;\nconst t = (inp.query && inp.query.t) ? inp.query.t : inp.t;\nreturn [{ json: { _tokenOk: t === EXT_TOKEN } }];"
+        }
+      },
+      {
+        "id": "if-loc-token",
+        "name": "IF - Token OK ?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          690,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose"
+            },
+            "conditions": [
+              {
+                "id": "cond-token",
+                "leftValue": "={{ $json._tokenOk ? 1 : 0 }}",
+                "rightValue": 1,
+                "operator": {
+                  "type": "number",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "resp-loc-401",
+        "name": "Respond to Webhook - 401",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          910,
+          420
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify({ success: false, error: 'Non autorisé' }) }}",
+          "options": {
+            "responseCode": 401,
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:8765"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "notion-loc-1",
+        "name": "Notion - Parties",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          910,
+          180
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        },
+        "parameters": {
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "20f02d84-a064-808b-815a-cf29c8680feb",
+            "mode": "id"
+          },
+          "returnAll": true,
+          "filterType": "none",
+          "options": {}
+        }
+      },
+      {
+        "id": "code-collect-parties",
+        "name": "Code - Collecter Parties",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1130,
+          180
+        ],
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "jsCode": "const parties = $input.all().map(item => item.json);\nreturn [{ json: { parties } }];"
+        }
+      },
+      {
+        "id": "notion-baux-1",
+        "name": "Notion - Baux",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          1350,
+          180
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        },
+        "parameters": {
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "20102d84-a064-80f3-9e55-c3721c4e1440",
+            "mode": "id"
+          },
+          "returnAll": true,
+          "filterType": "none",
+          "options": {}
+        }
+      },
+      {
+        "id": "code-collect-baux",
+        "name": "Code - Collecter Baux",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1570,
+          180
+        ],
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "jsCode": "const { parties } = $('Code - Collecter Parties').first().json;\nconst baux = $input.all().map(item => item.json);\nreturn [{ json: { parties, baux } }];"
+        }
+      },
+      {
+        "id": "notion-chambres-1",
+        "name": "Notion - Chambres",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          1790,
+          180
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        },
+        "parameters": {
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "3d72517e-9e84-4af3-9319-2f34fffaa7ba",
+            "mode": "id"
+          },
+          "returnAll": true,
+          "filterType": "none",
+          "options": {}
+        }
+      },
+      {
+        "id": "code-loc-1",
+        "name": "Code - Formater liste",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2010,
+          180
+        ],
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "jsCode": "const { parties, baux } = $('Code - Collecter Baux').first().json;\nconst chambreItems = $input.all();\n\nfunction norm(id) { return id ? String(id).replace(/-/g, '') : ''; }\n\nconst chambreMap = {};\nfor (const c of chambreItems) {\n  const numStr = c.json.property_num_ro_chambre || c.json.property_nom || '';\n  const num = parseInt(numStr.replace(/\\D/g, ''));\n  if (!isNaN(num) && num > 0) chambreMap[norm(c.json.id)] = num;\n}\n\nconst locataireChambreMap = {};\nfor (const b of baux) {\n  if (b.property_etat !== 'Actif') continue;\n  let locataireId = b.property_locataires;\n  let chambreId = b.property_chambres;\n  if (Array.isArray(locataireId)) locataireId = locataireId[0];\n  if (Array.isArray(chambreId)) chambreId = chambreId[0];\n  if (typeof locataireId === 'object' && locataireId) locataireId = locataireId.id || null;\n  if (typeof chambreId === 'object' && chambreId) chambreId = chambreId.id || null;\n  const chamNum = chambreMap[norm(chambreId)];\n  if (locataireId && chamNum) locataireChambreMap[norm(locataireId)] = chamNum;\n}\n\nconst locataires = parties\n  .filter(p => p.property_statut === 'Locataire')\n  .map(p => ({\n    nom: (p.property_name || '').trim(),\n    id: p.id,\n    email: p.property_email || '',\n    edlEntree: p.property_etat_des_lieux_d_entr_e || 'Pas fait',\n    edlSortie: p.property_etat_des_lieux_de_sortie || 'Pas fait',\n    chambre: locataireChambreMap[norm(p.id)] || null,\n    dossierDrive: p.property_lien_de_stockage_des_documents || null\n  }))\n  .filter(l => l.nom);\n\nlocataires.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));\nreturn [{ json: { locataires } }];"
+        }
+      },
+      {
+        "id": "resp-loc-1",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          2230,
+          180
+        ],
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify($json.locataires) }}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:8765"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Code - Check Token",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Check Token": {
+        "main": [
+          [
+            {
+              "node": "IF - Token OK ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF - Token OK ?": {
+        "main": [
+          [
+            {
+              "node": "Notion - Parties",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond to Webhook - 401",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion - Parties": {
+        "main": [
+          [
+            {
+              "node": "Code - Collecter Parties",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Collecter Parties": {
+        "main": [
+          [
+            {
+              "node": "Notion - Baux",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion - Baux": {
+        "main": [
+          [
+            {
+              "node": "Code - Collecter Baux",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Collecter Baux": {
+        "main": [
+          [
+            {
+              "node": "Notion - Chambres",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion - Chambres": {
+        "main": [
+          [
+            {
+              "node": "Code - Formater liste",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code - Formater liste": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Camille Huguet",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "ddeda800-3151-4fec-b5f9-eee98929dab4",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Check Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Check Token": {
+      "main": [
+        [
+          {
+            "node": "IF - Token OK ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Token OK ?": {
+      "main": [
+        [
+          {
+            "node": "Notion - Parties",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook - 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion - Parties": {
+      "main": [
+        [
+          {
+            "node": "Code - Collecter Parties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Collecter Parties": {
+      "main": [
+        [
+          {
+            "node": "Notion - Baux",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion - Baux": {
+      "main": [
+        [
+          {
+            "node": "Code - Collecter Baux",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Collecter Baux": {
+      "main": [
+        [
+          {
+            "node": "Notion - Chambres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion - Chambres": {
+      "main": [
+        [
+          {
+            "node": "Code - Formater liste",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Formater liste": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-23T12:16:18.425Z",
+  "id": "Nbfecry6KboThbp8",
+  "isArchived": false,
+  "meta": null,
+  "name": "EDL — Agent 0 — Locataires",
+  "nodes": [
+    {
+      "id": "wh-loc-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "edl-locataires",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:8765"
+        }
+      },
+      "webhookId": "157f465f-7068-42cb-95ac-f26dce13d47f"
+    },
+    {
+      "id": "code-loc-token",
+      "name": "Code - Check Token",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst inp = $input.first().json;\nconst t = (inp.query && inp.query.t) ? inp.query.t : inp.t;\nreturn [{ json: { _tokenOk: t === EXT_TOKEN } }];"
+      }
+    },
+    {
+      "id": "if-loc-token",
+      "name": "IF - Token OK ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        690,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-token",
+              "leftValue": "={{ $json._tokenOk ? 1 : 0 }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "resp-loc-401",
+      "name": "Respond to Webhook - 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        910,
+        420
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: 'Non autorisé' }) }}",
+        "options": {
+          "responseCode": 401,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "http://localhost:8765"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "notion-loc-1",
+      "name": "Notion - Parties",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        910,
+        180
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      },
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "20f02d84-a064-808b-815a-cf29c8680feb",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "filterType": "none",
+        "options": {}
+      }
+    },
+    {
+      "id": "code-collect-parties",
+      "name": "Code - Collecter Parties",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1130,
+        180
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const parties = $input.all().map(item => item.json);\nreturn [{ json: { parties } }];"
+      }
+    },
+    {
+      "id": "notion-baux-1",
+      "name": "Notion - Baux",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1350,
+        180
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      },
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "20102d84-a064-80f3-9e55-c3721c4e1440",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "filterType": "none",
+        "options": {}
+      }
+    },
+    {
+      "id": "code-collect-baux",
+      "name": "Code - Collecter Baux",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1570,
+        180
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const { parties } = $('Code - Collecter Parties').first().json;\nconst baux = $input.all().map(item => item.json);\nreturn [{ json: { parties, baux } }];"
+      }
+    },
+    {
+      "id": "notion-chambres-1",
+      "name": "Notion - Chambres",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1790,
+        180
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      },
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "3d72517e-9e84-4af3-9319-2f34fffaa7ba",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "filterType": "none",
+        "options": {}
+      }
+    },
+    {
+      "id": "code-loc-1",
+      "name": "Code - Formater liste",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2010,
+        180
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const { parties, baux } = $('Code - Collecter Baux').first().json;\nconst chambreItems = $input.all();\n\nfunction norm(id) { return id ? String(id).replace(/-/g, '') : ''; }\n\nconst chambreMap = {};\nfor (const c of chambreItems) {\n  const numStr = c.json.property_num_ro_chambre || c.json.property_nom || '';\n  const num = parseInt(numStr.replace(/\\D/g, ''));\n  if (!isNaN(num) && num > 0) chambreMap[norm(c.json.id)] = num;\n}\n\nconst locataireChambreMap = {};\nfor (const b of baux) {\n  if (b.property_etat !== 'Actif') continue;\n  let locataireId = b.property_locataires;\n  let chambreId = b.property_chambres;\n  if (Array.isArray(locataireId)) locataireId = locataireId[0];\n  if (Array.isArray(chambreId)) chambreId = chambreId[0];\n  if (typeof locataireId === 'object' && locataireId) locataireId = locataireId.id || null;\n  if (typeof chambreId === 'object' && chambreId) chambreId = chambreId.id || null;\n  const chamNum = chambreMap[norm(chambreId)];\n  if (locataireId && chamNum) locataireChambreMap[norm(locataireId)] = chamNum;\n}\n\nconst locataires = parties\n  .filter(p => p.property_statut === 'Locataire')\n  .map(p => ({\n    nom: (p.property_name || '').trim(),\n    id: p.id,\n    email: p.property_email || '',\n    edlEntree: p.property_etat_des_lieux_d_entr_e || 'Pas fait',\n    edlSortie: p.property_etat_des_lieux_de_sortie || 'Pas fait',\n    chambre: locataireChambreMap[norm(p.id)] || null,\n    dossierDrive: p.property_lien_de_stockage_des_documents || null\n  }))\n  .filter(l => l.nom);\n\nlocataires.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));\nreturn [{ json: { locataires } }];"
+      }
+    },
+    {
+      "id": "resp-loc-1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2230,
+        180
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.locataires) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "http://localhost:8765"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "origin": "n8n",
+  "pinData": null,
+  "repo": {
+    "owner": "kamiyechung",
+    "name": "Sauvegarde-n8n"
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-23T12:16:18.425Z",
+      "createdAt": "2026-02-23T12:16:18.425Z",
+      "role": "workflow:owner",
+      "workflowId": "Nbfecry6KboThbp8",
+      "projectId": "ou1B4ZLA3LmPCUHk"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-23T18:05:22.341Z",
+  "versionId": "ddeda800-3151-4fec-b5f9-eee98929dab4"
+}
