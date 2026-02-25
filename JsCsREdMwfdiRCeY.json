@@ -983,7 +983,8 @@
     "name": "Sauvegarde-n8n"
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": true
   },
   "shared": [
     {
@@ -1014,6 +1015,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-02-18T13:10:57.351Z",
+  "updatedAt": "2026-02-25T09:41:58.663Z",
   "versionId": "73c37758-356f-40e6-8ad3-e894c7a22aac"
 }
