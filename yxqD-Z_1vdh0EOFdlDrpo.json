@@ -1,14 +1,14 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-11T14:39:08.741Z",
-    "createdAt": "2026-02-11T14:39:05.193Z",
-    "versionId": "54862013-2ee4-4574-8f04-26e20dc1d1ef",
+    "updatedAt": "2026-02-25T09:45:00.139Z",
+    "createdAt": "2026-02-25T09:45:00.139Z",
+    "versionId": "f9047409-8951-4eb6-81f0-5213764ba146",
     "workflowId": "yxqD-Z_1vdh0EOFdlDrpo",
     "nodes": [
       {
         "parameters": {
-          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
         },
         "name": "Parse Google XML",
         "type": "n8n-nodes-base.code",
@@ -21,7 +21,7 @@
       },
       {
         "parameters": {
-          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let xml = '';\n  if (item.binary && item.binary.data && item.binary.data.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else if (item.json && item.json.data) {\n    xml = typeof item.json.data === 'string' ? item.json.data : JSON.stringify(item.json);\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n\n  // Reddit Atom: <entry> tags\n  const entryRegex = /<entry[^>]*>[\\s\\S]*?<\\/entry>/gi;\n  const entries = xml.match(entryRegex);\n\n  if (entries && entries.length > 0) {\n    for (let i = 0; i < Math.min(entries.length, 10); i++) {\n      const entryXml = entries[i];\n\n      const titleMatch = entryXml.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/);\n      const linkMatch = entryXml.match(/<link[^>]*href=[\"']([^\"']+)[\"']/);\n      const updatedMatch = entryXml.match(/<updated>([^<]*)<\\/updated>/) || entryXml.match(/<published>([^<]*)<\\/published>/);\n      const contentMatch = entryXml.match(/<content[^>]*>([\\s\\S]*?)<\\/content>/) || entryXml.match(/<summary[^>]*>([\\s\\S]*?)<\\/summary>/);\n\n      const title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = updatedMatch ? updatedMatch[1].trim() : '';\n      const description = contentMatch ? contentMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n\n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Reddit'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
         },
         "name": "Parse Reddit XML",
         "type": "n8n-nodes-base.code",
@@ -34,7 +34,7 @@
       },
       {
         "parameters": {
-          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let data;\n  try {\n    if (typeof item.json === 'string') {\n      data = JSON.parse(item.json);\n    } else {\n      data = item.json;\n    }\n  } catch (e) {\n    continue;\n  }\n\n  const hits = data.hits || (Array.isArray(data) ? data : [data]);\n\n  for (const hit of hits.slice(0, 10)) {\n    const title = hit.title || '';\n    const link = hit.url || ('https://news.ycombinator.com/item?id=' + hit.objectID);\n    const description = (hit.story_text || hit.comment_text || '').replace(/<[^>]*>/g, '').substring(0, 500);\n    const pubDate = hit.created_at || '';\n    const points = hit.points || 0;\n\n    if (title && link) {\n      results.push({\n        json: {\n          title,\n          link,\n          description,\n          pubDate,\n          points,\n          source: 'Hacker News'\n        }\n      });\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
         },
         "name": "Parse HN JSON",
         "type": "n8n-nodes-base.code",
@@ -208,17 +208,11 @@
       },
       {
         "parameters": {
-          "mode": "combine",
-          "mergeByFields": {
-            "values": [
-              {}
-            ]
-          },
-          "options": {}
+          "mode": "append"
         },
         "name": "Fusion sources1",
         "type": "n8n-nodes-base.merge",
-        "typeVersion": 2.1,
+        "typeVersion": 3.2,
         "position": [
           3216,
           232
@@ -228,22 +222,40 @@
       {
         "parameters": {
           "conditions": {
-            "string": [
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 3
+            },
+            "conditions": [
               {
-                "value1": "={{$json.title}}",
-                "operation": "isNotEmpty"
+                "id": "title-check",
+                "leftValue": "={{$json.title}}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "isNotEmpty"
+                }
               },
               {
-                "value1": "={{$json.link}}",
-                "operation": "isNotEmpty"
+                "id": "link-check",
+                "leftValue": "={{$json.link}}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "isNotEmpty"
+                }
               }
-            ]
+            ],
+            "combinator": "and"
           },
+          "looseTypeValidation": true,
           "options": {}
         },
         "name": "Filtre qualité1",
         "type": "n8n-nodes-base.if",
-        "typeVersion": 2,
+        "typeVersion": 2.3,
         "position": [
           3440,
           232
@@ -283,6 +295,26 @@
           "resource": "databasePage",
           "databaseId": "8886261fa0cd4fb7bc831d3fdcd78a7d",
           "title": "={{$json.title}}",
+          "propertiesUi": {
+            "propertyValues": [
+              {
+                "key": "URL",
+                "urlValue": "={{$json.link}}"
+              },
+              {
+                "key": "Source",
+                "textContent": "={{$json.source}}"
+              },
+              {
+                "key": "Résumé",
+                "textContent": "={{$json.resume}}"
+              },
+              {
+                "key": "Priorité",
+                "selectValue": "={{$json.priorite}}"
+              }
+            ]
+          },
           "options": {}
         },
         "name": "Notion insert1",
@@ -305,17 +337,11 @@
           "method": "POST",
           "url": "http://browserless:3000/scrape",
           "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Content-Type",
-                "value": "application/json"
-              }
-            ]
-          },
+          "specifyHeaders": "json",
+          "jsonHeaders": "{\n  \"User-Agent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\n  \"Accept-Language\": \"fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\",\n  \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\",\n  \"Referer\": \"https://www.google.com/\",\n  \"sec-ch-ua\": \"\\\"Not_A Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"120\\\", \\\"Google Chrome\\\";v=\\\"120\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"macOS\\\"\"\n}",
           "sendBody": true,
           "specifyBody": "json",
-          "jsonBody": "={\n  \"url\": \"{{ $json.lien }}\",\n  \"elements\": [\n    {\n      \"selector\": \"script[type='application/ld+json']\"\n    }\n  ],\n  \"gotoOptions\": {\n    \"waitUntil\": \"networkidle2\"\n  },\n  \"waitFor\": 2000\n}",
+          "jsonBody": "={\n  \"url\": \"{{ $('Merge').item.json.lien }}\",\n  \"elements\": [\n    {\n      \"selector\": \"article, main, [role='main']\"\n    }\n  ],\n  \"gotoOptions\": {\n    \"waitUntil\": \"networkidle2\"\n  },\n  \"waitFor\": 2000\n}",
           "options": {
             "batching": {
               "batch": {
@@ -336,7 +362,8 @@
         "position": [
           2960,
           -160
-        ]
+        ],
+        "continueOnFail": true
       },
       {
         "parameters": {
@@ -392,8 +419,8 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
         "typeVersion": 1,
         "position": [
-          1896,
-          208
+          1856,
+          144
         ],
         "id": "639bb09e-d457-4ba9-98b8-3e5b04216385",
         "name": "Ollama Chat Model1",
@@ -432,15 +459,16 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.3,
         "position": [
-          2768,
-          -16
+          2720,
+          -48
         ],
         "id": "68ea31cc-7592-41e9-9141-3e62cdd83ac4",
-        "name": "If"
+        "name": "If",
+        "disabled": true
       },
       {
         "parameters": {
-          "jsCode": "let raw = $json.output;\n\nif (typeof raw !== \"string\") {\n  return [{ json: raw }];\n}\n\nraw = raw.trim();\n\n// Supprime ```json ``` si présent\nif (raw.startsWith(\"```\")) {\n  raw = raw.replace(/```json/g, \"\")\n           .replace(/```/g, \"\")\n           .trim();\n}\n\n// 🔥 Corrige TOUS les backslashes invalides\nraw = raw.replace(/\\\\(?![\"\\\\/bfnrtu])/g, \"\\\\\\\\\");\n\ntry {\n  const parsed = JSON.parse(raw);\n  return [{ json: parsed }];\n} catch (err) {\n  throw new Error(\"JSON invalide après nettoyage :\\n\" + raw);\n}\n"
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let raw = item.json.output || '';\n\n  if (typeof raw !== 'string') {\n    // AI returned structured data directly\n    results.push({\n      json: {\n        ...item.json,\n        ...raw,\n        score: raw.score || 0\n      }\n    });\n    continue;\n  }\n\n  raw = raw.trim();\n\n  // Remove markdown code blocks\n  if (raw.startsWith('```')) {\n    raw = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  }\n\n  // Fix invalid backslashes\n  raw = raw.replace(/\\\\(?![\"\\\\\\/bfnrtu])/g, '\\\\\\\\');\n\n  try {\n    const parsed = JSON.parse(raw);\n    results.push({\n      json: {\n        // Keep original article fields from upstream\n        title: item.json.title || parsed.title || '',\n        link: item.json.link || parsed.lien || '',\n        description: item.json.description || '',\n        pubDate: item.json.pubDate || '',\n        source: item.json.source || 'Google News',\n        // Add AI analysis fields\n        pertinent: parsed.pertinent || false,\n        score: parsed.score || 0,\n        categorie: parsed.categorie || 'hors-sujet',\n        raison: parsed.raison || '',\n        action_suggeree: parsed.action_suggeree || 'ignorer',\n        lien: parsed.lien || item.json.link || ''\n      }\n    });\n  } catch (e) {\n    // On parse error, still pass through with default score\n    results.push({\n      json: {\n        title: item.json.title || '',\n        link: item.json.link || '',\n        description: item.json.description || '',\n        pubDate: item.json.pubDate || '',\n        source: item.json.source || 'Google News',\n        pertinent: false,\n        score: 0,\n        categorie: 'hors-sujet',\n        raison: 'Erreur parsing AI: ' + e.message,\n        action_suggeree: 'ignorer',\n        lien: item.json.link || ''\n      }\n    });\n  }\n}\n\nreturn results;"
         },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
@@ -461,6 +489,19 @@
         ],
         "id": "c634aa5a-2955-4744-88d5-35e3b228b955",
         "name": "Merge"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    // Récupère la réponse de Browserless\n    let data = item.json.data || item.json;\n    \n    // Si c'est un array, prend le premier élément\n    if (Array.isArray(data)) {\n      data = data[0];\n    }\n    \n    // Extrait le HTML brut\n    let html = '';\n    if (data.results && Array.isArray(data.results)) {\n      html = data.results.map(r => r.html || r.text || '').join('\\n');\n    } else if (data.html) {\n      html = data.html;\n    } else if (data.text) {\n      html = data.text;\n    } else {\n      html = JSON.stringify(data);\n    }\n    \n    // Nettoyage HTML\n    let text = html\n      // Supprime scripts et styles\n      .replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, '')\n      .replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, '')\n      // Supprime commentaires HTML\n      .replace(/<!--[\\s\\S]*?-->/g, '')\n      // Remplace les balises par des espaces/sauts\n      .replace(/<br\\s*\\/?>/gi, '\\n')\n      .replace(/<\\/p>/gi, '\\n\\n')\n      .replace(/<\\/div>/gi, '\\n')\n      .replace(/<\\/h[1-6]>/gi, '\\n\\n')\n      .replace(/<li>/gi, '• ')\n      .replace(/<\\/li>/gi, '\\n')\n      // Supprime toutes les balises restantes\n      .replace(/<[^>]+>/g, ' ')\n      // Décode les entités HTML\n      .replace(/&nbsp;/g, ' ')\n      .replace(/&amp;/g, '&')\n      .replace(/&lt;/g, '<')\n      .replace(/&gt;/g, '>')\n      .replace(/&quot;/g, '\"')\n      .replace(/&#39;/g, \"'\")\n      .replace(/&eacute;/g, 'é')\n      .replace(/&egrave;/g, 'è')\n      .replace(/&agrave;/g, 'à')\n      .replace(/&ccedil;/g, 'ç')\n      // Nettoie les espaces multiples\n      .replace(/\\s+/g, ' ')\n      .replace(/\\n\\s+/g, '\\n')\n      .replace(/\\n{3,}/g, '\\n\\n')\n      .trim();\n    \n    // Limite la taille (premiers 3000 caractères)\n    const contenu = text.substring(0, 3000);\n    \n    // Extrait un titre si possible (première ligne non vide)\n    const lignes = contenu.split('\\n').filter(l => l.trim().length > 0);\n    const titre = lignes[0]?.substring(0, 200) || '';\n    \n    results.push({\n      json: {\n        titre_scrape: titre,\n        contenu_nettoye: contenu,\n        longueur: contenu.length,\n        titre_original: item.json.title || '',\n        link: item.json.link || '',\n        source: item.json.source || ''\n      }\n    });\n    \n  } catch (e) {\n    // En cas d'erreur, retourne les données originales\n    results.push({\n      json: {\n        titre_scrape: '',\n        contenu_nettoye: '',\n        longueur: 0,\n        titre_original: item.json.title || '',\n        link: item.json.link || '',\n        source: item.json.source || '',\n        erreur: e.message\n      }\n    });\n  }\n}\n\nreturn results;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3168,
+          -160
+        ],
+        "id": "760778b9-b15c-40f5-a258-83ce9ee2f7d7",
+        "name": "Code in JavaScript1"
       }
     ],
     "connections": {
@@ -471,11 +512,6 @@
               "node": "AI Agent",
               "type": "main",
               "index": 0
-            },
-            {
-              "node": "Merge",
-              "type": "main",
-              "index": 1
             }
           ]
         ]
@@ -650,7 +686,7 @@
             {
               "node": "Fusion sources1",
               "type": "main",
-              "index": 1
+              "index": 2
             }
           ]
         ]
@@ -659,7 +695,7 @@
         "main": [
           [
             {
-              "node": "Fusion sources1",
+              "node": "Code in JavaScript1",
               "type": "main",
               "index": 0
             }
@@ -696,21 +732,17 @@
               "type": "main",
               "index": 0
             }
-          ]
-        ]
-      },
-      "Code in JavaScript": {
-        "main": [
+          ],
           [
             {
-              "node": "Merge",
+              "node": "Fusion sources1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Merge": {
+      "Code in JavaScript": {
         "main": [
           [
             {
@@ -720,14 +752,25 @@
             }
           ]
         ]
+      },
+      "Code in JavaScript1": {
+        "main": [
+          [
+            {
+              "node": "Fusion sources1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "authors": "Camille Huguet",
-    "name": "Version 54862013",
-    "description": "",
+    "name": null,
+    "description": null,
     "autosaved": false
   },
-  "activeVersionId": "54862013-2ee4-4574-8f04-26e20dc1d1ef",
+  "activeVersionId": "f9047409-8951-4eb6-81f0-5213764ba146",
   "connections": {
     "Parse Google XML": {
       "main": [
@@ -736,11 +779,6 @@
             "node": "AI Agent",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
           }
         ]
       ]
@@ -915,7 +953,7 @@
           {
             "node": "Fusion sources1",
             "type": "main",
-            "index": 1
+            "index": 2
           }
         ]
       ]
@@ -964,7 +1002,7 @@
         ],
         [
           {
-            "node": "Browserless Scrape",
+            "node": "Fusion sources1",
             "type": "main",
             "index": 0
           }
@@ -972,17 +1010,6 @@
       ]
     },
     "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge": {
       "main": [
         [
           {
@@ -1015,7 +1042,7 @@
   "nodes": [
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
       },
       "name": "Parse Google XML",
       "type": "n8n-nodes-base.code",
@@ -1028,7 +1055,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let xml = '';\n  if (item.binary && item.binary.data && item.binary.data.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else if (item.json && item.json.data) {\n    xml = typeof item.json.data === 'string' ? item.json.data : JSON.stringify(item.json);\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n\n  // Reddit Atom: <entry> tags\n  const entryRegex = /<entry[^>]*>[\\s\\S]*?<\\/entry>/gi;\n  const entries = xml.match(entryRegex);\n\n  if (entries && entries.length > 0) {\n    for (let i = 0; i < Math.min(entries.length, 10); i++) {\n      const entryXml = entries[i];\n\n      const titleMatch = entryXml.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/);\n      const linkMatch = entryXml.match(/<link[^>]*href=[\"']([^\"']+)[\"']/);\n      const updatedMatch = entryXml.match(/<updated>([^<]*)<\\/updated>/) || entryXml.match(/<published>([^<]*)<\\/published>/);\n      const contentMatch = entryXml.match(/<content[^>]*>([\\s\\S]*?)<\\/content>/) || entryXml.match(/<summary[^>]*>([\\s\\S]*?)<\\/summary>/);\n\n      const title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = updatedMatch ? updatedMatch[1].trim() : '';\n      const description = contentMatch ? contentMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n\n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Reddit'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
       },
       "name": "Parse Reddit XML",
       "type": "n8n-nodes-base.code",
@@ -1041,7 +1068,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // Récupère le XML (soit binary, soit json string)\n  let xml = '';\n  if (item.binary?.data?.data) {\n    xml = Buffer.from(item.binary.data.data, 'base64').toString();\n  } else if (typeof item.json === 'string') {\n    xml = item.json;\n  } else {\n    xml = JSON.stringify(item.json);\n  }\n  \n  // Regex plus permissive pour capturer les items\n  const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n  const items = xml.match(itemRegex);\n  \n  if (items && items.length > 0) {\n    for (let i = 0; i < Math.min(items.length, 10); i++) {\n      const itemXml = items[i];\n      \n      // Extraction simple\n      const titleMatch = itemXml.match(/<title>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/s);\n      const linkMatch = itemXml.match(/<link>([^<]*)<\\/link>/s);\n      const pubDateMatch = itemXml.match(/<pubDate>([^<]*)<\\/pubDate>/s);\n      const descMatch = itemXml.match(/<description>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/description>/s);\n      \n      const title = titleMatch ? titleMatch[1].trim() : '';\n      const link = linkMatch ? linkMatch[1].trim() : '';\n      const pubDate = pubDateMatch ? pubDateMatch[1].trim() : '';\n      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').trim().substring(0, 500) : '';\n      \n      if (title && link) {\n        results.push({\n          json: {\n            title,\n            link,\n            description,\n            pubDate,\n            source: 'Google News'\n          }\n        });\n      }\n    }\n  }\n}\n\nreturn results;"
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let data;\n  try {\n    if (typeof item.json === 'string') {\n      data = JSON.parse(item.json);\n    } else {\n      data = item.json;\n    }\n  } catch (e) {\n    continue;\n  }\n\n  const hits = data.hits || (Array.isArray(data) ? data : [data]);\n\n  for (const hit of hits.slice(0, 10)) {\n    const title = hit.title || '';\n    const link = hit.url || ('https://news.ycombinator.com/item?id=' + hit.objectID);\n    const description = (hit.story_text || hit.comment_text || '').replace(/<[^>]*>/g, '').substring(0, 500);\n    const pubDate = hit.created_at || '';\n    const points = hit.points || 0;\n\n    if (title && link) {\n      results.push({\n        json: {\n          title,\n          link,\n          description,\n          pubDate,\n          points,\n          source: 'Hacker News'\n        }\n      });\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
       },
       "name": "Parse HN JSON",
       "type": "n8n-nodes-base.code",
@@ -1215,17 +1242,11 @@
     },
     {
       "parameters": {
-        "mode": "combine",
-        "mergeByFields": {
-          "values": [
-            {}
-          ]
-        },
-        "options": {}
+        "mode": "append"
       },
       "name": "Fusion sources1",
       "type": "n8n-nodes-base.merge",
-      "typeVersion": 2.1,
+      "typeVersion": 3.2,
       "position": [
         3216,
         232
@@ -1235,22 +1256,40 @@
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
             {
-              "value1": "={{$json.title}}",
-              "operation": "isNotEmpty"
+              "id": "title-check",
+              "leftValue": "={{$json.title}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
             },
             {
-              "value1": "={{$json.link}}",
-              "operation": "isNotEmpty"
+              "id": "link-check",
+              "leftValue": "={{$json.link}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         },
+        "looseTypeValidation": true,
         "options": {}
       },
       "name": "Filtre qualité1",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
+      "typeVersion": 2.3,
       "position": [
         3440,
         232
@@ -1290,6 +1329,26 @@
         "resource": "databasePage",
         "databaseId": "8886261fa0cd4fb7bc831d3fdcd78a7d",
         "title": "={{$json.title}}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "URL",
+              "urlValue": "={{$json.link}}"
+            },
+            {
+              "key": "Source",
+              "textContent": "={{$json.source}}"
+            },
+            {
+              "key": "Résumé",
+              "textContent": "={{$json.resume}}"
+            },
+            {
+              "key": "Priorité",
+              "selectValue": "={{$json.priorite}}"
+            }
+          ]
+        },
         "options": {}
       },
       "name": "Notion insert1",
@@ -1337,7 +1396,8 @@
       "position": [
         2960,
         -160
-      ]
+      ],
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -1442,7 +1502,7 @@
     },
     {
       "parameters": {
-        "jsCode": "let raw = $json.output;\n\nif (typeof raw !== \"string\") {\n  return [{ json: raw }];\n}\n\nraw = raw.trim();\n\n// Supprime ```json ``` si présent\nif (raw.startsWith(\"```\")) {\n  raw = raw.replace(/```json/g, \"\")\n           .replace(/```/g, \"\")\n           .trim();\n}\n\n// 🔥 Gère les cas : \"lien\": \"<URL>\" ou \"lien\": \"<URL>\" ou \"lien\": URL\n// Solution : vire juste les < > qui entourent les URLs\nraw = raw.replace(/\"<(https?:\\/\\/[^>]+)>\"/g, '\"$1\"');  // \"lien\": \"<URL>\" → \"lien\": \"URL\"\nraw = raw.replace(/<(https?:\\/\\/[^>]+)>/g, '$1');       // <URL> → URL (sans quotes)\n\n// 🔥 Corrige les backslashes échappés\nraw = raw.replace(/\\\\\\//g, \"/\");\n\n// 🔥 Corrige TOUS les backslashes invalides (sauf ceux déjà valides)\nraw = raw.replace(/\\\\(?![\"\\\\/bfnrtu])/g, \"\\\\\\\\\");\n\ntry {\n  const parsed = JSON.parse(raw);\n  return [{ json: parsed }];\n} catch (err) {\n  throw new Error(\"JSON invalide après nettoyage :\\n\" + raw);\n}"
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let raw = item.json.output || '';\n\n  if (typeof raw !== 'string') {\n    // AI returned structured data directly\n    results.push({\n      json: {\n        ...item.json,\n        ...raw,\n        score: raw.score || 0\n      }\n    });\n    continue;\n  }\n\n  raw = raw.trim();\n\n  // Remove markdown code blocks\n  if (raw.startsWith('```')) {\n    raw = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  }\n\n  // Fix invalid backslashes\n  raw = raw.replace(/\\\\(?![\"\\\\\\/bfnrtu])/g, '\\\\\\\\');\n\n  try {\n    const parsed = JSON.parse(raw);\n    results.push({\n      json: {\n        // Keep original article fields from upstream\n        title: item.json.title || parsed.title || '',\n        link: item.json.link || parsed.lien || '',\n        description: item.json.description || '',\n        pubDate: item.json.pubDate || '',\n        source: item.json.source || 'Google News',\n        // Add AI analysis fields\n        pertinent: parsed.pertinent || false,\n        score: parsed.score || 0,\n        categorie: parsed.categorie || 'hors-sujet',\n        raison: parsed.raison || '',\n        action_suggeree: parsed.action_suggeree || 'ignorer',\n        lien: parsed.lien || item.json.link || ''\n      }\n    });\n  } catch (e) {\n    // On parse error, still pass through with default score\n    results.push({\n      json: {\n        title: item.json.title || '',\n        link: item.json.link || '',\n        description: item.json.description || '',\n        pubDate: item.json.pubDate || '',\n        source: item.json.source || 'Google News',\n        pertinent: false,\n        score: 0,\n        categorie: 'hors-sujet',\n        raison: 'Erreur parsing AI: ' + e.message,\n        action_suggeree: 'ignorer',\n        lien: item.json.link || ''\n      }\n    });\n  }\n}\n\nreturn results;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1486,7 +1546,8 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": false
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
   },
   "shared": [
     {
@@ -1506,6 +1567,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-17T17:47:09.210Z",
-  "versionId": "d3286740-f2ba-440d-9109-1be4db982e8f"
+  "updatedAt": "2026-02-25T09:45:00.136Z",
+  "versionId": "f9047409-8951-4eb6-81f0-5213764ba146"
 }
