@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-03T18:29:57.196Z",
-    "createdAt": "2026-01-29T16:10:12.554Z",
-    "versionId": "31a7f072-87df-4feb-93fd-a4e9a124475a",
+    "updatedAt": "2026-02-25T16:33:30.268Z",
+    "createdAt": "2026-02-25T16:33:30.268Z",
+    "versionId": "6d7ea2a2-bf5d-4a65-9e9e-af76a95585c0",
     "workflowId": "kW8sTJpTylpyEiPg",
     "nodes": [
       {
@@ -31,7 +31,8 @@
           "limit": 10,
           "simple": false,
           "filters": {
-            "labelIds": []
+            "readStatus": "unread",
+            "receivedAfter": "2025-01-01T00:00:00Z"
           },
           "options": {
             "downloadAttachments": true
@@ -68,23 +69,6 @@
         "id": "9d14bea7-c4ca-4167-9202-7df5cc96e1c5",
         "name": "Extract from File",
         "onError": "continueRegularOutput"
-      },
-      {
-        "parameters": {
-          "promptType": "define",
-          "text": "=MISSION : Prépare le JSON pour créer une facture dans Notion.\n\nDONNÉES REÇUES :\n- Numéro : {{ $json['Numéro de facture'] }}\n- Date émission : {{ $json['date:Date émission:start'] }}\n- Date paiement : {{ $json['date:Date de paiement:start'] }}\n- Date échéance : {{ $json['date:Date échéance:start'] }}\n- Période : {{ $json['date:Période facturée:start'] }}\n- Montant HT : {{ $json['Montant HT'] }}\n- TVA : {{ $json.TVA }}\n- Description : {{ $json.Description }}\n- Durée : {{ $json.duree }}\n\nRetourne UNIQUEMENT ce JSON sans commentaire :\n{\n  \"Name\": \"{{ $json.numero_facture }}\",\n  \"Numéro de facture\": \"{{ $json.numero_facture }}\",\n  \"date:Date émission:start\": \"{{ $json.date_emission }}\",\n  \"date:Date de paiement:start\": \"{{ $json.date_paiement }}\",\n  \"date:Date échéance:start\": \"{{ $json.date_echeance }}\",\n  \"date:Période facturée:start\": \"{{ $json.periode }}\",\n  \"Montant HT\": {{ $json.montant_ht }},\n  \"TVA\": {{ $json.tva }},\n  \"Description\": \"{{ $json.description }}\",\n  \"Durée de facturation\": \"{{ $json.duree }}\",\n  \"Statut\": \"En attente\"|\"Payée\",\n  \"Type\": \"Dépense\"\n}",
-          "options": {}
-        },
-        "type": "@n8n/n8n-nodes-langchain.agent",
-        "typeVersion": 3,
-        "position": [
-          2096,
-          256
-        ],
-        "id": "d28f9cd2-2d8f-4cd5-8d73-6bd04eeeedc7",
-        "name": "AI Agent",
-        "retryOnFail": true,
-        "onError": "continueErrorOutput"
       },
       {
         "parameters": {
@@ -141,7 +125,7 @@
       {
         "parameters": {
           "promptType": "define",
-          "text": "=Tu es un assistant spécialisé dans l'analyse d'emails reçus par une société. Ta seule tâche est de déterminer si un email reçu est bien une facture.\n\nUn email est considéré comme une facture UNIQUEMENT si les 2 conditions suivantes sont remplies :\n1. Le sujet du mail ou le contenu du mail contient le mot \"facture\" ou \"invoice\"\n2. L'email contient une pièce jointe PDF\n\nSi une seule de ces conditions manque, ce n'est PAS une facture (sauf si l'objet est \" receipt from Anthropic\", c'est bien une facture)\nSi le mail contient \"payment warning\" ou \"payment reminder\" ce n'est pas une facture\n\nAnalyse l'email fourni et réponds UNIQUEMENT avec ce format JSON exact :\n{\"est_facture\": true} ou {\"est_facture\": false}\n\nAucun texte avant ou après le JSON.\n\nAucun texte avant ou après le JSON.\nSujet du mail : {{ $('Get many messages').item.json.headers.subject }}\nContenu du mail : {{ $('Get many messages').item.json.text }}\nLien de la PJ : {{ $('Upload file').item.json.webViewLink }}\n\n",
+          "text": "=Tu es un assistant spécialisé dans l'analyse d'emails. Ta seule tâche est de déterminer si un email est une facture.\n\nUn email est une facture si TOUTES ces conditions sont remplies :\n1. Le sujet ou contenu contient \"facture\", \"invoice\", ou \"receipt\"\n2. L'email a une pièce jointe ou un lien vers un document\n\nEXCEPTIONS :\n- \"receipt from Anthropic\" = facture même sans le mot \"facture\"\n- \"payment warning\" ou \"payment reminder\" = PAS une facture\n- Newsletters, alertes sécurité, mises à jour = PAS des factures\n\nSujet : {{ $('Get many messages').item.json.headers.subject }}\nContenu (début) : {{ $('Get many messages').item.json.text?.substring(0, 500) || 'vide' }}\nPJ disponible : {{ $('Upload file').item.json.webViewLink ? 'oui' : 'non' }}\n\nRéponds UNIQUEMENT avec ce JSON exact :\n{\"est_facture\": true} ou {\"est_facture\": false}",
           "options": {}
         },
         "type": "@n8n/n8n-nodes-langchain.agent",
@@ -238,7 +222,7 @@
       {
         "parameters": {
           "promptType": "define",
-          "text": "=Tu es un expert comptable spécialisé dans l'extraction de données de factures françaises.\n\nCONTEXTE : Tu traites des factures reçues par email pour automatiser la saisie comptable. Les factures concernent principalement des prestataires tech et services en ligne.\n\nFACTURE : {{ $('Extract from File').item.json.text }}\nEMAIL : {{ $('Get many messages').item.json.subject }}\nPJ : {{ $('Upload file').item.json.webViewLink }}\n\nExtrais les informations en JSON :\n{\n  \"numero_facture\": \"numéro de facture\",\n  \"date_emission\": \"YYYY-MM-DD\",\n  \"date_paiement\": \"YYYY-MM-DD\",\n  \"date_echeance\": \"YYYY-MM-DD\",\n  \"periode facturée start\": \"2026-01-15\",\n \"periode facturée end\": \"2026-02-15\",\n  \"montant_ht\": 0.00,\n  \"tva\": 0.00,\n  \"description\": \"description courte\",\n  \"periode\": \"mois|année\",\n  \"duree\": \"mensuelle|annuelle\",\n  \"prestataire\": \"nom exact du prestataire\",\n  \"année\": \"YYYY\",\n  \"statut\": \"En attente|Payée\"\n  \"pdf\": {{ $('Upload file').item.json.webViewLink }} ,\n  \"prestataire\" : \"Nom du prestataire\",\n}\n\nRÈGLES :\n- Date_emission est OBLIGATOIRE\n- Montants en décimal sans symbole avec une virgule\n- le lien du PDF est OBLIGATOIRE\n- Si info manquante : null\n- Si la facture ne mentionne pas de date d'échéance, considère qu'elle est \"payée\" et que la date de paiement est la date d'émission de d'échéance (les 3 peuvent être identiques mais elles doivent chacunes être remplies).\n- NE retourne QUE le Json sans texte ni avant ni après. PAS DE ```json\\n et assimilé\n\nVoici un exemple d'output : \n\n{\n  \"numero_facture\": \"083000621772\",\n  \"date_emission\": \"2026-01-02\",\n  \"date_paiement\": \"2026-01-15\",\n  \"date_echeance\": \"2026-01-15\",\n  \"montant_ht\": 8.64,\n  \"tva\": 1.44,\n  \"description\": \"Hébergement Hetzner\",\n  \"periode facturée\": \"2026-01-15\",\n  \"durée de facturation\": \"mensuelle\",\n  \"statut\": \"payée\",\n  \"pdf\" : {{ $('Upload file').item.json.webViewLink }},\n  \"Nom de la page\" :\"Nom du prestataire - Numéro de Facture\",\n  \"Prestataire\" : \"Hetzner\"\n\n}",
+          "text": "=Tu es un expert comptable spécialisé dans l'extraction de données de factures françaises.\n\nCONTEXTE : Tu traites des factures reçues par email pour automatiser la saisie comptable.\n\nFACTURE (texte extrait du PDF) :\n{{ $('Extract from File').item.json.text }}\n\nEMAIL (sujet) : {{ $('Get many messages').item.json.subject }}\nLIEN PDF : {{ $('Upload file').item.json.webViewLink }}\n\nExtrais les informations et retourne UNIQUEMENT un JSON valide (sans markdown, sans backticks) :\n{\n  \"numero_facture\": \"numéro exact de la facture\",\n  \"date_emission\": \"YYYY-MM-DD\",\n  \"date_paiement\": \"YYYY-MM-DD ou null\",\n  \"date_echeance\": \"YYYY-MM-DD ou null\",\n  \"periode_start\": \"YYYY-MM-DD ou null\",\n  \"periode_end\": \"YYYY-MM-DD ou null\",\n  \"montant_ht\": 0.00,\n  \"tva\": 0.00,\n  \"description\": \"description courte du service\",\n  \"duree\": \"mensuelle ou annuelle\",\n  \"prestataire\": \"nom exact du prestataire\",\n  \"statut\": \"En attente ou Payée\",\n  \"pdf\": \"lien du PDF\",\n  \"nom_page\": \"Prestataire - NuméroFacture\"\n}\n\nRÈGLES STRICTES :\n- date_emission est OBLIGATOIRE\n- Montants en décimal avec point (ex: 8.64, pas 8,64)\n- pdf = {{ $('Upload file').item.json.webViewLink }}\n- Si pas de date d'échéance mentionnée : statut = \"Payée\", date_paiement = date_echeance = date_emission\n- Si info manquante : null\n- NE retourne QUE le JSON, rien d'autre",
           "options": {}
         },
         "type": "@n8n/n8n-nodes-langchain.agent",
@@ -252,7 +236,7 @@
       },
       {
         "parameters": {
-          "jsCode": "let jsonStr = $input.item.json.output;\n// Nettoie les markdown code blocks\njsonStr = jsonStr.trim()\n  .replace(/^```json\\s*\\n?/, '')\n  .replace(/\\n?```$/, '');\nconst data = JSON.parse(jsonStr);\nreturn [{\n  json: {\n    Name: data[\"Nom de la page\"] || data[\"Name\"] || data.numero_facture,\n    \"Numéro de facture\": data[\"Numéro de facture\"] || data.numero_facture,\n    \"date:Date émission:start\": data[\"date:Date émission:start\"] || data.date_emission,\n    \"date:Date de paiement:start\": data[\"date:Date de paiement:start\"] || data.date_paiement || null,\n    \"date:Date échéance:start\": data[\"date:Date échéance:start\"] || data.date_echeance,\n    \"date:Période facturée:start\": data[\"date:Période facturée:start\"] || data.periode,\n    \"date:Période facturée:end\": data[\"date:Période facturée:end\"] || data.periode_fin || null,\n    \"Montant HT\": data[\"Montant HT\"] || data.montant_ht,\n    \"TVA\": data[\"TVA\"] || data.tva,\n    \"Description\": data[\"Description\"] || data.description,\n    \"Durée de facturation\": data[\"Durée de facturation\"] || data.duree,\n    \"Statut\": data[\"Statut\"] || data.statut || \"En attente\",\n    \"Type\": data[\"Type\"] || \"Dépense\",\n    \"Fichier facture\": data[\"pdf\"] || data[\"Fichier facture\"] || null,\n    \"Prestataire\": data[\"Prestataire\"] || null\n  }\n}];"
+          "jsCode": "// ============================================\n// Build prestataire lookup from Notion DB\n// ============================================\nconst prestaMap = {};\ntry {\n  const prestaItems = $('Load Prestataires').all();\n  for (const p of prestaItems) {\n    const name = (p.json.Name || '').trim();\n    if (name) {\n      prestaMap[name.toLowerCase()] = p.json.id;\n    }\n  }\n} catch (e) {\n  // Fallback: continue without prestataire lookup\n}\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    let jsonStr = item.json.output || '';\n\n    // Clean markdown code blocks\n    jsonStr = jsonStr.trim()\n      .replace(/^```json\\s*\\n?/, '')\n      .replace(/^```\\s*\\n?/, '')\n      .replace(/\\n?```$/, '')\n      .trim();\n\n    // Fix common LLM JSON issues\n    jsonStr = jsonStr\n      .replace(/,\\s*}/g, '}')\n      .replace(/,\\s*]/g, ']');\n\n    const data = JSON.parse(jsonStr);\n\n    // Extract year from date_emission\n    const year = data.date_emission\n      ? parseInt(data.date_emission.substring(0, 4))\n      : new Date().getFullYear();\n\n    // Normalize Durée de facturation\n    const duree = (() => {\n      const d = (data.duree || 'mensuelle').toLowerCase().trim();\n      if (d.includes('annuel')) return 'Annuelle';\n      if (d.includes('one') || d.includes('shot') || d.includes('unique') || d.includes('ponctuel')) return 'One shot';\n      return 'Mensuelle';\n    })();\n\n    // Normalize Statut\n    const statut = (() => {\n      const s = (data.statut || 'En attente').toLowerCase().trim();\n      if (s.includes('pay')) return 'Payée';\n      if (s.includes('annul')) return 'Annulé';\n      return 'En attente';\n    })();\n\n    // Lookup prestataire ID in Notion\n    const prestaNom = (data.prestataire || '').trim();\n    const prestataireId = prestaMap[prestaNom.toLowerCase()] || null;\n\n    results.push({\n      json: {\n        Name: data.nom_page || (data.prestataire + ' - ' + data.numero_facture),\n        \"Numéro de facture\": data.numero_facture || '',\n        \"date:Date émission:start\": data.date_emission || null,\n        \"date:Date émission:is_datetime\": 0,\n        \"date:Date de paiement:start\": data.date_paiement || null,\n        \"date:Date de paiement:is_datetime\": 0,\n        \"date:Date échéance:start\": data.date_echeance || null,\n        \"date:Date échéance:is_datetime\": 0,\n        \"date:Période facturée:start\": data.periode_start || null,\n        \"date:Période facturée:end\": data.periode_end || null,\n        \"date:Période facturée:is_datetime\": 0,\n        \"Montant HT\": typeof data.montant_ht === 'number' ? data.montant_ht : parseFloat(String(data.montant_ht).replace(',', '.')) || 0,\n        \"TVA\": typeof data.tva === 'number' ? data.tva : parseFloat(String(data.tva).replace(',', '.')) || 0,\n        \"Description\": data.description || '',\n        \"Durée de facturation\": duree,\n        \"Statut\": statut,\n        \"Type\": \"Dépense\",\n        \"Fichier facture\": data.pdf || null,\n        \"Prestataire\": prestaNom,\n        prestataire_id: prestataireId,\n        \"Année\": year\n      }\n    });\n  } catch (e) {\n    results.push({\n      json: {\n        Name: 'ERREUR PARSING',\n        Description: 'Erreur: ' + e.message + ' | Raw: ' + (item.json.output || '').substring(0, 200),\n        Statut: 'En attente',\n        Type: 'Depense',\n        \"Année\": new Date().getFullYear(),\n        prestataire_id: null\n      }\n    });\n  }\n}\n\nreturn results;"
         },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
@@ -293,7 +277,7 @@
             "cachedResultName": "Factures",
             "cachedResultUrl": "https://www.notion.so/1d402d84a06480dc9457efe180b8d4c0"
           },
-          "title": "={{ $json.Description }}",
+          "title": "={{ $json.Name }}",
           "propertiesUi": {
             "propertyValues": [
               {
@@ -302,50 +286,61 @@
               },
               {
                 "key": "Année|number",
-                "numberValue": 2026
-              },
-              {
-                "key": "Date de paiement|date",
-                "range": "={{ $json['date:Date de paiement:start'] }}"
+                "numberValue": "={{ $json[\"Année\"] }}"
               },
               {
                 "key": "Numéro de facture|rich_text",
-                "textContent": "={{ $json['Numéro de facture'] }}"
+                "textContent": "={{ $json[\"Numéro de facture\"] }}"
               },
               {
-                "key": "Date émission|date",
-                "includeTime": "={{ $json['date:Date émission:start'] }}"
+                "key": "Description|rich_text",
+                "textContent": "={{ $json.Description }}"
               },
               {
                 "key": "Montant HT|number",
-                "numberValue": "={{ $json['Montant HT'] }}"
+                "numberValue": "={{ $json[\"Montant HT\"] }}"
               },
               {
                 "key": "TVA|number",
                 "numberValue": "={{ $json.TVA }}"
               },
               {
+                "key": "Date émission|date",
+                "date": "={{ $json[\"date:Date émission:start\"] }}"
+              },
+              {
+                "key": "Date de paiement|date",
+                "date": "={{ $json[\"date:Date de paiement:start\"] }}"
+              },
+              {
+                "key": "Date échéance|date",
+                "date": "={{ $json[\"date:Date échéance:start\"] }}"
+              },
+              {
+                "key": "Période facturée|date",
+                "date": "={{ $json[\"date:Période facturée:start\"] }}",
+                "range": true,
+                "dateEnd": "={{ $json[\"date:Période facturée:end\"] }}"
+              },
+              {
                 "key": "Statut|select",
                 "selectValue": "={{ $json.Statut }}"
               },
               {
+                "key": "Type|select",
+                "selectValue": "={{ $json.Type }}"
+              },
+              {
                 "key": "Durée de facturation|select",
-                "selectValue": "={{ $json['Durée de facturation'] }}"
+                "selectValue": "={{ $json[\"Durée de facturation\"] }}"
               },
               {
-                "key": "Pdf|files",
-                "fileUrls": {
-                  "fileUrl": [
-                    {
-                      "name": "=facture {{ $json.Prestataire }}-{{ $json['Numéro de facture'] }}",
-                      "url": "={{ $json['Fichier facture'] }}"
-                    }
-                  ]
-                }
+                "key": "Fichier facture|url",
+                "urlValue": "={{ $json[\"Fichier facture\"] }}"
               },
               {
-                "key": "Description|rich_text",
-                "textContent": "={{ $json.Description }}"
+                "key": "Prestataire|relation",
+                "relationValue": "={{ $json.prestataire_id }}"
               }
             ]
           },
@@ -364,20 +359,38 @@
             "id": "rV7Q43daAHzHJJVH",
             "name": "Notion account"
           }
-        }
+        },
+        "onError": "continueRegularOutput"
       },
       {
         "parameters": {
-          "jsCode": "const input = $input.first().json;\n\n// Récupère la string JSON depuis le champ output\nlet jsonString = input.output || input;\n\n// Parse le JSON\nconst data = JSON.parse(jsonString);\n\nreturn { json: data };"
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "20902d84-a064-80da-8d0d-e8ff87dab9ac",
+            "mode": "list",
+            "cachedResultName": "Prestataire",
+            "cachedResultUrl": "https://www.notion.so/20902d84a06480da8d0de8ff87dab9ac"
+          },
+          "returnAll": true,
+          "simple": true,
+          "options": {}
         },
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
         "position": [
-          2464,
-          240
+          -64,
+          -80
         ],
-        "id": "6bbf886a-560f-47ca-bafe-bcd2a2dc94f5",
-        "name": "Code in JavaScript1"
+        "id": "load-prestataires-001",
+        "name": "Load Prestataires",
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
       }
     ],
     "connections": {
@@ -385,7 +398,7 @@
         "main": [
           [
             {
-              "node": "Get many messages",
+              "node": "Load Prestataires",
               "type": "main",
               "index": 0
             }
@@ -425,22 +438,6 @@
             {
               "node": "AI Agent1",
               "type": "ai_languageModel",
-              "index": 0
-            },
-            {
-              "node": "AI Agent2",
-              "type": "ai_languageModel",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "AI Agent": {
-        "main": [
-          [
-            {
-              "node": "Code in JavaScript1",
-              "type": "main",
               "index": 0
             }
           ]
@@ -528,31 +525,37 @@
         "ai_languageModel": [
           [
             {
-              "node": "AI Agent",
+              "node": "AI Agent2",
               "type": "ai_languageModel",
               "index": 0
             }
           ]
         ]
       },
-      "Code in JavaScript1": {
+      "Load Prestataires": {
         "main": [
-          []
+          [
+            {
+              "node": "Get many messages",
+              "type": "main",
+              "index": 0
+            }
+          ]
         ]
       }
     },
     "authors": "Camille Huguet",
-    "name": "Version 31a7f072",
-    "description": "",
+    "name": null,
+    "description": null,
     "autosaved": false
   },
-  "activeVersionId": "31a7f072-87df-4feb-93fd-a4e9a124475a",
+  "activeVersionId": "6d7ea2a2-bf5d-4a65-9e9e-af76a95585c0",
   "connections": {
     "Schedule Trigger": {
       "main": [
         [
           {
-            "node": "Get many messages",
+            "node": "Load Prestataires",
             "type": "main",
             "index": 0
           }
@@ -592,22 +595,6 @@
           {
             "node": "AI Agent1",
             "type": "ai_languageModel",
-            "index": 0
-          },
-          {
-            "node": "AI Agent2",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript1",
-            "type": "main",
             "index": 0
           }
         ]
@@ -695,16 +682,22 @@
       "ai_languageModel": [
         [
           {
-            "node": "AI Agent",
+            "node": "AI Agent2",
             "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "Code in JavaScript1": {
+    "Load Prestataires": {
       "main": [
-        []
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -741,7 +734,8 @@
         "limit": 10,
         "simple": false,
         "filters": {
-          "labelIds": []
+          "readStatus": "unread",
+          "receivedAfter": "2025-01-01T00:00:00Z"
         },
         "options": {
           "downloadAttachments": true
@@ -778,23 +772,6 @@
       "id": "9d14bea7-c4ca-4167-9202-7df5cc96e1c5",
       "name": "Extract from File",
       "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=MISSION : Prépare le JSON pour créer une facture dans Notion.\n\nDONNÉES REÇUES :\n- Numéro : {{ $json['Numéro de facture'] }}\n- Date émission : {{ $json['date:Date émission:start'] }}\n- Date paiement : {{ $json['date:Date de paiement:start'] }}\n- Date échéance : {{ $json['date:Date échéance:start'] }}\n- Période : {{ $json['date:Période facturée:start'] }}\n- Montant HT : {{ $json['Montant HT'] }}\n- TVA : {{ $json.TVA }}\n- Description : {{ $json.Description }}\n- Durée : {{ $json.duree }}\n\nRetourne UNIQUEMENT ce JSON sans commentaire :\n{\n  \"Name\": \"{{ $json.numero_facture }}\",\n  \"Numéro de facture\": \"{{ $json.numero_facture }}\",\n  \"date:Date émission:start\": \"{{ $json.date_emission }}\",\n  \"date:Date de paiement:start\": \"{{ $json.date_paiement }}\",\n  \"date:Date échéance:start\": \"{{ $json.date_echeance }}\",\n  \"date:Période facturée:start\": \"{{ $json.periode }}\",\n  \"Montant HT\": {{ $json.montant_ht }},\n  \"TVA\": {{ $json.tva }},\n  \"Description\": \"{{ $json.description }}\",\n  \"Durée de facturation\": \"{{ $json.duree }}\",\n  \"Statut\": \"En attente\"|\"Payée\",\n  \"Type\": \"Dépense\"\n}",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3,
-      "position": [
-        2096,
-        256
-      ],
-      "id": "d28f9cd2-2d8f-4cd5-8d73-6bd04eeeedc7",
-      "name": "AI Agent",
-      "retryOnFail": true,
-      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -851,7 +828,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un assistant spécialisé dans l'analyse d'emails reçus par une société. Ta seule tâche est de déterminer si un email reçu est bien une facture.\n\nUn email est considéré comme une facture UNIQUEMENT si les 2 conditions suivantes sont remplies :\n1. Le sujet du mail ou le contenu du mail contient le mot \"facture\" ou \"invoice\"\n2. L'email contient une pièce jointe PDF\n\nSi une seule de ces conditions manque, ce n'est PAS une facture (sauf si l'objet est \" receipt from Anthropic\", c'est bien une facture)\nSi le mail contient \"payment warning\" ou \"payment reminder\" ce n'est pas une facture\n\nAnalyse l'email fourni et réponds UNIQUEMENT avec ce format JSON exact :\n{\"est_facture\": true} ou {\"est_facture\": false}\n\nAucun texte avant ou après le JSON.\n\nAucun texte avant ou après le JSON.\nSujet du mail : {{ $('Get many messages').item.json.headers.subject }}\nContenu du mail : {{ $('Get many messages').item.json.text }}\nLien de la PJ : {{ $('Upload file').item.json.webViewLink }}\n\n",
+        "text": "=Tu es un assistant spécialisé dans l'analyse d'emails. Ta seule tâche est de déterminer si un email est une facture.\n\nUn email est une facture si TOUTES ces conditions sont remplies :\n1. Le sujet ou contenu contient \"facture\", \"invoice\", ou \"receipt\"\n2. L'email a une pièce jointe ou un lien vers un document\n\nEXCEPTIONS :\n- \"receipt from Anthropic\" = facture même sans le mot \"facture\"\n- \"payment warning\" ou \"payment reminder\" = PAS une facture\n- Newsletters, alertes sécurité, mises à jour = PAS des factures\n\nSujet : {{ $('Get many messages').item.json.headers.subject }}\nContenu (début) : {{ $('Get many messages').item.json.text?.substring(0, 500) || 'vide' }}\nPJ disponible : {{ $('Upload file').item.json.webViewLink ? 'oui' : 'non' }}\n\nRéponds UNIQUEMENT avec ce JSON exact :\n{\"est_facture\": true} ou {\"est_facture\": false}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -948,7 +925,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un expert comptable spécialisé dans l'extraction de données de factures françaises.\n\nCONTEXTE : Tu traites des factures reçues par email pour automatiser la saisie comptable. Les factures concernent principalement des prestataires tech et services en ligne.\n\nFACTURE : {{ $('Extract from File').item.json.text }}\nEMAIL : {{ $('Get many messages').item.json.subject }}\nPJ : {{ $('Upload file').item.json.webViewLink }}\n\nExtrais les informations en JSON :\n{\n  \"numero_facture\": \"numéro de facture\",\n  \"date_emission\": \"YYYY-MM-DD\",\n  \"date_paiement\": \"YYYY-MM-DD\",\n  \"date_echeance\": \"YYYY-MM-DD\",\n  \"periode facturée start\": \"2026-01-15\",\n \"periode facturée end\": \"2026-02-15\",\n  \"montant_ht\": 0.00,\n  \"tva\": 0.00,\n  \"description\": \"description courte\",\n  \"periode\": \"mois|année\",\n  \"duree\": \"mensuelle|annuelle\",\n  \"prestataire\": \"nom exact du prestataire\",\n  \"année\": \"YYYY\",\n  \"statut\": \"En attente|Payée\"\n  \"pdf\": {{ $('Upload file').item.json.webViewLink }} ,\n  \"prestataire\" : \"Nom du prestataire\",\n}\n\nRÈGLES :\n- Date_emission est OBLIGATOIRE\n- Montants en décimal sans symbole avec une virgule\n- le lien du PDF est OBLIGATOIRE\n- Si info manquante : null\n- Si la facture ne mentionne pas de date d'échéance, considère qu'elle est \"payée\" et que la date de paiement est la date d'émission de d'échéance (les 3 peuvent être identiques mais elles doivent chacunes être remplies).\n- NE retourne QUE le Json sans texte ni avant ni après. PAS DE ```json\\n et assimilé\n\nVoici un exemple d'output : \n\n{\n  \"numero_facture\": \"083000621772\",\n  \"date_emission\": \"2026-01-02\",\n  \"date_paiement\": \"2026-01-15\",\n  \"date_echeance\": \"2026-01-15\",\n  \"montant_ht\": 8.64,\n  \"tva\": 1.44,\n  \"description\": \"Hébergement Hetzner\",\n  \"periode facturée\": \"2026-01-15\",\n  \"durée de facturation\": \"mensuelle\",\n  \"statut\": \"payée\",\n  \"pdf\" : {{ $('Upload file').item.json.webViewLink }},\n  \"Nom de la page\" :\"Nom du prestataire - Numéro de Facture\",\n  \"Prestataire\" : \"Hetzner\"\n\n}",
+        "text": "=Tu es un expert comptable spécialisé dans l'extraction de données de factures françaises.\n\nCONTEXTE : Tu traites des factures reçues par email pour automatiser la saisie comptable.\n\nFACTURE (texte extrait du PDF) :\n{{ $('Extract from File').item.json.text }}\n\nEMAIL (sujet) : {{ $('Get many messages').item.json.subject }}\nLIEN PDF : {{ $('Upload file').item.json.webViewLink }}\n\nExtrais les informations et retourne UNIQUEMENT un JSON valide (sans markdown, sans backticks) :\n{\n  \"numero_facture\": \"numéro exact de la facture\",\n  \"date_emission\": \"YYYY-MM-DD\",\n  \"date_paiement\": \"YYYY-MM-DD ou null\",\n  \"date_echeance\": \"YYYY-MM-DD ou null\",\n  \"periode_start\": \"YYYY-MM-DD ou null\",\n  \"periode_end\": \"YYYY-MM-DD ou null\",\n  \"montant_ht\": 0.00,\n  \"tva\": 0.00,\n  \"description\": \"description courte du service\",\n  \"duree\": \"mensuelle ou annuelle\",\n  \"prestataire\": \"nom exact du prestataire\",\n  \"statut\": \"En attente ou Payée\",\n  \"pdf\": \"lien du PDF\",\n  \"nom_page\": \"Prestataire - NuméroFacture\"\n}\n\nRÈGLES STRICTES :\n- date_emission est OBLIGATOIRE\n- Montants en décimal avec point (ex: 8.64, pas 8,64)\n- pdf = {{ $('Upload file').item.json.webViewLink }}\n- Si pas de date d'échéance mentionnée : statut = \"Payée\", date_paiement = date_echeance = date_emission\n- Si info manquante : null\n- NE retourne QUE le JSON, rien d'autre",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -962,7 +939,7 @@
     },
     {
       "parameters": {
-        "jsCode": "let jsonStr = $input.item.json.output;\n// Nettoie les markdown code blocks\njsonStr = jsonStr.trim()\n  .replace(/^```json\\s*\\n?/, '')\n  .replace(/\\n?```$/, '');\nconst data = JSON.parse(jsonStr);\nreturn [{\n  json: {\n    Name: data[\"Nom de la page\"] || data[\"Name\"] || data.numero_facture,\n    \"Numéro de facture\": data[\"Numéro de facture\"] || data.numero_facture,\n    \"date:Date émission:start\": data[\"date:Date émission:start\"] || data.date_emission,\n    \"date:Date de paiement:start\": data[\"date:Date de paiement:start\"] || data.date_paiement || null,\n    \"date:Date échéance:start\": data[\"date:Date échéance:start\"] || data.date_echeance,\n    \"date:Période facturée:start\": data[\"date:Période facturée:start\"] || data.periode,\n    \"date:Période facturée:end\": data[\"date:Période facturée:end\"] || data.periode_fin || null,\n    \"Montant HT\": data[\"Montant HT\"] || data.montant_ht,\n    \"TVA\": data[\"TVA\"] || data.tva,\n    \"Description\": data[\"Description\"] || data.description,\n    \"Durée de facturation\": data[\"Durée de facturation\"] || data.duree,\n    \"Statut\": data[\"Statut\"] || data.statut || \"En attente\",\n    \"Type\": data[\"Type\"] || \"Dépense\",\n    \"Fichier facture\": data[\"pdf\"] || data[\"Fichier facture\"] || null,\n    \"Prestataire\": data[\"Prestataire\"] || null\n  }\n}];"
+        "jsCode": "// ============================================\n// Build prestataire lookup from Notion DB\n// ============================================\nconst prestaMap = {};\ntry {\n  const prestaItems = $('Load Prestataires').all();\n  for (const p of prestaItems) {\n    const name = (p.json.Name || '').trim();\n    if (name) {\n      prestaMap[name.toLowerCase()] = p.json.id;\n    }\n  }\n} catch (e) {\n  // Fallback: continue without prestataire lookup\n}\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    let jsonStr = item.json.output || '';\n\n    // Clean markdown code blocks\n    jsonStr = jsonStr.trim()\n      .replace(/^```json\\s*\\n?/, '')\n      .replace(/^```\\s*\\n?/, '')\n      .replace(/\\n?```$/, '')\n      .trim();\n\n    // Fix common LLM JSON issues\n    jsonStr = jsonStr\n      .replace(/,\\s*}/g, '}')\n      .replace(/,\\s*]/g, ']');\n\n    const data = JSON.parse(jsonStr);\n\n    // Extract year from date_emission\n    const year = data.date_emission\n      ? parseInt(data.date_emission.substring(0, 4))\n      : new Date().getFullYear();\n\n    // Normalize Durée de facturation\n    const duree = (() => {\n      const d = (data.duree || 'mensuelle').toLowerCase().trim();\n      if (d.includes('annuel')) return 'Annuelle';\n      if (d.includes('one') || d.includes('shot') || d.includes('unique') || d.includes('ponctuel')) return 'One shot';\n      return 'Mensuelle';\n    })();\n\n    // Normalize Statut\n    const statut = (() => {\n      const s = (data.statut || 'En attente').toLowerCase().trim();\n      if (s.includes('pay')) return 'Payée';\n      if (s.includes('annul')) return 'Annulé';\n      return 'En attente';\n    })();\n\n    // Lookup prestataire ID in Notion\n    const prestaNom = (data.prestataire || '').trim();\n    const prestataireId = prestaMap[prestaNom.toLowerCase()] || null;\n\n    results.push({\n      json: {\n        Name: data.nom_page || (data.prestataire + ' - ' + data.numero_facture),\n        \"Numéro de facture\": data.numero_facture || '',\n        \"date:Date émission:start\": data.date_emission || null,\n        \"date:Date émission:is_datetime\": 0,\n        \"date:Date de paiement:start\": data.date_paiement || null,\n        \"date:Date de paiement:is_datetime\": 0,\n        \"date:Date échéance:start\": data.date_echeance || null,\n        \"date:Date échéance:is_datetime\": 0,\n        \"date:Période facturée:start\": data.periode_start || null,\n        \"date:Période facturée:end\": data.periode_end || null,\n        \"date:Période facturée:is_datetime\": 0,\n        \"Montant HT\": typeof data.montant_ht === 'number' ? data.montant_ht : parseFloat(String(data.montant_ht).replace(',', '.')) || 0,\n        \"TVA\": typeof data.tva === 'number' ? data.tva : parseFloat(String(data.tva).replace(',', '.')) || 0,\n        \"Description\": data.description || '',\n        \"Durée de facturation\": duree,\n        \"Statut\": statut,\n        \"Type\": \"Dépense\",\n        \"Fichier facture\": data.pdf || null,\n        \"Prestataire\": prestaNom,\n        prestataire_id: prestataireId,\n        \"Année\": year\n      }\n    });\n  } catch (e) {\n    results.push({\n      json: {\n        Name: 'ERREUR PARSING',\n        Description: 'Erreur: ' + e.message + ' | Raw: ' + (item.json.output || '').substring(0, 200),\n        Statut: 'En attente',\n        Type: 'Depense',\n        \"Année\": new Date().getFullYear(),\n        prestataire_id: null\n      }\n    });\n  }\n}\n\nreturn results;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1003,7 +980,7 @@
           "cachedResultName": "Factures",
           "cachedResultUrl": "https://www.notion.so/1d402d84a06480dc9457efe180b8d4c0"
         },
-        "title": "={{ $json.Description }}",
+        "title": "={{ $json.Name }}",
         "propertiesUi": {
           "propertyValues": [
             {
@@ -1012,50 +989,61 @@
             },
             {
               "key": "Année|number",
-              "numberValue": 2026
-            },
-            {
-              "key": "Date de paiement|date",
-              "range": "={{ $json['date:Date de paiement:start'] }}"
+              "numberValue": "={{ $json[\"Année\"] }}"
             },
             {
               "key": "Numéro de facture|rich_text",
-              "textContent": "={{ $json['Numéro de facture'] }}"
+              "textContent": "={{ $json[\"Numéro de facture\"] }}"
             },
             {
-              "key": "Date émission|date",
-              "includeTime": "={{ $json['date:Date émission:start'] }}"
+              "key": "Description|rich_text",
+              "textContent": "={{ $json.Description }}"
             },
             {
               "key": "Montant HT|number",
-              "numberValue": "={{ $json['Montant HT'] }}"
+              "numberValue": "={{ $json[\"Montant HT\"] }}"
             },
             {
               "key": "TVA|number",
               "numberValue": "={{ $json.TVA }}"
             },
             {
+              "key": "Date émission|date",
+              "date": "={{ $json[\"date:Date émission:start\"] }}"
+            },
+            {
+              "key": "Date de paiement|date",
+              "date": "={{ $json[\"date:Date de paiement:start\"] }}"
+            },
+            {
+              "key": "Date échéance|date",
+              "date": "={{ $json[\"date:Date échéance:start\"] }}"
+            },
+            {
+              "key": "Période facturée|date",
+              "date": "={{ $json[\"date:Période facturée:start\"] }}",
+              "range": true,
+              "dateEnd": "={{ $json[\"date:Période facturée:end\"] }}"
+            },
+            {
               "key": "Statut|select",
               "selectValue": "={{ $json.Statut }}"
             },
             {
+              "key": "Type|select",
+              "selectValue": "={{ $json.Type }}"
+            },
+            {
               "key": "Durée de facturation|select",
-              "selectValue": "={{ $json['Durée de facturation'] }}"
+              "selectValue": "={{ $json[\"Durée de facturation\"] }}"
             },
             {
-              "key": "Pdf|files",
-              "fileUrls": {
-                "fileUrl": [
-                  {
-                    "name": "=facture {{ $json.Prestataire }}-{{ $json['Numéro de facture'] }}",
-                    "url": "={{ $json['Fichier facture'] }}"
-                  }
-                ]
-              }
+              "key": "Fichier facture|url",
+              "urlValue": "={{ $json[\"Fichier facture\"] }}"
             },
             {
-              "key": "Description|rich_text",
-              "textContent": "={{ $json.Description }}"
+              "key": "Prestataire|relation",
+              "relationValue": "={{ $json.prestataire_id }}"
             }
           ]
         },
@@ -1074,20 +1062,38 @@
           "id": "rV7Q43daAHzHJJVH",
           "name": "Notion account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\n\n// Récupère la string JSON depuis le champ output\nlet jsonString = input.output || input;\n\n// Parse le JSON\nconst data = JSON.parse(jsonString);\n\nreturn { json: data };"
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "20902d84-a064-80da-8d0d-e8ff87dab9ac",
+          "mode": "list",
+          "cachedResultName": "Prestataire",
+          "cachedResultUrl": "https://www.notion.so/20902d84a06480da8d0de8ff87dab9ac"
+        },
+        "returnAll": true,
+        "simple": true,
+        "options": {}
       },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
       "position": [
-        2464,
-        240
+        -64,
+        -80
       ],
-      "id": "6bbf886a-560f-47ca-bafe-bcd2a2dc94f5",
-      "name": "Code in JavaScript1"
+      "id": "load-prestataires-001",
+      "name": "Load Prestataires",
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
     }
   ],
   "origin": "n8n",
@@ -1116,7 +1122,8 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": true
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
   },
   "shared": [
     {
@@ -1134,6 +1141,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-03T18:30:16.565Z",
-  "versionId": "31a7f072-87df-4feb-93fd-a4e9a124475a"
+  "updatedAt": "2026-02-25T16:33:30.265Z",
+  "versionId": "6d7ea2a2-bf5d-4a65-9e9e-af76a95585c0"
 }
