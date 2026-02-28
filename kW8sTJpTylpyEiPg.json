@@ -744,7 +744,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        48,
+        272,
         -80
       ],
       "id": "bbb1e7f7-7eb3-4dcf-800e-0d653a862a00",
@@ -766,7 +766,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        272,
+        496,
         -176
       ],
       "id": "9d14bea7-c4ca-4167-9202-7df5cc96e1c5",
@@ -785,8 +785,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1488,
-        176
+        1248,
+        144
       ],
       "id": "9a8d094a-5e01-4699-a538-7fddc78ae547",
       "name": "Ollama Chat Model",
@@ -819,7 +819,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        720,
+        944,
         -80
       ],
       "id": "76530fe0-10c6-4605-b0ed-704a652846b2",
@@ -834,7 +834,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        944,
+        1168,
         -80
       ],
       "id": "084c501c-b13e-4c25-8c26-afeceec62d9b",
@@ -869,7 +869,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1296,
+        1520,
         -80
       ],
       "id": "a864f8c4-f83d-4f70-b5da-a80037876b11",
@@ -894,7 +894,7 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        272,
+        496,
         16
       ],
       "id": "bf40bd8b-d10e-4dbb-a1e0-b341f4b95ccc",
@@ -916,7 +916,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        496,
+        720,
         -80
       ],
       "id": "44e36112-5800-4e28-a4ca-39ebab939fe6",
@@ -931,8 +931,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        1584,
-        -112
+        1744,
+        -80
       ],
       "id": "64875f92-99f9-464a-93ef-61437607f599",
       "name": "AI Agent2"
@@ -944,8 +944,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2000,
-        -96
+        2096,
+        -80
       ],
       "id": "2c87d83e-6fe4-4fc7-84da-97dec868d196",
       "name": "Code in JavaScript"
@@ -958,8 +958,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1968,
-        416
+        1824,
+        144
       ],
       "id": "82689293-9086-4e4e-87e2-7d50c2ab317e",
       "name": "Ollama Chat Model1",
@@ -984,7 +984,7 @@
         "propertiesUi": {
           "propertyValues": [
             {
-              "key": "Name|title",
+              "key": "=Name|title",
               "title": "={{ $json.Name }}"
             },
             {
@@ -1021,7 +1021,6 @@
             },
             {
               "key": "Période facturée|date",
-              "date": "={{ $json[\"date:Période facturée:start\"] }}",
               "range": true,
               "dateEnd": "={{ $json[\"date:Période facturée:end\"] }}"
             },
@@ -1052,8 +1051,8 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        2368,
-        -64
+        2320,
+        -80
       ],
       "id": "87cf88c4-b7b4-4032-a3d8-3711295e3a9f",
       "name": "Create a database page",
@@ -1077,13 +1076,12 @@
           "cachedResultUrl": "https://www.notion.so/20902d84a06480da8d0de8ff87dab9ac"
         },
         "returnAll": true,
-        "simple": true,
         "options": {}
       },
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        -64,
+        48,
         -80
       ],
       "id": "load-prestataires-001",
@@ -1141,6 +1139,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-25T16:33:30.265Z",
-  "versionId": "6d7ea2a2-bf5d-4a65-9e9e-af76a95585c0"
+  "updatedAt": "2026-02-28T09:47:23.027Z",
+  "versionId": "e907b3ec-28d9-424b-a317-dbea71ce7ed6"
 }
