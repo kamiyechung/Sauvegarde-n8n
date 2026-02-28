@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-25T09:45:00.139Z",
-    "createdAt": "2026-02-25T09:45:00.139Z",
-    "versionId": "f9047409-8951-4eb6-81f0-5213764ba146",
+    "updatedAt": "2026-02-28T09:15:18.065Z",
+    "createdAt": "2026-02-28T08:47:59.345Z",
+    "versionId": "c19e9ee2-6c9c-4be1-8233-713d42a6f05c",
     "workflowId": "yxqD-Z_1vdh0EOFdlDrpo",
     "nodes": [
       {
@@ -28,7 +28,7 @@
         "typeVersion": 2,
         "position": [
           2624,
-          232
+          240
         ],
         "id": "45969928-b038-4152-9d4d-799d4cc8285d"
       },
@@ -41,7 +41,7 @@
         "typeVersion": 2,
         "position": [
           2624,
-          424
+          432
         ],
         "id": "26de70d7-5922-43d0-8524-2a3fcc432584"
       },
@@ -54,8 +54,8 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
         "typeVersion": 1,
         "position": [
-          3736,
-          456
+          3744,
+          464
         ],
         "id": "8458a5ea-4840-47b7-9935-fb948cda541d",
         "credentials": {
@@ -81,7 +81,7 @@
         "typeVersion": 1,
         "position": [
           704,
-          232
+          240
         ],
         "id": "ce3c01b0-c73e-49bd-860e-7a7805d85846"
       },
@@ -116,7 +116,7 @@
         "typeVersion": 3.3,
         "position": [
           928,
-          232
+          240
         ],
         "id": "d7e99e32-4566-43d3-bcdc-9444f70148d0"
       },
@@ -160,7 +160,7 @@
         "typeVersion": 1,
         "position": [
           2176,
-          232
+          240
         ],
         "id": "1de9e176-4a97-4510-8ba9-02c96680f1f0"
       },
@@ -174,7 +174,7 @@
         "typeVersion": 4.2,
         "position": [
           2400,
-          232
+          240
         ],
         "id": "3b76ce3d-87cf-4d50-a17f-f6af8c204f06"
       },
@@ -188,7 +188,7 @@
         "typeVersion": 1,
         "position": [
           2176,
-          424
+          432
         ],
         "id": "3b00557f-45d4-463b-b8ea-a4c7f302f1d3"
       },
@@ -202,63 +202,33 @@
         "typeVersion": 4.2,
         "position": [
           2400,
-          424
+          432
         ],
         "id": "c2290e73-50d0-4e3e-800e-64d124d2f534"
       },
       {
         "parameters": {
-          "mode": "append"
+          "jsCode": "var results = [];\nvar seen = {};\nvar sources = ['Parse Google XML', 'Parse Reddit XML', 'Parse HN JSON'];\nfor (var s = 0; s < sources.length; s++) {\n  try {\n    var items = $(sources[s]).all();\n    for (var i = 0; i < items.length; i++) {\n      if (items[i].json && !items[i].json._empty) {\n        var key = items[i].json.link || items[i].json.title || '';\n        if (key && !seen[key]) {\n          seen[key] = true;\n          results.push({ json: Object.assign({}, items[i].json) });\n        }\n      }\n    }\n  } catch (e) { /* source not ready */ }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
         },
         "name": "Fusion sources1",
-        "type": "n8n-nodes-base.merge",
-        "typeVersion": 3.2,
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           3216,
-          232
+          240
         ],
         "id": "6972d0a3-987c-4f4e-b02e-fd4bca182831"
       },
       {
         "parameters": {
-          "conditions": {
-            "options": {
-              "caseSensitive": true,
-              "leftValue": "",
-              "typeValidation": "loose",
-              "version": 3
-            },
-            "conditions": [
-              {
-                "id": "title-check",
-                "leftValue": "={{$json.title}}",
-                "rightValue": "",
-                "operator": {
-                  "type": "string",
-                  "operation": "isNotEmpty"
-                }
-              },
-              {
-                "id": "link-check",
-                "leftValue": "={{$json.link}}",
-                "rightValue": "",
-                "operator": {
-                  "type": "string",
-                  "operation": "isNotEmpty"
-                }
-              }
-            ],
-            "combinator": "and"
-          },
-          "looseTypeValidation": true,
-          "options": {}
+          "jsCode": "var items = $input.all();\nvar results = [];\nfor (var i = 0; i < items.length; i++) {\n  var title = (items[i].json.title || '').trim();\n  var link = (items[i].json.link || '').trim();\n  if (title && link && !items[i].json._empty) {\n    results.push(items[i]);\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
         },
         "name": "Filtre qualité1",
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 2.3,
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           3440,
-          232
+          240
         ],
         "id": "5357e5c3-7344-4ee0-bdad-7493f8f54353"
       },
@@ -272,46 +242,65 @@
         "typeVersion": 1.7,
         "position": [
           3664,
-          232
+          240
         ],
         "id": "0345cca8-6bb4-4a6e-bc55-03b55561bd37",
         "name": "AI Agent1"
       },
       {
         "parameters": {
-          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    let text = item.json.output || item.json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    \n    const analysis = JSON.parse(text);\n    \n    results.push({\n      json: {\n        title: item.json.title,\n        link: item.json.link,\n        source: item.json.source,\n        pubDate: item.json.pubDate,\n        resume: analysis.resume || '',\n        tags: Array.isArray(analysis.tags) ? analysis.tags : [],\n        priorite: analysis.priorite || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    results.push({\n      json: {\n        title: item.json.title,\n        link: item.json.link,\n        source: item.json.source,\n        pubDate: item.json.pubDate,\n        resume: item.json.description?.substring(0, 200) || '',\n        tags: [],\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
+          "jsCode": "const items = $input.all();\nconst originals = $('Filtre qualit\\u00e91').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const orig = originals[i]?.json || {};\n  try {\n    let text = items[i].json.output || items[i].json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    text = text.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']');\n\n    const analysis = JSON.parse(text);\n\n    // Convert pubDate to ISO 8601\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n\n    // Tags: array to comma-separated string\n    const tags = Array.isArray(analysis.tags) ? analysis.tags.join(',') : '';\n\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: analysis.resume || analysis.r\\u00e9sum\\u00e9 || '',\n        tags: tags,\n        priorite: analysis.priorite || analysis.priorit\\u00e9 || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    // On error, use original data with fallback summary\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: (orig.description || '').substring(0, 200),\n        tags: '',\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
         },
         "name": "Parse JSON1",
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           4016,
-          232
+          240
         ],
         "id": "ca16d761-ec0e-453a-a704-64c52e9e4740"
       },
       {
         "parameters": {
           "resource": "databasePage",
-          "databaseId": "8886261fa0cd4fb7bc831d3fdcd78a7d",
-          "title": "={{$json.title}}",
+          "databaseId": {
+            "__rl": true,
+            "value": "8886261f-a0cd-4fb7-bc83-1d3fdcd78a7d",
+            "mode": "list",
+            "cachedResultName": "Veille technologique",
+            "cachedResultUrl": "https://www.notion.so/45dc981f6f794868bf4b52171716f080"
+          },
+          "title": "={{ $json.title }}",
+          "simple": false,
           "propertiesUi": {
             "propertyValues": [
               {
-                "key": "URL",
-                "urlValue": "={{$json.link}}"
+                "key": "Name|title",
+                "title": "={{ $json.title }}"
               },
               {
-                "key": "Source",
-                "textContent": "={{$json.source}}"
+                "key": "URL|url",
+                "urlValue": "={{ $json.link }}"
               },
               {
-                "key": "Résumé",
-                "textContent": "={{$json.resume}}"
+                "key": "Source|select",
+                "selectValue": "={{ $json.source }}"
               },
               {
-                "key": "Priorité",
-                "selectValue": "={{$json.priorite}}"
+                "key": "Résumé|rich_text",
+                "textContent": "={{ $json.resume }}"
+              },
+              {
+                "key": "Priorité|select",
+                "selectValue": "={{ $json.priorite }}"
+              },
+              {
+                "key": "Tags|multi_select",
+                "multiSelectValue": "={{ $json.tags }}"
+              },
+              {
+                "key": "Date publication|date",
+                "date": "={{ $json.pubDate }}"
               }
             ]
           },
@@ -319,10 +308,10 @@
         },
         "name": "Notion insert1",
         "type": "n8n-nodes-base.notion",
-        "typeVersion": 2,
+        "typeVersion": 2.2,
         "position": [
           4240,
-          232
+          240
         ],
         "id": "d6ce10e5-d730-4c94-ad0f-b55ecf6ccefe",
         "credentials": {
@@ -330,40 +319,8 @@
             "id": "rV7Q43daAHzHJJVH",
             "name": "Notion account"
           }
-        }
-      },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "http://browserless:3000/scrape",
-          "sendHeaders": true,
-          "specifyHeaders": "json",
-          "jsonHeaders": "{\n  \"User-Agent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\n  \"Accept-Language\": \"fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\",\n  \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\",\n  \"Referer\": \"https://www.google.com/\",\n  \"sec-ch-ua\": \"\\\"Not_A Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"120\\\", \\\"Google Chrome\\\";v=\\\"120\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"macOS\\\"\"\n}",
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={\n  \"url\": \"{{ $('Merge').item.json.lien }}\",\n  \"elements\": [\n    {\n      \"selector\": \"article, main, [role='main']\"\n    }\n  ],\n  \"gotoOptions\": {\n    \"waitUntil\": \"networkidle2\"\n  },\n  \"waitFor\": 2000\n}",
-          "options": {
-            "batching": {
-              "batch": {
-                "batchSize": 1,
-                "batchInterval": 2000
-              }
-            },
-            "redirect": {
-              "redirect": {}
-            },
-            "timeout": 60000
-          }
         },
-        "id": "28ec9163-2469-422f-8fd7-409e01e618bd",
-        "name": "Browserless Scrape",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "position": [
-          2960,
-          -160
-        ],
-        "continueOnFail": true
+        "onError": "continueRegularOutput"
       },
       {
         "parameters": {
@@ -392,116 +349,35 @@
         "typeVersion": 4.2,
         "position": [
           704,
-          648
+          656
         ]
       },
       {
         "parameters": {
-          "promptType": "define",
-          "text": "=<Role>\nTu es un agent IA spécialisé dans l'analyse de pertinence d'articles tech/food pour entrepreneurs.\n</role>\n\n<context>\nL'utilisateur est Camille, entrepreneure qui développe \"IA Meal Planner\", une application de planification de repas alimentée par IA.\n\nProfil détaillé :\n- Stack technique : Ollama (modèles IA locaux), n8n (workflows), PostgreSQL, Qdrant (vector DB)\n- Intérêts principaux : foodtech, nutrition personnalisée, IA appliquée alimentation, UX meal planning, business models food apps\n- Projets actuels : système de matching ingrédients, workflows automatisation recettes, optimisation base données recettes\n- Veille active sur : startups foodtech (levées de fonds, pivots, innovations), apps concurrentes (Yuka, Jow, Frigo Magic), tendances nutrition IA\n</context>\n\n<article>\nTitre : \"{{ $json.title }}\"\nSource : {{ $json.source }}\nDate : {{ $json.pubDate }}\n</article>\n\n<task>\nAnalyse si cet article mérite l'attention de Camille en suivant ce raisonnement :\n\n1. IDENTIFICATION : De quoi parle vraiment l'article ?\n2. PERTINENCE DIRECTE : Est-ce lié à son produit ou sa stack technique ?\n3. PERTINENCE INDIRECTE : Y a-t-il des insights business/concurrence/tendances exploitables ?\n4. PRIORITÉ : Urgent/Important/Nice-to-have/Hors-sujet ?\n\nPense étape par étape. Sois critique et honnête.\n</task>\n\n<output_format>\nRéponds UNIQUEMENT en JSON valide (pas de markdown) :\n{\n  \"pertinent\": true/false,\n  \"score\": 0-10,\n  \"categorie\": \"produit|tech|business|concurrence|tendance|hors-sujet\",\n  \"raison\": \"explication en 1 phrase\",\n  \"action_suggeree\": \"lire maintenant|lire plus tard|archiver|ignorer\"\n  \"lien\" : \"{{ $json.link }}\"\n}\n</output_format>\n\n<examples>\nTitre: \"Jow lève 18M€ pour sa plateforme de courses\"\n→ pertinent: true, score: 9, categorie: \"concurrence\", action: \"lire maintenant\", lien : https://www.lesechos.fr/start-up/deals/jow-leve-20-millions-de-dollars-pour-son-appli-qui-aide-a-faire-ses-courses-1354484\n\nTitre: \"Infineon investit dans l'alimentation des serveurs IA\"\n→ pertinent: false, score: 2, categorie: \"hors-sujet\", action: \"ignorer\", lien : https://investir.lesechos.fr/conseils-boursiers/selections-investir-10/infineon-a-trouve-un-relais-de-croissance-avec-lalimentation-electrique-des-serveurs-dintelligence-artificielle-2214150\n\nTitre: \"Yuka devient un levier pour l'agroalimentaire français\"\n→ pertinent: true, score: 7, categorie: \"tendance\", action: \"lire plus tard\", lien : https://www.cbnews.fr/mobile/yuka-est-devenu-levier-transformation-agroalimentaire-francais\n</examples>\n\nAnalyse maintenant : {{ $json.title }}\n\n",
+          "httpMethod": "POST",
+          "path": "veille-trigger",
           "options": {}
         },
-        "type": "@n8n/n8n-nodes-langchain.agent",
-        "typeVersion": 3.1,
-        "position": [
-          1888,
-          -128
-        ],
-        "id": "90af40cd-16d1-40ce-9b4f-dd08e0fcd7cc",
-        "name": "AI Agent",
-        "retryOnFail": true
-      },
-      {
-        "parameters": {
-          "model": "mistral:7b-instruct-q4_0",
-          "options": {}
-        },
-        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-        "typeVersion": 1,
-        "position": [
-          1856,
-          144
-        ],
-        "id": "639bb09e-d457-4ba9-98b8-3e5b04216385",
-        "name": "Ollama Chat Model1",
-        "credentials": {
-          "ollamaApi": {
-            "id": "C2ejebWhR6zEoNIL",
-            "name": "Ollama account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "conditions": {
-            "options": {
-              "caseSensitive": true,
-              "leftValue": "",
-              "typeValidation": "loose",
-              "version": 3
-            },
-            "conditions": [
-              {
-                "id": "7a25c552-6620-4358-8692-a26469d69a6f",
-                "leftValue": "={{ $json.score }}",
-                "rightValue": 6,
-                "operator": {
-                  "type": "number",
-                  "operation": "gt"
-                }
-              }
-            ],
-            "combinator": "and"
-          },
-          "looseTypeValidation": true,
-          "options": {}
-        },
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 2.3,
-        "position": [
-          2720,
-          -48
-        ],
-        "id": "68ea31cc-7592-41e9-9141-3e62cdd83ac4",
-        "name": "If",
-        "disabled": true
-      },
-      {
-        "parameters": {
-          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let raw = item.json.output || '';\n\n  if (typeof raw !== 'string') {\n    // AI returned structured data directly\n    results.push({\n      json: {\n        ...item.json,\n        ...raw,\n        score: raw.score || 0\n      }\n    });\n    continue;\n  }\n\n  raw = raw.trim();\n\n  // Remove markdown code blocks\n  if (raw.startsWith('```')) {\n    raw = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  }\n\n  // Fix invalid backslashes\n  raw = raw.replace(/\\\\(?![\"\\\\\\/bfnrtu])/g, '\\\\\\\\');\n\n  try {\n    const parsed = JSON.parse(raw);\n    results.push({\n      json: {\n        // Keep original article fields from upstream\n        title: item.json.title || parsed.title || '',\n        link: item.json.link || parsed.lien || '',\n        description: item.json.description || '',\n        pubDate: item.json.pubDate || '',\n        source: item.json.source || 'Google News',\n        // Add AI analysis fields\n        pertinent: parsed.pertinent || false,\n        score: parsed.score || 0,\n        categorie: parsed.categorie || 'hors-sujet',\n        raison: parsed.raison || '',\n        action_suggeree: parsed.action_suggeree || 'ignorer',\n        lien: parsed.lien || item.json.link || ''\n      }\n    });\n  } catch (e) {\n    // On parse error, still pass through with default score\n    results.push({\n      json: {\n        title: item.json.title || '',\n        link: item.json.link || '',\n        description: item.json.description || '',\n        pubDate: item.json.pubDate || '',\n        source: item.json.source || 'Google News',\n        pertinent: false,\n        score: 0,\n        categorie: 'hors-sujet',\n        raison: 'Erreur parsing AI: ' + e.message,\n        action_suggeree: 'ignorer',\n        lien: item.json.link || ''\n      }\n    });\n  }\n}\n\nreturn results;"
-        },
-        "type": "n8n-nodes-base.code",
+        "name": "Webhook Manuel",
+        "type": "n8n-nodes-base.webhook",
         "typeVersion": 2,
         "position": [
-          2224,
-          -112
+          704,
+          0
         ],
-        "id": "00943f4f-9767-409a-9945-c50e95faf8b1",
-        "name": "Code in JavaScript"
+        "id": "webhook-manual-01",
+        "webhookId": "veille-manual-trigger"
       },
       {
         "parameters": {},
-        "type": "n8n-nodes-base.merge",
-        "typeVersion": 3.2,
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
         "position": [
-          2528,
-          32
+          656,
+          448
         ],
-        "id": "c634aa5a-2955-4744-88d5-35e3b228b955",
-        "name": "Merge"
-      },
-      {
-        "parameters": {
-          "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    // Récupère la réponse de Browserless\n    let data = item.json.data || item.json;\n    \n    // Si c'est un array, prend le premier élément\n    if (Array.isArray(data)) {\n      data = data[0];\n    }\n    \n    // Extrait le HTML brut\n    let html = '';\n    if (data.results && Array.isArray(data.results)) {\n      html = data.results.map(r => r.html || r.text || '').join('\\n');\n    } else if (data.html) {\n      html = data.html;\n    } else if (data.text) {\n      html = data.text;\n    } else {\n      html = JSON.stringify(data);\n    }\n    \n    // Nettoyage HTML\n    let text = html\n      // Supprime scripts et styles\n      .replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, '')\n      .replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, '')\n      // Supprime commentaires HTML\n      .replace(/<!--[\\s\\S]*?-->/g, '')\n      // Remplace les balises par des espaces/sauts\n      .replace(/<br\\s*\\/?>/gi, '\\n')\n      .replace(/<\\/p>/gi, '\\n\\n')\n      .replace(/<\\/div>/gi, '\\n')\n      .replace(/<\\/h[1-6]>/gi, '\\n\\n')\n      .replace(/<li>/gi, '• ')\n      .replace(/<\\/li>/gi, '\\n')\n      // Supprime toutes les balises restantes\n      .replace(/<[^>]+>/g, ' ')\n      // Décode les entités HTML\n      .replace(/&nbsp;/g, ' ')\n      .replace(/&amp;/g, '&')\n      .replace(/&lt;/g, '<')\n      .replace(/&gt;/g, '>')\n      .replace(/&quot;/g, '\"')\n      .replace(/&#39;/g, \"'\")\n      .replace(/&eacute;/g, 'é')\n      .replace(/&egrave;/g, 'è')\n      .replace(/&agrave;/g, 'à')\n      .replace(/&ccedil;/g, 'ç')\n      // Nettoie les espaces multiples\n      .replace(/\\s+/g, ' ')\n      .replace(/\\n\\s+/g, '\\n')\n      .replace(/\\n{3,}/g, '\\n\\n')\n      .trim();\n    \n    // Limite la taille (premiers 3000 caractères)\n    const contenu = text.substring(0, 3000);\n    \n    // Extrait un titre si possible (première ligne non vide)\n    const lignes = contenu.split('\\n').filter(l => l.trim().length > 0);\n    const titre = lignes[0]?.substring(0, 200) || '';\n    \n    results.push({\n      json: {\n        titre_scrape: titre,\n        contenu_nettoye: contenu,\n        longueur: contenu.length,\n        titre_original: item.json.title || '',\n        link: item.json.link || '',\n        source: item.json.source || ''\n      }\n    });\n    \n  } catch (e) {\n    // En cas d'erreur, retourne les données originales\n    results.push({\n      json: {\n        titre_scrape: '',\n        contenu_nettoye: '',\n        longueur: 0,\n        titre_original: item.json.title || '',\n        link: item.json.link || '',\n        source: item.json.source || '',\n        erreur: e.message\n      }\n    });\n  }\n}\n\nreturn results;"
-        },
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          3168,
-          -160
-        ],
-        "id": "760778b9-b15c-40f5-a258-83ce9ee2f7d7",
-        "name": "Code in JavaScript1"
+        "id": "37bd314a-2a6c-445a-a8c0-25352c7d97d1",
+        "name": "When clicking ‘Execute workflow’"
       }
     ],
     "connections": {
@@ -509,7 +385,7 @@
         "main": [
           [
             {
-              "node": "AI Agent",
+              "node": "Fusion sources1",
               "type": "main",
               "index": 0
             }
@@ -522,7 +398,7 @@
             {
               "node": "Fusion sources1",
               "type": "main",
-              "index": 1
+              "index": 0
             }
           ]
         ]
@@ -686,78 +562,27 @@
             {
               "node": "Fusion sources1",
               "type": "main",
-              "index": 2
+              "index": 0
             }
           ]
         ]
       },
-      "Browserless Scrape": {
+      "Webhook Manuel": {
         "main": [
           [
             {
-              "node": "Code in JavaScript1",
+              "node": "Config sources1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "AI Agent": {
+      "When clicking ‘Execute workflow’": {
         "main": [
           [
             {
-              "node": "Code in JavaScript",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Ollama Chat Model1": {
-        "ai_languageModel": [
-          [
-            {
-              "node": "AI Agent",
-              "type": "ai_languageModel",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "If": {
-        "main": [
-          [
-            {
-              "node": "Browserless Scrape",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Fusion sources1",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Code in JavaScript": {
-        "main": [
-          [
-            {
-              "node": "If",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Code in JavaScript1": {
-        "main": [
-          [
-            {
-              "node": "Fusion sources1",
+              "node": "Config sources1",
               "type": "main",
               "index": 0
             }
@@ -766,17 +591,17 @@
       }
     },
     "authors": "Camille Huguet",
-    "name": null,
-    "description": null,
-    "autosaved": false
+    "name": "Fix RSS headers + Merge indices",
+    "description": "Added User-Agent headers to RSS Reddit and Google News nodes. Fixed Merge node connection indices (Google=0, Reddit=1, HN=2).",
+    "autosaved": true
   },
-  "activeVersionId": "f9047409-8951-4eb6-81f0-5213764ba146",
+  "activeVersionId": "c19e9ee2-6c9c-4be1-8233-713d42a6f05c",
   "connections": {
     "Parse Google XML": {
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Fusion sources1",
             "type": "main",
             "index": 0
           }
@@ -789,7 +614,7 @@
           {
             "node": "Fusion sources1",
             "type": "main",
-            "index": 1
+            "index": 0
           }
         ]
       ]
@@ -953,78 +778,27 @@
           {
             "node": "Fusion sources1",
             "type": "main",
-            "index": 2
+            "index": 0
           }
         ]
       ]
     },
-    "Browserless Scrape": {
+    "Webhook Manuel": {
       "main": [
         [
           {
-            "node": "Code in JavaScript1",
+            "node": "Config sources1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "AI Agent": {
+    "When clicking ‘Execute workflow’": {
       "main": [
         [
           {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "Browserless Scrape",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Fusion sources1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript1": {
-      "main": [
-        [
-          {
-            "node": "Fusion sources1",
+            "node": "Config sources1",
             "type": "main",
             "index": 0
           }
@@ -1062,7 +836,7 @@
       "typeVersion": 2,
       "position": [
         2624,
-        232
+        240
       ],
       "id": "45969928-b038-4152-9d4d-799d4cc8285d"
     },
@@ -1075,7 +849,7 @@
       "typeVersion": 2,
       "position": [
         2624,
-        424
+        432
       ],
       "id": "26de70d7-5922-43d0-8524-2a3fcc432584"
     },
@@ -1088,8 +862,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        3736,
-        456
+        3744,
+        464
       ],
       "id": "8458a5ea-4840-47b7-9935-fb948cda541d",
       "credentials": {
@@ -1115,7 +889,7 @@
       "typeVersion": 1,
       "position": [
         704,
-        232
+        240
       ],
       "id": "ce3c01b0-c73e-49bd-860e-7a7805d85846"
     },
@@ -1150,7 +924,7 @@
       "typeVersion": 3.3,
       "position": [
         928,
-        232
+        240
       ],
       "id": "d7e99e32-4566-43d3-bcdc-9444f70148d0"
     },
@@ -1194,7 +968,7 @@
       "typeVersion": 1,
       "position": [
         2176,
-        232
+        240
       ],
       "id": "1de9e176-4a97-4510-8ba9-02c96680f1f0"
     },
@@ -1208,7 +982,7 @@
       "typeVersion": 4.2,
       "position": [
         2400,
-        232
+        240
       ],
       "id": "3b76ce3d-87cf-4d50-a17f-f6af8c204f06"
     },
@@ -1222,7 +996,7 @@
       "typeVersion": 1,
       "position": [
         2176,
-        424
+        432
       ],
       "id": "3b00557f-45d4-463b-b8ea-a4c7f302f1d3"
     },
@@ -1236,63 +1010,33 @@
       "typeVersion": 4.2,
       "position": [
         2400,
-        424
+        432
       ],
       "id": "c2290e73-50d0-4e3e-800e-64d124d2f534"
     },
     {
       "parameters": {
-        "mode": "append"
+        "jsCode": "var results = [];\nvar seen = {};\nvar sources = ['Parse Google XML', 'Parse Reddit XML', 'Parse HN JSON'];\nfor (var s = 0; s < sources.length; s++) {\n  try {\n    var items = $(sources[s]).all();\n    for (var i = 0; i < items.length; i++) {\n      if (items[i].json && !items[i].json._empty) {\n        var key = items[i].json.link || items[i].json.title || '';\n        if (key && !seen[key]) {\n          seen[key] = true;\n          results.push({ json: Object.assign({}, items[i].json) });\n        }\n      }\n    }\n  } catch (e) { /* source not ready */ }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
       },
       "name": "Fusion sources1",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         3216,
-        232
+        240
       ],
       "id": "6972d0a3-987c-4f4e-b02e-fd4bca182831"
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "title-check",
-              "leftValue": "={{$json.title}}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "isNotEmpty"
-              }
-            },
-            {
-              "id": "link-check",
-              "leftValue": "={{$json.link}}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "isNotEmpty"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "looseTypeValidation": true,
-        "options": {}
+        "jsCode": "var items = $input.all();\nvar results = [];\nfor (var i = 0; i < items.length; i++) {\n  var title = (items[i].json.title || '').trim();\n  var link = (items[i].json.link || '').trim();\n  if (title && link && !items[i].json._empty) {\n    results.push(items[i]);\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
       },
       "name": "Filtre qualité1",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         3440,
-        232
+        240
       ],
       "id": "5357e5c3-7344-4ee0-bdad-7493f8f54353"
     },
@@ -1306,46 +1050,64 @@
       "typeVersion": 1.7,
       "position": [
         3664,
-        232
+        240
       ],
       "id": "0345cca8-6bb4-4a6e-bc55-03b55561bd37",
       "name": "AI Agent1"
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    let text = item.json.output || item.json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    \n    const analysis = JSON.parse(text);\n    \n    results.push({\n      json: {\n        title: item.json.title,\n        link: item.json.link,\n        source: item.json.source,\n        pubDate: item.json.pubDate,\n        resume: analysis.resume || '',\n        tags: Array.isArray(analysis.tags) ? analysis.tags : [],\n        priorite: analysis.priorite || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    results.push({\n      json: {\n        title: item.json.title,\n        link: item.json.link,\n        source: item.json.source,\n        pubDate: item.json.pubDate,\n        resume: item.json.description?.substring(0, 200) || '',\n        tags: [],\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
+        "jsCode": "const items = $input.all();\nconst originals = $('Filtre qualit\\u00e91').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const orig = originals[i]?.json || {};\n  try {\n    let text = items[i].json.output || items[i].json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    text = text.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']');\n\n    const analysis = JSON.parse(text);\n\n    // Convert pubDate to ISO 8601\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n\n    // Tags: array to comma-separated string\n    const tags = Array.isArray(analysis.tags) ? analysis.tags.join(',') : '';\n\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: analysis.resume || analysis.r\\u00e9sum\\u00e9 || '',\n        tags: tags,\n        priorite: analysis.priorite || analysis.priorit\\u00e9 || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    // On error, use original data with fallback summary\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: (orig.description || '').substring(0, 200),\n        tags: '',\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
       },
       "name": "Parse JSON1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         4016,
-        232
+        240
       ],
       "id": "ca16d761-ec0e-453a-a704-64c52e9e4740"
     },
     {
       "parameters": {
         "resource": "databasePage",
-        "databaseId": "8886261fa0cd4fb7bc831d3fdcd78a7d",
-        "title": "={{$json.title}}",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "8886261f-a0cd-4fb7-bc83-1d3fdcd78a7d",
+          "__regex": "^([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})"
+        },
+        "title": "={{ $json.title }}",
+        "simple": false,
         "propertiesUi": {
           "propertyValues": [
             {
-              "key": "URL",
-              "urlValue": "={{$json.link}}"
+              "key": "Name|title",
+              "title": "={{ $json.title }}"
             },
             {
-              "key": "Source",
-              "textContent": "={{$json.source}}"
+              "key": "URL|url",
+              "urlValue": "={{ $json.link }}"
             },
             {
-              "key": "Résumé",
-              "textContent": "={{$json.resume}}"
+              "key": "Source|select",
+              "selectValue": "={{ $json.source }}"
             },
             {
-              "key": "Priorité",
-              "selectValue": "={{$json.priorite}}"
+              "key": "Résumé|rich_text",
+              "textContent": "={{ $json.resume }}"
+            },
+            {
+              "key": "Priorité|select",
+              "selectValue": "={{ $json.priorite }}"
+            },
+            {
+              "key": "Tags|multi_select",
+              "multiSelectValue": "={{ $json.tags }}"
+            },
+            {
+              "key": "Date publication|date",
+              "date": "={{ $json.pubDate }}"
             }
           ]
         },
@@ -1353,10 +1115,10 @@
       },
       "name": "Notion insert1",
       "type": "n8n-nodes-base.notion",
-      "typeVersion": 2,
+      "typeVersion": 2.2,
       "position": [
         4240,
-        232
+        240
       ],
       "id": "d6ce10e5-d730-4c94-ad0f-b55ecf6ccefe",
       "credentials": {
@@ -1364,40 +1126,8 @@
           "id": "rV7Q43daAHzHJJVH",
           "name": "Notion account"
         }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://browserless:3000/scrape",
-        "sendHeaders": true,
-        "specifyHeaders": "json",
-        "jsonHeaders": "{\n  \"User-Agent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\n  \"Accept-Language\": \"fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7\",\n  \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\",\n  \"Referer\": \"https://www.google.com/\",\n  \"sec-ch-ua\": \"\\\"Not_A Brand\\\";v=\\\"8\\\", \\\"Chromium\\\";v=\\\"120\\\", \\\"Google Chrome\\\";v=\\\"120\\\"\",\n  \"sec-ch-ua-mobile\": \"?0\",\n  \"sec-ch-ua-platform\": \"\\\"macOS\\\"\"\n}",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"url\": \"{{ $('Merge').item.json.lien }}\",\n  \"elements\": [\n    {\n      \"selector\": \"article, main, [role='main']\"\n    }\n  ],\n  \"gotoOptions\": {\n    \"waitUntil\": \"networkidle2\"\n  },\n  \"waitFor\": 2000\n}",
-        "options": {
-          "batching": {
-            "batch": {
-              "batchSize": 1,
-              "batchInterval": 2000
-            }
-          },
-          "redirect": {
-            "redirect": {}
-          },
-          "timeout": 60000
-        }
       },
-      "id": "28ec9163-2469-422f-8fd7-409e01e618bd",
-      "name": "Browserless Scrape",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        2960,
-        -160
-      ],
-      "continueOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -1426,116 +1156,35 @@
       "typeVersion": 4.2,
       "position": [
         704,
-        648
+        656
       ]
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=<Role>\nTu es un agent IA spécialisé dans l'analyse de pertinence d'articles tech/food pour entrepreneurs.\n</role>\n\n<context>\nL'utilisateur est Camille, entrepreneure qui développe \"IA Meal Planner\", une application de planification de repas alimentée par IA.\n\nProfil détaillé :\n- Stack technique : Ollama (modèles IA locaux), n8n (workflows), PostgreSQL, Qdrant (vector DB)\n- Intérêts principaux : foodtech, nutrition personnalisée, IA appliquée alimentation, UX meal planning, business models food apps\n- Projets actuels : système de matching ingrédients, workflows automatisation recettes, optimisation base données recettes\n- Veille active sur : startups foodtech (levées de fonds, pivots, innovations), apps concurrentes (Yuka, Jow, Frigo Magic), tendances nutrition IA\n</context>\n\n<article>\nTitre : \"{{ $json.title }}\"\nSource : {{ $json.source }}\nDate : {{ $json.pubDate }}\n</article>\n\n<task>\nAnalyse si cet article mérite l'attention de Camille en suivant ce raisonnement :\n\n1. IDENTIFICATION : De quoi parle vraiment l'article ?\n2. PERTINENCE DIRECTE : Est-ce lié à son produit ou sa stack technique ?\n3. PERTINENCE INDIRECTE : Y a-t-il des insights business/concurrence/tendances exploitables ?\n4. PRIORITÉ : Urgent/Important/Nice-to-have/Hors-sujet ?\n\nPense étape par étape. Sois critique et honnête.\n</task>\n\n<output_format>\nRéponds UNIQUEMENT en JSON valide (pas de markdown) :\n{\n  \"pertinent\": true/false,\n  \"score\": 0-10,\n  \"categorie\": \"produit|tech|business|concurrence|tendance|hors-sujet\",\n  \"raison\": \"explication en 1 phrase\",\n  \"action_suggeree\": \"lire maintenant|lire plus tard|archiver|ignorer\"\n  \"lien\" : \"{{ $json.link }}\"\n}\n</output_format>\n\n<examples>\nTitre: \"Jow lève 18M€ pour sa plateforme de courses\"\n→ pertinent: true, score: 9, categorie: \"concurrence\", action: \"lire maintenant\", lien : https://www.lesechos.fr/start-up/deals/jow-leve-20-millions-de-dollars-pour-son-appli-qui-aide-a-faire-ses-courses-1354484\n\nTitre: \"Infineon investit dans l'alimentation des serveurs IA\"\n→ pertinent: false, score: 2, categorie: \"hors-sujet\", action: \"ignorer\", lien : https://investir.lesechos.fr/conseils-boursiers/selections-investir-10/infineon-a-trouve-un-relais-de-croissance-avec-lalimentation-electrique-des-serveurs-dintelligence-artificielle-2214150\n\nTitre: \"Yuka devient un levier pour l'agroalimentaire français\"\n→ pertinent: true, score: 7, categorie: \"tendance\", action: \"lire plus tard\", lien : https://www.cbnews.fr/mobile/yuka-est-devenu-levier-transformation-agroalimentaire-francais\n</examples>\n\nAnalyse maintenant : {{ $json.title }}\n\n",
+        "httpMethod": "POST",
+        "path": "veille-trigger",
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        1888,
-        -128
-      ],
-      "id": "90af40cd-16d1-40ce-9b4f-dd08e0fcd7cc",
-      "name": "AI Agent",
-      "retryOnFail": true
-    },
-    {
-      "parameters": {
-        "model": "mistral:7b-instruct-q4_0",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        1856,
-        144
-      ],
-      "id": "639bb09e-d457-4ba9-98b8-3e5b04216385",
-      "name": "Ollama Chat Model1",
-      "credentials": {
-        "ollamaApi": {
-          "id": "C2ejebWhR6zEoNIL",
-          "name": "Ollama account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "7a25c552-6620-4358-8692-a26469d69a6f",
-              "leftValue": "={{ $json.score }}",
-              "rightValue": 6,
-              "operator": {
-                "type": "number",
-                "operation": "gt"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "looseTypeValidation": true,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        2720,
-        -48
-      ],
-      "id": "68ea31cc-7592-41e9-9141-3e62cdd83ac4",
-      "name": "If",
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  let raw = item.json.output || '';\n\n  if (typeof raw !== 'string') {\n    // AI returned structured data directly\n    results.push({\n      json: {\n        ...item.json,\n        ...raw,\n        score: raw.score || 0\n      }\n    });\n    continue;\n  }\n\n  raw = raw.trim();\n\n  // Remove markdown code blocks\n  if (raw.startsWith('```')) {\n    raw = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  }\n\n  // Fix invalid backslashes\n  raw = raw.replace(/\\\\(?![\"\\\\\\/bfnrtu])/g, '\\\\\\\\');\n\n  try {\n    const parsed = JSON.parse(raw);\n    results.push({\n      json: {\n        // Keep original article fields from upstream\n        title: item.json.title || parsed.title || '',\n        link: item.json.link || parsed.lien || '',\n        description: item.json.description || '',\n        pubDate: item.json.pubDate || '',\n        source: item.json.source || 'Google News',\n        // Add AI analysis fields\n        pertinent: parsed.pertinent || false,\n        score: parsed.score || 0,\n        categorie: parsed.categorie || 'hors-sujet',\n        raison: parsed.raison || '',\n        action_suggeree: parsed.action_suggeree || 'ignorer',\n        lien: parsed.lien || item.json.link || ''\n      }\n    });\n  } catch (e) {\n    // On parse error, still pass through with default score\n    results.push({\n      json: {\n        title: item.json.title || '',\n        link: item.json.link || '',\n        description: item.json.description || '',\n        pubDate: item.json.pubDate || '',\n        source: item.json.source || 'Google News',\n        pertinent: false,\n        score: 0,\n        categorie: 'hors-sujet',\n        raison: 'Erreur parsing AI: ' + e.message,\n        action_suggeree: 'ignorer',\n        lien: item.json.link || ''\n      }\n    });\n  }\n}\n\nreturn results;"
-      },
-      "type": "n8n-nodes-base.code",
+      "name": "Webhook Manuel",
+      "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        2224,
-        -112
+        704,
+        0
       ],
-      "id": "00943f4f-9767-409a-9945-c50e95faf8b1",
-      "name": "Code in JavaScript"
+      "id": "webhook-manual-01",
+      "webhookId": "veille-manual-trigger"
     },
     {
       "parameters": {},
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
       "position": [
-        2528,
-        32
+        656,
+        448
       ],
-      "id": "c634aa5a-2955-4744-88d5-35e3b228b955",
-      "name": "Merge"
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  try {\n    // Récupère la réponse de Browserless\n    let data = item.json.data || item.json;\n    \n    // Si c'est un array, prend le premier élément\n    if (Array.isArray(data)) {\n      data = data[0];\n    }\n    \n    // Extrait le HTML brut\n    let html = '';\n    if (data.results && Array.isArray(data.results)) {\n      html = data.results.map(r => r.html || r.text || '').join('\\n');\n    } else if (data.html) {\n      html = data.html;\n    } else if (data.text) {\n      html = data.text;\n    } else {\n      html = JSON.stringify(data);\n    }\n    \n    // Nettoyage HTML\n    let text = html\n      // Supprime scripts et styles\n      .replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, '')\n      .replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, '')\n      // Supprime commentaires HTML\n      .replace(/<!--[\\s\\S]*?-->/g, '')\n      // Remplace les balises par des espaces/sauts\n      .replace(/<br\\s*\\/?>/gi, '\\n')\n      .replace(/<\\/p>/gi, '\\n\\n')\n      .replace(/<\\/div>/gi, '\\n')\n      .replace(/<\\/h[1-6]>/gi, '\\n\\n')\n      .replace(/<li>/gi, '• ')\n      .replace(/<\\/li>/gi, '\\n')\n      // Supprime toutes les balises restantes\n      .replace(/<[^>]+>/g, ' ')\n      // Décode les entités HTML\n      .replace(/&nbsp;/g, ' ')\n      .replace(/&amp;/g, '&')\n      .replace(/&lt;/g, '<')\n      .replace(/&gt;/g, '>')\n      .replace(/&quot;/g, '\"')\n      .replace(/&#39;/g, \"'\")\n      .replace(/&eacute;/g, 'é')\n      .replace(/&egrave;/g, 'è')\n      .replace(/&agrave;/g, 'à')\n      .replace(/&ccedil;/g, 'ç')\n      // Nettoie les espaces multiples\n      .replace(/\\s+/g, ' ')\n      .replace(/\\n\\s+/g, '\\n')\n      .replace(/\\n{3,}/g, '\\n\\n')\n      .trim();\n    \n    // Limite la taille (premiers 3000 caractères)\n    const contenu = text.substring(0, 3000);\n    \n    // Extrait un titre si possible (première ligne non vide)\n    const lignes = contenu.split('\\n').filter(l => l.trim().length > 0);\n    const titre = lignes[0]?.substring(0, 200) || '';\n    \n    results.push({\n      json: {\n        titre_scrape: titre,\n        contenu_nettoye: contenu,\n        longueur: contenu.length,\n        titre_original: item.json.title || '',\n        link: item.json.link || '',\n        source: item.json.source || ''\n      }\n    });\n    \n  } catch (e) {\n    // En cas d'erreur, retourne les données originales\n    results.push({\n      json: {\n        titre_scrape: '',\n        contenu_nettoye: '',\n        longueur: 0,\n        titre_original: item.json.title || '',\n        link: item.json.link || '',\n        source: item.json.source || '',\n        erreur: e.message\n      }\n    });\n  }\n}\n\nreturn results;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        3168,
-        -160
-      ],
-      "id": "760778b9-b15c-40f5-a258-83ce9ee2f7d7",
-      "name": "Code in JavaScript1"
+      "id": "37bd314a-2a6c-445a-a8c0-25352c7d97d1",
+      "name": "When clicking ‘Execute workflow’"
     }
   ],
   "origin": "n8n",
@@ -1566,7 +1215,7 @@
     }
   },
   "tags": [],
-  "triggerCount": 1,
-  "updatedAt": "2026-02-25T09:45:00.136Z",
-  "versionId": "f9047409-8951-4eb6-81f0-5213764ba146"
+  "triggerCount": 2,
+  "updatedAt": "2026-02-28T10:41:13.444Z",
+  "versionId": "d25c9f06-4f73-4ac9-9bf6-6d82ecbbd2ea"
 }
