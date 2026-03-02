@@ -765,7 +765,7 @@
       "main": [
         [
           {
-            "node": "Notion insert1",
+            "node": "Create a database page",
             "type": "main",
             "index": 0
           }
@@ -1070,67 +1070,6 @@
     },
     {
       "parameters": {
-        "resource": "databasePage",
-        "databaseId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "8886261f-a0cd-4fb7-bc83-1d3fdcd78a7d",
-          "__regex": "^([0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12})"
-        },
-        "title": "={{ $json.title }}",
-        "simple": false,
-        "propertiesUi": {
-          "propertyValues": [
-            {
-              "key": "Name|title",
-              "title": "={{ $json.title }}"
-            },
-            {
-              "key": "URL|url",
-              "urlValue": "={{ $json.link }}"
-            },
-            {
-              "key": "Source|select",
-              "selectValue": "={{ $json.source }}"
-            },
-            {
-              "key": "Résumé|rich_text",
-              "textContent": "={{ $json.resume }}"
-            },
-            {
-              "key": "Priorité|select",
-              "selectValue": "={{ $json.priorite }}"
-            },
-            {
-              "key": "Tags|multi_select",
-              "multiSelectValue": "={{ $json.tags }}"
-            },
-            {
-              "key": "Date publication|date",
-              "date": "={{ $json.pubDate }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "name": "Notion insert1",
-      "type": "n8n-nodes-base.notion",
-      "typeVersion": 2.2,
-      "position": [
-        4240,
-        240
-      ],
-      "id": "d6ce10e5-d730-4c94-ad0f-b55ecf6ccefe",
-      "credentials": {
-        "notionApi": {
-          "id": "rV7Q43daAHzHJJVH",
-          "name": "Notion account"
-        }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
         "url": "https://ntfy.sh/veille-ia-alimentation",
         "sendHeaders": true,
         "headerParameters": {
@@ -1185,6 +1124,41 @@
       ],
       "id": "37bd314a-2a6c-445a-a8c0-25352c7d97d1",
       "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "45dc981f-6f79-4868-bf4b-52171716f080",
+          "mode": "list",
+          "cachedResultName": "Veille technologique",
+          "cachedResultUrl": "https://www.notion.so/45dc981f6f794868bf4b52171716f080"
+        },
+        "title": "test",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Lu|checkbox"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        4192,
+        240
+      ],
+      "id": "70d88f93-b0a5-4c01-86b3-e9f8482a8d36",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
     }
   ],
   "origin": "n8n",
@@ -1210,12 +1184,12 @@
   "staticData": {
     "node:Déclencheur horaire1": {
       "recurrenceRules": [
-        6
+        18
       ]
     }
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-02-28T10:41:13.444Z",
-  "versionId": "d25c9f06-4f73-4ac9-9bf6-6d82ecbbd2ea"
+  "updatedAt": "2026-03-02T10:07:52.991Z",
+  "versionId": "232fea69-5077-4d44-bd44-52ed8173f95d"
 }
