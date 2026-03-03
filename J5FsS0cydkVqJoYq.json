@@ -3,17 +3,6 @@
   "activeVersion": null,
   "activeVersionId": null,
   "connections": {
-    "Google Sheets": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Ollama Chat Model": {
       "ai_languageModel": [
         [
@@ -200,17 +189,6 @@
         ]
       ]
     },
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Google Sheets",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Insert rows in a table": {
       "main": [
         []
@@ -249,39 +227,6 @@
   "nodes": [
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "1WS0I1c-bPVSAf3u-gU5O5m3biBoK3LVyZFR7SDavmhg",
-          "mode": "list",
-          "cachedResultName": "Recettes ia meal planner",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WS0I1c-bPVSAf3u-gU5O5m3biBoK3LVyZFR7SDavmhg/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Feuille 1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WS0I1c-bPVSAf3u-gU5O5m3biBoK3LVyZFR7SDavmhg/edit#gid=0"
-        },
-        "options": {}
-      },
-      "id": "751412a4-3510-421b-999c-1d53c25f1433",
-      "name": "Google Sheets",
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.4,
-      "position": [
-        -1120,
-        824
-      ],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "dX6J48BSCs6BymMp",
-          "name": "Google Sheets Camille"
-        }
-      }
-    },
-    {
-      "parameters": {
         "model": "mistral:7b-instruct",
         "options": {
           "temperature": 0.3,
@@ -294,8 +239,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        -376,
-        1048
+        -384,
+        1056
       ],
       "id": "8e6421b3-6a00-4820-85de-c58c4ac63831",
       "name": "Ollama Chat Model",
@@ -314,7 +259,7 @@
       "typeVersion": 2,
       "position": [
         -672,
-        824
+        832
       ],
       "id": "eafc0cd9-5e36-464a-a2d3-439e15c839d9",
       "name": "Extract JSON-LD"
@@ -330,7 +275,7 @@
       "typeVersion": 3,
       "position": [
         -448,
-        824
+        832
       ],
       "id": "e90dee81-8f32-4034-9e40-6aaa1027a025",
       "name": "AI Agent1",
@@ -365,7 +310,7 @@
       "typeVersion": 4.3,
       "position": [
         -896,
-        824
+        832
       ],
       "id": "9fa85825-8e55-48af-abcf-2c5c78091ed8",
       "name": "HTTP Request"
@@ -428,7 +373,7 @@
       "typeVersion": 3.3,
       "position": [
         128,
-        824
+        832
       ],
       "id": "cb089fa5-fe80-434a-a50c-ca93c6e52318",
       "name": "Switch"
@@ -482,7 +427,7 @@
       "typeVersion": 2,
       "position": [
         576,
-        728
+        736
       ],
       "id": "b7ba28de-e83e-444b-b4bf-c17ff5c17a59",
       "name": "Stock ID recette"
@@ -546,7 +491,7 @@
       "typeVersion": 2,
       "position": [
         -96,
-        824
+        832
       ],
       "id": "90029b40-f47e-423f-a8e2-77c72f6adf85",
       "name": "Séparation ingredients"
@@ -631,8 +576,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        -1272,
-        408
+        -1280,
+        416
       ],
       "id": "36ac88b6-e01e-4fc0-878b-373c8e31d659",
       "name": "Ollama Chat Model1",
@@ -673,21 +618,10 @@
       "typeVersion": 2.3,
       "position": [
         1472,
-        584
+        592
       ],
       "id": "1aa1d3fe-5a49-4d82-83d3-dd7d42a6d8d7",
       "name": "If1"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -1344,
-        824
-      ],
-      "id": "d9515782-6dc8-454a-b8df-5e148650031f",
-      "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
@@ -965,7 +899,7 @@
       "typeVersion": 2.6,
       "position": [
         352,
-        728
+        736
       ],
       "id": "4d55ab34-891a-4a10-ae59-6df879424ba9",
       "name": "Insert or update rows in a table",
@@ -986,10 +920,27 @@
       "typeVersion": 3,
       "position": [
         -1344,
-        184
+        192
       ],
       "id": "e7a8ba4e-fed2-4a46-8142-59f41e3cf49a",
       "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        163.29164729583124
+      ],
+      "id": "b583fb3a-e3fe-4245-9e92-12cbf353a546",
+      "name": "WhatsApp Trigger",
+      "webhookId": "418c5f2d-c282-451d-8217-e347332fd0db"
     }
   ],
   "origin": "n8n",
@@ -1016,6 +967,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-02-11T16:58:54.338Z",
-  "versionId": "8b5c360b-3f98-4043-bc48-6d8623e9855a"
+  "updatedAt": "2026-03-02T16:38:11.260Z",
+  "versionId": "6a306e0f-fd4a-465c-96e5-2e1b17884c11"
 }
