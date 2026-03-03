@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-28T09:15:18.065Z",
-    "createdAt": "2026-02-28T08:47:59.345Z",
-    "versionId": "c19e9ee2-6c9c-4be1-8233-713d42a6f05c",
+    "updatedAt": "2026-03-03T11:12:39.257Z",
+    "createdAt": "2026-03-03T11:12:39.257Z",
+    "versionId": "83ef8e13-ae5b-4c92-8cdd-5a9a58f1d1ef",
     "workflowId": "yxqD-Z_1vdh0EOFdlDrpo",
     "nodes": [
       {
@@ -47,14 +47,14 @@
       },
       {
         "parameters": {
-          "model": "mistral:7b-instruct",
+          "model": "qwen2.5:7b",
           "options": {}
         },
         "name": "Ollama Chat Model",
         "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
         "typeVersion": 1,
         "position": [
-          3744,
+          3664,
           464
         ],
         "id": "8458a5ea-4840-47b7-9935-fb948cda541d",
@@ -91,24 +91,25 @@
             "assignments": [
               {
                 "name": "requetes_google",
-                "value": "=[\"foodtech France\"]",
+                "value": "=[\"foodtech France\", \"nutrition\", \"frenchtech\"]",
                 "type": "array",
                 "id": "cdee7f6f-dc98-4769-bd85-f3f6093bfe0d"
               },
               {
                 "name": "requetes_hn",
-                "value": "=[ \"foodtech\", \"nutrition app\", \"personalized nutrition\"]",
+                "value": "=[ \"nutrition app\"]",
                 "type": "array",
                 "id": "19ed25cd-abb1-432b-8626-0e97c5d89c33"
               },
               {
                 "name": "subreddits",
-                "value": "=[\"MachineLearning\", \"nutrition\", \"mealprep\", \"startups\", \"foodtech\", \"FrenchTech\"]",
+                "value": "=[\"nutrition\", \"foodtech\", \"FrenchTech\"]",
                 "type": "array",
                 "id": "5d87fd6f-b609-4323-9082-3af680628108"
               }
             ]
           },
+          "includeOtherFields": true,
           "options": {}
         },
         "name": "Config sources1",
@@ -221,7 +222,7 @@
       },
       {
         "parameters": {
-          "jsCode": "var items = $input.all();\nvar results = [];\nfor (var i = 0; i < items.length; i++) {\n  var title = (items[i].json.title || '').trim();\n  var link = (items[i].json.link || '').trim();\n  if (title && link && !items[i].json._empty) {\n    results.push(items[i]);\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
+          "jsCode": "var items = $input.all();\nvar results = [];\nvar now = new Date();\nvar oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);\n\nfor (var i = 0; i < items.length; i++) {\n  var title = (items[i].json.title || '').trim();\n  var link = (items[i].json.link || '').trim();\n  var pubDate = items[i].json.pubDate || items[i].json.isoDate || items[i].json.date || '';\n  var articleDate = pubDate ? new Date(pubDate) : null;\n\n  if (title && link && !items[i].json._empty && articleDate && articleDate >= oneDayAgo) {\n    results.push(items[i]);\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
         },
         "name": "Filtre qualité1",
         "type": "n8n-nodes-base.code",
@@ -249,7 +250,7 @@
       },
       {
         "parameters": {
-          "jsCode": "const items = $input.all();\nconst originals = $('Filtre qualit\\u00e91').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const orig = originals[i]?.json || {};\n  try {\n    let text = items[i].json.output || items[i].json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    text = text.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']');\n\n    const analysis = JSON.parse(text);\n\n    // Convert pubDate to ISO 8601\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n\n    // Tags: array to comma-separated string\n    const tags = Array.isArray(analysis.tags) ? analysis.tags.join(',') : '';\n\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: analysis.resume || analysis.r\\u00e9sum\\u00e9 || '',\n        tags: tags,\n        priorite: analysis.priorite || analysis.priorit\\u00e9 || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    // On error, use original data with fallback summary\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: (orig.description || '').substring(0, 200),\n        tags: '',\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
+          "jsCode": "const items = $input.all();\nconst originals = $('Filtre doublons1').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const orig = originals[i]?.json || {};\n  try {\n    let text = items[i].json.output || items[i].json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    text = text.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']');\n\n    const analysis = JSON.parse(text);\n\n    // Convert pubDate to ISO 8601\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n\n    // Tags: array to comma-separated string\n    const tags = Array.isArray(analysis.tags) ? analysis.tags.join(',') : '';\n\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: analysis.resume || analysis.r\\u00e9sum\\u00e9 || '',\n        tags: tags,\n        priorite: analysis.priorite || analysis.priorit\\u00e9 || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    // On error, use original data with fallback summary\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: (orig.description || '').substring(0, 200),\n        tags: '',\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
         },
         "name": "Parse JSON1",
         "type": "n8n-nodes-base.code",
@@ -259,68 +260,6 @@
           240
         ],
         "id": "ca16d761-ec0e-453a-a704-64c52e9e4740"
-      },
-      {
-        "parameters": {
-          "resource": "databasePage",
-          "databaseId": {
-            "__rl": true,
-            "value": "8886261f-a0cd-4fb7-bc83-1d3fdcd78a7d",
-            "mode": "list",
-            "cachedResultName": "Veille technologique",
-            "cachedResultUrl": "https://www.notion.so/45dc981f6f794868bf4b52171716f080"
-          },
-          "title": "={{ $json.title }}",
-          "simple": false,
-          "propertiesUi": {
-            "propertyValues": [
-              {
-                "key": "Name|title",
-                "title": "={{ $json.title }}"
-              },
-              {
-                "key": "URL|url",
-                "urlValue": "={{ $json.link }}"
-              },
-              {
-                "key": "Source|select",
-                "selectValue": "={{ $json.source }}"
-              },
-              {
-                "key": "Résumé|rich_text",
-                "textContent": "={{ $json.resume }}"
-              },
-              {
-                "key": "Priorité|select",
-                "selectValue": "={{ $json.priorite }}"
-              },
-              {
-                "key": "Tags|multi_select",
-                "multiSelectValue": "={{ $json.tags }}"
-              },
-              {
-                "key": "Date publication|date",
-                "date": "={{ $json.pubDate }}"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "name": "Notion insert1",
-        "type": "n8n-nodes-base.notion",
-        "typeVersion": 2.2,
-        "position": [
-          4240,
-          240
-        ],
-        "id": "d6ce10e5-d730-4c94-ad0f-b55ecf6ccefe",
-        "credentials": {
-          "notionApi": {
-            "id": "rV7Q43daAHzHJJVH",
-            "name": "Notion account"
-          }
-        },
-        "onError": "continueRegularOutput"
       },
       {
         "parameters": {
@@ -378,6 +317,195 @@
         ],
         "id": "37bd314a-2a6c-445a-a8c0-25352c7d97d1",
         "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "databaseId": {
+            "__rl": true,
+            "value": "45dc981f-6f79-4868-bf4b-52171716f080",
+            "mode": "list",
+            "cachedResultName": "Veille technologique",
+            "cachedResultUrl": "https://www.notion.so/45dc981f6f794868bf4b52171716f080"
+          },
+          "title": "={{ $json.title }}",
+          "simple": false,
+          "propertiesUi": {
+            "propertyValues": [
+              {
+                "key": "Date publication|date",
+                "date": "={{ $json.pubDate }}"
+              },
+              {
+                "key": "Résumé|rich_text",
+                "textContent": "={{ $json.resume }}"
+              },
+              {
+                "key": "Tags|multi_select",
+                "multiSelectValue": "={{ $json.tags }}"
+              },
+              {
+                "key": "URL|url",
+                "urlValue": "={{ $json.link }}"
+              },
+              {
+                "key": "Source|select",
+                "selectValue": "={{ $json.source }}"
+              },
+              {
+                "key": "Priorité|select",
+                "selectValue": "={{ $json.priorite }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          4192,
+          240
+        ],
+        "id": "70d88f93-b0a5-4c01-86b3-e9f8482a8d36",
+        "name": "Create a database page",
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Déduplication via staticData persistant\nvar staticData = $getWorkflowStaticData('global');\nif (!staticData.processedUrls) staticData.processedUrls = {};\n\n// Nettoyage entrées > 7 jours\nvar sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;\nObject.keys(staticData.processedUrls).forEach(function(url) {\n  if (staticData.processedUrls[url] < sevenDaysAgo) delete staticData.processedUrls[url];\n});\n\nvar items = $input.all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var link = (items[i].json.link || '').trim();\n  if (!link || items[i].json._empty) continue;\n  if (staticData.processedUrls[link]) continue; // déjà traité\n  results.push(items[i]);\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
+        },
+        "id": "08bbe521-c277-4a9d-bfc4-bbfcefb6c6e2",
+        "name": "Filtre doublons1",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          3552,
+          240
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Marquer les URLs comme traitées dans staticData\nvar staticData = $getWorkflowStaticData('global');\nif (!staticData.processedUrls) staticData.processedUrls = {};\n\nvar items = $input.all();       // Réponses Notion (page créée)\nvar originals = $('Parse JSON1').all(); // Données articles originaux\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var pageId = items[i].json.id || '';\n  var orig = originals[i] ? originals[i].json : {};\n  var link = orig.link || '';\n\n  // Marquer comme traité\n  if (link) {\n    staticData.processedUrls[link] = Date.now();\n  }\n\n  // Transmettre les données enrichies\n  results.push({\n    json: {\n      pageId: pageId,\n      title: orig.title || '',\n      link: orig.link || '',\n      priorite: orig.priorite || 'Moyenne',\n      resume: orig.resume || '',\n      source: orig.source || '',\n      pubDate: orig.pubDate || '',\n      tags: orig.tags || ''\n    }\n  });\n}\n\nreturn results;"
+        },
+        "id": "1263d236-2fb0-4425-9905-2fe9f3bbaaba",
+        "name": "Marque traité1",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          4400,
+          240
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Ne conserver que les articles Haute priorité pour le scraping\nvar items = $input.all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  if (items[i].json.priorite === 'Haute' && items[i].json.link && items[i].json.pageId) {\n    results.push(items[i]);\n  }\n}\n\n// Retourne tableau vide si aucun article Haute -> arrête le flux\nreturn results;"
+        },
+        "id": "c0aeb69d-0b0b-445c-92f2-584c6e80ba1f",
+        "name": "Filtre Haute1",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          4608,
+          240
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://browserless:3000/content",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "string",
+          "body": "={{ JSON.stringify({url: $json.link, waitFor: 3000, gotoOptions: {waitUntil: 'networkidle2', timeout: 30000}}) }}",
+          "options": {
+            "timeout": 45000,
+            "response": {
+              "response": {
+                "neverError": true,
+                "responseFormat": "text"
+              }
+            }
+          }
+        },
+        "id": "9b8533f4-fb60-4bc2-82dc-f04828f9398e",
+        "name": "Scrape article1",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          4816,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "var items = $input.all();\nvar originals = $('Filtre Haute1').all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var orig = originals[i] ? originals[i].json : {};\n  var pageId = orig.pageId || '';\n  var link = orig.link || '';\n\n  // Browserless /content -> HTML dans $json.data (responseFormat: text)\n  var html = '';\n  var d = items[i].json;\n  if (typeof d === 'string') html = d;\n  else if (typeof d.data === 'string') html = d.data;\n  else if (typeof d.body === 'string') html = d.body;\n  else html = JSON.stringify(d);\n\n  // Nettoie HTML\n  html = html.replace(/<script[\\s\\S]*?<\\/script>/gi, '');\n  html = html.replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  html = html.replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, '');\n  html = html.replace(/<nav[\\s\\S]*?<\\/nav>/gi, '');\n  html = html.replace(/<footer[\\s\\S]*?<\\/footer>/gi, '');\n  html = html.replace(/<header[\\s\\S]*?<\\/header>/gi, '');\n  html = html.replace(/<aside[\\s\\S]*?<\\/aside>/gi, '');\n  html = html.replace(/<form[\\s\\S]*?<\\/form>/gi, '');\n\n  var text = html.replace(/<[^>]+>/g, ' ');\n  text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');\n  text = text.replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/&nbsp;/g, ' ');\n  text = text.replace(/&#[0-9]+;/g, ' ').replace(/&[a-z]+;/gi, ' ');\n  text = text.replace(/\\s+/g, ' ').trim();\n\n  var excerpt = text.substring(0, 1900) || 'Contenu non disponible';\n\n  var notionBody = JSON.stringify({\n    children: [\n      { object: 'block', type: 'heading_2',\n        heading_2: { rich_text: [{ type: 'text', text: { content: \"Contenu de l'article\" } }] } },\n      { object: 'block', type: 'paragraph',\n        paragraph: { rich_text: [{ type: 'text', text: { content: excerpt } }] } },\n      { object: 'block', type: 'bookmark', bookmark: { url: link } }\n    ]\n  });\n\n  results.push({ json: { pageId: pageId, link: link, excerpt: excerpt, notionBody: notionBody } });\n}\nreturn results;"
+        },
+        "id": "b52b6baa-a419-4f07-8fda-226daf299f6a",
+        "name": "Extrait contenu1",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          5024,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "method": "PATCH",
+          "url": "=https://api.notion.com/v1/blocks/{{$json.pageId}}/children",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "notionApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Notion-Version",
+                "value": "2022-06-28"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "string",
+          "body": "={{ $json.notionBody }}",
+          "options": {
+            "response": {
+              "response": {
+                "neverError": true
+              }
+            }
+          }
+        },
+        "id": "4d46909d-81a2-4be5-a9fd-f25316551f6e",
+        "name": "Ajoute contenu Notion1",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          5232,
+          400
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "rV7Q43daAHzHJJVH",
+            "name": "Notion account"
+          }
+        }
       }
     ],
     "connections": {
@@ -394,13 +522,7 @@
       },
       "Parse Reddit XML": {
         "main": [
-          [
-            {
-              "node": "Fusion sources1",
-              "type": "main",
-              "index": 0
-            }
-          ]
+          []
         ]
       },
       "Ollama Chat Model": {
@@ -430,11 +552,6 @@
           [
             {
               "node": "Split Google queries1",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Split Reddit subs1",
               "type": "main",
               "index": 0
             },
@@ -527,7 +644,7 @@
         "main": [
           [
             {
-              "node": "AI Agent1",
+              "node": "Filtre doublons1",
               "type": "main",
               "index": 0
             }
@@ -549,7 +666,7 @@
         "main": [
           [
             {
-              "node": "Notion insert1",
+              "node": "Create a database page",
               "type": "main",
               "index": 0
             }
@@ -569,20 +686,74 @@
       },
       "Webhook Manuel": {
         "main": [
+          []
+        ]
+      },
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          []
+        ]
+      },
+      "Filtre doublons1": {
+        "main": [
           [
             {
-              "node": "Config sources1",
+              "node": "AI Agent1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "When clicking ‘Execute workflow’": {
+      "Create a database page": {
         "main": [
           [
             {
-              "node": "Config sources1",
+              "node": "Marque traité1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Marque traité1": {
+        "main": [
+          [
+            {
+              "node": "Filtre Haute1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filtre Haute1": {
+        "main": [
+          [
+            {
+              "node": "Scrape article1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape article1": {
+        "main": [
+          [
+            {
+              "node": "Extrait contenu1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extrait contenu1": {
+        "main": [
+          [
+            {
+              "node": "Ajoute contenu Notion1",
               "type": "main",
               "index": 0
             }
@@ -591,11 +762,11 @@
       }
     },
     "authors": "Camille Huguet",
-    "name": "Fix RSS headers + Merge indices",
-    "description": "Added User-Agent headers to RSS Reddit and Google News nodes. Fixed Merge node connection indices (Google=0, Reddit=1, HN=2).",
-    "autosaved": true
+    "name": null,
+    "description": null,
+    "autosaved": false
   },
-  "activeVersionId": "c19e9ee2-6c9c-4be1-8233-713d42a6f05c",
+  "activeVersionId": "83ef8e13-ae5b-4c92-8cdd-5a9a58f1d1ef",
   "connections": {
     "Parse Google XML": {
       "main": [
@@ -610,13 +781,7 @@
     },
     "Parse Reddit XML": {
       "main": [
-        [
-          {
-            "node": "Fusion sources1",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Ollama Chat Model": {
@@ -646,11 +811,6 @@
         [
           {
             "node": "Split Google queries1",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Split Reddit subs1",
             "type": "main",
             "index": 0
           },
@@ -743,7 +903,7 @@
       "main": [
         [
           {
-            "node": "AI Agent1",
+            "node": "Filtre doublons1",
             "type": "main",
             "index": 0
           }
@@ -785,20 +945,74 @@
     },
     "Webhook Manuel": {
       "main": [
+        []
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "Filtre doublons1": {
+      "main": [
         [
           {
-            "node": "Config sources1",
+            "node": "AI Agent1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "When clicking ‘Execute workflow’": {
+    "Create a database page": {
       "main": [
         [
           {
-            "node": "Config sources1",
+            "node": "Marque traité1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marque traité1": {
+      "main": [
+        [
+          {
+            "node": "Filtre Haute1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtre Haute1": {
+      "main": [
+        [
+          {
+            "node": "Scrape article1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape article1": {
+      "main": [
+        [
+          {
+            "node": "Extrait contenu1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrait contenu1": {
+      "main": [
+        [
+          {
+            "node": "Ajoute contenu Notion1",
             "type": "main",
             "index": 0
           }
@@ -855,14 +1069,14 @@
     },
     {
       "parameters": {
-        "model": "mistral:7b-instruct",
+        "model": "qwen2.5:7b",
         "options": {}
       },
       "name": "Ollama Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        3744,
+        3664,
         464
       ],
       "id": "8458a5ea-4840-47b7-9935-fb948cda541d",
@@ -899,24 +1113,25 @@
           "assignments": [
             {
               "name": "requetes_google",
-              "value": "=[\"foodtech France\"]",
+              "value": "=[\"foodtech France\", \"nutrition\", \"frenchtech\"]",
               "type": "array",
               "id": "cdee7f6f-dc98-4769-bd85-f3f6093bfe0d"
             },
             {
               "name": "requetes_hn",
-              "value": "=[ \"foodtech\", \"nutrition app\", \"personalized nutrition\"]",
+              "value": "=[ \"nutrition app\"]",
               "type": "array",
               "id": "19ed25cd-abb1-432b-8626-0e97c5d89c33"
             },
             {
               "name": "subreddits",
-              "value": "=[\"MachineLearning\", \"nutrition\", \"mealprep\", \"startups\", \"foodtech\", \"FrenchTech\"]",
+              "value": "=[\"nutrition\", \"foodtech\", \"FrenchTech\"]",
               "type": "array",
               "id": "5d87fd6f-b609-4323-9082-3af680628108"
             }
           ]
         },
+        "includeOtherFields": true,
         "options": {}
       },
       "name": "Config sources1",
@@ -1029,7 +1244,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var items = $input.all();\nvar results = [];\nfor (var i = 0; i < items.length; i++) {\n  var title = (items[i].json.title || '').trim();\n  var link = (items[i].json.link || '').trim();\n  if (title && link && !items[i].json._empty) {\n    results.push(items[i]);\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
+        "jsCode": "var items = $input.all();\nvar results = [];\nvar now = new Date();\nvar oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);\n\nfor (var i = 0; i < items.length; i++) {\n  var title = (items[i].json.title || '').trim();\n  var link = (items[i].json.link || '').trim();\n  var pubDate = items[i].json.pubDate || items[i].json.isoDate || items[i].json.date || '';\n  var articleDate = pubDate ? new Date(pubDate) : null;\n\n  if (title && link && !items[i].json._empty && articleDate && articleDate >= oneDayAgo) {\n    results.push(items[i]);\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
       },
       "name": "Filtre qualité1",
       "type": "n8n-nodes-base.code",
@@ -1057,7 +1272,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst originals = $('Filtre qualit\\u00e91').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const orig = originals[i]?.json || {};\n  try {\n    let text = items[i].json.output || items[i].json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    text = text.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']');\n\n    const analysis = JSON.parse(text);\n\n    // Convert pubDate to ISO 8601\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n\n    // Tags: array to comma-separated string\n    const tags = Array.isArray(analysis.tags) ? analysis.tags.join(',') : '';\n\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: analysis.resume || analysis.r\\u00e9sum\\u00e9 || '',\n        tags: tags,\n        priorite: analysis.priorite || analysis.priorit\\u00e9 || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    // On error, use original data with fallback summary\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: (orig.description || '').substring(0, 200),\n        tags: '',\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
+        "jsCode": "const items = $input.all();\nconst originals = $('Filtre doublons1').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const orig = originals[i]?.json || {};\n  try {\n    let text = items[i].json.output || items[i].json.text || '';\n    text = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    text = text.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']');\n\n    const analysis = JSON.parse(text);\n\n    // Convert pubDate to ISO 8601\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n\n    // Tags: array to comma-separated string\n    const tags = Array.isArray(analysis.tags) ? analysis.tags.join(',') : '';\n\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: analysis.resume || analysis.r\\u00e9sum\\u00e9 || '',\n        tags: tags,\n        priorite: analysis.priorite || analysis.priorit\\u00e9 || 'Moyenne'\n      }\n    });\n  } catch (e) {\n    // On error, use original data with fallback summary\n    let dateStr = orig.pubDate || '';\n    if (dateStr) {\n      try {\n        const d = new Date(dateStr);\n        if (!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];\n      } catch { dateStr = null; }\n    }\n    results.push({\n      json: {\n        title: orig.title || '',\n        link: orig.link || '',\n        source: orig.source || '',\n        pubDate: dateStr,\n        description: orig.description || '',\n        resume: (orig.description || '').substring(0, 200),\n        tags: '',\n        priorite: 'Moyenne'\n      }\n    });\n  }\n}\n\nreturn results;"
       },
       "name": "Parse JSON1",
       "type": "n8n-nodes-base.code",
@@ -1135,11 +1350,33 @@
           "cachedResultName": "Veille technologique",
           "cachedResultUrl": "https://www.notion.so/45dc981f6f794868bf4b52171716f080"
         },
-        "title": "test",
+        "title": "={{ $json.title }}",
+        "simple": false,
         "propertiesUi": {
           "propertyValues": [
             {
-              "key": "Lu|checkbox"
+              "key": "Date publication|date",
+              "date": "={{ $json.pubDate }}"
+            },
+            {
+              "key": "Résumé|rich_text",
+              "textContent": "={{ $json.resume }}"
+            },
+            {
+              "key": "Tags|multi_select",
+              "multiSelectValue": "={{ $json.tags }}"
+            },
+            {
+              "key": "URL|url",
+              "urlValue": "={{ $json.link }}"
+            },
+            {
+              "key": "Source|select",
+              "selectValue": "={{ $json.source }}"
+            },
+            {
+              "key": "Priorité|select",
+              "selectValue": "={{ $json.priorite }}"
             }
           ]
         },
@@ -1159,6 +1396,138 @@
           "name": "Notion account"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Déduplication via staticData persistant\nvar staticData = $getWorkflowStaticData('global');\nif (!staticData.processedUrls) staticData.processedUrls = {};\n\n// Nettoyage entrées > 7 jours\nvar sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;\nObject.keys(staticData.processedUrls).forEach(function(url) {\n  if (staticData.processedUrls[url] < sevenDaysAgo) delete staticData.processedUrls[url];\n});\n\nvar items = $input.all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var link = (items[i].json.link || '').trim();\n  if (!link || items[i].json._empty) continue;\n  if (staticData.processedUrls[link]) continue; // déjà traité\n  results.push(items[i]);\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
+      },
+      "id": "08bbe521-c277-4a9d-bfc4-bbfcefb6c6e2",
+      "name": "Filtre doublons1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3552,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Marquer les URLs comme traitées dans staticData\nvar staticData = $getWorkflowStaticData('global');\nif (!staticData.processedUrls) staticData.processedUrls = {};\n\nvar items = $input.all();       // Réponses Notion (page créée)\nvar originals = $('Parse JSON1').all(); // Données articles originaux\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var pageId = items[i].json.id || '';\n  var orig = originals[i] ? originals[i].json : {};\n  var link = orig.link || '';\n\n  // Marquer comme traité\n  if (link) {\n    staticData.processedUrls[link] = Date.now();\n  }\n\n  // Transmettre les données enrichies\n  results.push({\n    json: {\n      pageId: pageId,\n      title: orig.title || '',\n      link: orig.link || '',\n      priorite: orig.priorite || 'Moyenne',\n      resume: orig.resume || '',\n      source: orig.source || '',\n      pubDate: orig.pubDate || '',\n      tags: orig.tags || ''\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "1263d236-2fb0-4425-9905-2fe9f3bbaaba",
+      "name": "Marque traité1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4400,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ne conserver que les articles Haute priorité pour le scraping\nvar items = $input.all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  if (items[i].json.priorite === 'Haute' && items[i].json.link && items[i].json.pageId) {\n    results.push(items[i]);\n  }\n}\n\n// Retourne tableau vide si aucun article Haute -> arrête le flux\nreturn results;"
+      },
+      "id": "c0aeb69d-0b0b-445c-92f2-584c6e80ba1f",
+      "name": "Filtre Haute1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4608,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://browserless:3000/content",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ JSON.stringify({url: $json.link, waitFor: 3000, gotoOptions: {waitUntil: 'networkidle2', timeout: 30000}}) }}",
+        "options": {
+          "timeout": 45000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "9b8533f4-fb60-4bc2-82dc-f04828f9398e",
+      "name": "Scrape article1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4816,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "var items = $input.all();\nvar originals = $('Filtre Haute1').all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var orig = originals[i] ? originals[i].json : {};\n  var pageId = orig.pageId || '';\n  var link = orig.link || '';\n\n  // Browserless /content -> HTML dans $json.data (responseFormat: text)\n  var html = '';\n  var d = items[i].json;\n  if (typeof d === 'string') html = d;\n  else if (typeof d.data === 'string') html = d.data;\n  else if (typeof d.body === 'string') html = d.body;\n  else html = JSON.stringify(d);\n\n  // Nettoie HTML\n  html = html.replace(/<script[\\s\\S]*?<\\/script>/gi, '');\n  html = html.replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  html = html.replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, '');\n  html = html.replace(/<nav[\\s\\S]*?<\\/nav>/gi, '');\n  html = html.replace(/<footer[\\s\\S]*?<\\/footer>/gi, '');\n  html = html.replace(/<header[\\s\\S]*?<\\/header>/gi, '');\n  html = html.replace(/<aside[\\s\\S]*?<\\/aside>/gi, '');\n  html = html.replace(/<form[\\s\\S]*?<\\/form>/gi, '');\n\n  var text = html.replace(/<[^>]+>/g, ' ');\n  text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');\n  text = text.replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/&nbsp;/g, ' ');\n  text = text.replace(/&#[0-9]+;/g, ' ').replace(/&[a-z]+;/gi, ' ');\n  text = text.replace(/\\s+/g, ' ').trim();\n\n  var excerpt = text.substring(0, 1900) || 'Contenu non disponible';\n\n  var notionBody = JSON.stringify({\n    children: [\n      { object: 'block', type: 'heading_2',\n        heading_2: { rich_text: [{ type: 'text', text: { content: \"Contenu de l'article\" } }] } },\n      { object: 'block', type: 'paragraph',\n        paragraph: { rich_text: [{ type: 'text', text: { content: excerpt } }] } },\n      { object: 'block', type: 'bookmark', bookmark: { url: link } }\n    ]\n  });\n\n  results.push({ json: { pageId: pageId, link: link, excerpt: excerpt, notionBody: notionBody } });\n}\nreturn results;"
+      },
+      "id": "b52b6baa-a419-4f07-8fda-226daf299f6a",
+      "name": "Extrait contenu1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5024,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{$json.pageId}}/children",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ $json.notionBody }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "4d46909d-81a2-4be5-a9fd-f25316551f6e",
+      "name": "Ajoute contenu Notion1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5232,
+        400
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
     }
   ],
   "origin": "n8n",
@@ -1169,7 +1538,7 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": true,
+    "availableInMCP": false,
     "callerPolicy": "workflowsFromSameOwner"
   },
   "shared": [
@@ -1184,12 +1553,25 @@
   "staticData": {
     "node:Déclencheur horaire1": {
       "recurrenceRules": [
-        18
+        6
       ]
+    },
+    "global": {
+      "processedUrls": {
+        "https://news.google.com/rss/articles/CBMingFBVV95cUxOY0VvNWEzdVdBdW0yMVZ4d0p4a0NRRUkzV040Z205TnFkYTljY280Xzl0ZlRRUW4yODZnSDVlWG9aX3lnbS1EX0FVME5CYUxheFdXbnppZU5ibXl0ZVBjaHQ4UVVtbldieDNhWXk0bWNjWFNQUHBHOXdDTklmVDFiakl1S2ttY0hkdjVMZ3NvSnRpeDFtZUZodTZ6V2NmQQ?oc=5": 1772536292884,
+        "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNLU9qblk0ZDJONGdfR3hsNk9OTHhGZ2YtYTFQTFlaTnBTVTJ1WmhWWXhfalpNd1Y5RDJRVFUza0Z6enRHeE96QWpONlowWDNWUzZ6VGk0amV6aDcyOXR0Y3JsR193a043ZWx3MU00NzluRlduUmFYVm1FZlYtRUhkQ0p5YzE3WkZRRmFQVWg5NXJtcW5idUFfRnpObXJmanZBWjRlYXFUMnJ5Rmd5VElSSkhEWlVsN1ZnZ2lZN0trdTk?oc=5": 1772536292885,
+        "https://news.google.com/rss/articles/CBMiigJBVV95cUxQUS02VXJGbGU1dGZucGVySDVieDRvLU9QRGM2c2RobXBvUUxrZ2oyRGp0MjRVZWhmcm9GVjROLVA0MTJPNVZmWGVxdWdyZ01xcVhQV3c4cGdRWG1ZQTJlQk90dmNWUHhLOTdLTEpiRTNMbTYxcHhLTm43SHNsM0hkU3lZenh0aXYwN2JKMEw2WV9JNEk1YjlqMGJ3QW81RmVGV0Z3NERZT3JBSzdZXzMzTVZGd0oydW9XOTBtYVFmSmZQZXNJMjQtTlp1MEFNdWRLT1ViUXVzZFQxM1VVZUZPYnBicDBTa2VFOWZTVGJZa3lQOGRhQkJFX2VnbDhGTjFlTnY2dXp1UVBpdw?oc=5": 1772536292885,
+        "https://news.google.com/rss/articles/CBMiugFBVV95cUxPdmZXeUZYemx0UmFLOHM0Qm5FRzhpRmJ3bDVHQ0FIcm52MzcxZGNTQko1ekthRWdNUFVCbElBN1BVU19zQmp5TzRIaXFtSFZvakZyWlAteUxVRUgtVWJZbGt4M2hweVZaVHB5RU9JU2s3aThLSW1NWmE5R3Q0MUdOWGx0Z284N1J3amdTTXJETFpDMmRHdWo0RE5SZzhLTmpoV2tzRkc0UFo5em9OaEx2d0RDR1JIYWI5U2c?oc=5": 1772536292885,
+        "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOYzNSSlRfcV9pdGcwbnZ0YmlUWUkzY2xVSGZ3dlBVbmZuRjhTVllsY1dWMVZSWnBWMkxPQzNianNRNGk2eUdpYlZwLWZWZFk0aE1QaWtsbEZ1clBkaGJWT3VFMUFjeFRBeW11T0pEUGdmaldyaGJ4LVFJVm8yRzROTmc3LThtQ3QwVFk2NUFjQWRmZEE4cDNicnZyQVc5cS1VeHdJRm9hUjZ1dw?oc=5": 1772536292885,
+        "https://news.google.com/rss/articles/CBMiugFBVV95cUxPdEJrcVE1TGQxNTg4X3lMQ3ZXVzF2SGhGSmZLeWdaNWhtQ3pqUF9Kdm9XTF8zZDdJSHRZNWx5SEEwV1lkbHdHMGpSMmx1OVgwLVBOcmlYZFVvWWY3bDZCYWxYcVo2T3FBN0MwY1lxUmt5SlFEQlI0dm9SakpkRk1vd0psRkNQb01TU2lrYmN6VWlBejczMmVWVWIzT0xTaG9XSzVMRTVmRUc0bkpBbklsbnl6Z1F4Zmh6alE?oc=5": 1772536292885,
+        "https://news.google.com/rss/articles/CBMisgFBVV95cUxPb09qTEpGdHdPYkMxR0NUWUtqNWd6b215bmZnVDExTVpGMm40VHdyZzJ6d2hQblR6b2JTX09NQVV1bjRLOFVQUVJZb2UzTERROHNONFFHR2YyVmhkZjNPMGlEcWkxZ3EyMk9GRHd4SUhnTkpoUHhMZFZNZjZ4UkhCWWFpZlBNWHQ1QmtNcFhvRnMxVW4tSXcxNmtaN18tMXNxV0p5dFM0UldJNHZMa2dnUG1n?oc=5": 1772536292885,
+        "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQVFRkSzJxRGpPV20yNW96eVRnLWw5SGxYV3ZYOTlVS1YyNzR0TlRFSGU5Y2V4RW9EcERMMndQS2JGcHhaQVhrZ0RzQXA4VTlHOG9RQ2ozemdHSWpXcFhaU2hBZFFJZUhlRmhPb21ORHljMjdPbDBmOHRWdjByUVFxY1M2cDJVaklCT1lxY215R0dtVU52bTJxcjYwU1k4c0prczZJXzg5b0dUNzZ2MVpoQkNodDl3VTVYcV9kZGdlbHhPRS1oUEFpd1lhc2ZST0dMZG94Y2Z2Zk9KN2VhR0t5MTVLdw?oc=5": 1772536292885,
+        "https://news.google.com/rss/articles/CBMiwgFBVV95cUxOeXFOOTliendaSVRrS2RqVzBJbG1KNWxvUXdGMTFRRDViWjMyMElLWnNRSDI5eXYyTV9zeWhjMDNadkhlS0pZTjRxdXRRdEcyZGVyakNRUkZZYkZUMjNOZ3NVQW1faFFJbW9sR3NLQ1RiMzh1eWpJWmcwUTRWeWFiTG5oNG1hektuWFFLOXYtdVBFRl9xbGpYd0pYMHpRYV9kQmFwWjk4X21FZ3BMR05OMEVlSERINUZOUWU1QTM1U1E5Zw?oc=5": 1772536292885
+      }
     }
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-03-02T10:07:52.991Z",
-  "versionId": "232fea69-5077-4d44-bd44-52ed8173f95d"
+  "updatedAt": "2026-03-03T11:12:39.255Z",
+  "versionId": "83ef8e13-ae5b-4c92-8cdd-5a9a58f1d1ef"
 }
