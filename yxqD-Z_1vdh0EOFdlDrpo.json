@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-03-03T11:12:39.257Z",
-    "createdAt": "2026-03-03T11:12:39.257Z",
-    "versionId": "83ef8e13-ae5b-4c92-8cdd-5a9a58f1d1ef",
+    "updatedAt": "2026-03-03T16:31:25.339Z",
+    "createdAt": "2026-03-03T16:31:25.339Z",
+    "versionId": "f3a36019-5f08-49b2-9b00-7eb8bc4baec2",
     "workflowId": "yxqD-Z_1vdh0EOFdlDrpo",
     "nodes": [
       {
@@ -451,7 +451,7 @@
       },
       {
         "parameters": {
-          "jsCode": "var items = $input.all();\nvar originals = $('Filtre Haute1').all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var orig = originals[i] ? originals[i].json : {};\n  var pageId = orig.pageId || '';\n  var link = orig.link || '';\n\n  // Browserless /content -> HTML dans $json.data (responseFormat: text)\n  var html = '';\n  var d = items[i].json;\n  if (typeof d === 'string') html = d;\n  else if (typeof d.data === 'string') html = d.data;\n  else if (typeof d.body === 'string') html = d.body;\n  else html = JSON.stringify(d);\n\n  // Nettoie HTML\n  html = html.replace(/<script[\\s\\S]*?<\\/script>/gi, '');\n  html = html.replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  html = html.replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, '');\n  html = html.replace(/<nav[\\s\\S]*?<\\/nav>/gi, '');\n  html = html.replace(/<footer[\\s\\S]*?<\\/footer>/gi, '');\n  html = html.replace(/<header[\\s\\S]*?<\\/header>/gi, '');\n  html = html.replace(/<aside[\\s\\S]*?<\\/aside>/gi, '');\n  html = html.replace(/<form[\\s\\S]*?<\\/form>/gi, '');\n\n  var text = html.replace(/<[^>]+>/g, ' ');\n  text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');\n  text = text.replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/&nbsp;/g, ' ');\n  text = text.replace(/&#[0-9]+;/g, ' ').replace(/&[a-z]+;/gi, ' ');\n  text = text.replace(/\\s+/g, ' ').trim();\n\n  var excerpt = text.substring(0, 1900) || 'Contenu non disponible';\n\n  var notionBody = JSON.stringify({\n    children: [\n      { object: 'block', type: 'heading_2',\n        heading_2: { rich_text: [{ type: 'text', text: { content: \"Contenu de l'article\" } }] } },\n      { object: 'block', type: 'paragraph',\n        paragraph: { rich_text: [{ type: 'text', text: { content: excerpt } }] } },\n      { object: 'block', type: 'bookmark', bookmark: { url: link } }\n    ]\n  });\n\n  results.push({ json: { pageId: pageId, link: link, excerpt: excerpt, notionBody: notionBody } });\n}\nreturn results;"
+          "jsCode": "var items = $input.all();\nvar originals = $('Filtre Haute1').all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var orig = originals[i] ? originals[i].json : {};\n  var pageId = orig.pageId || '';\n  var link = orig.link || '';\n\n  // Browserless /content -> HTML dans $json.data\n  var html = '';\n  var d = items[i].json;\n  if (typeof d === 'string') html = d;\n  else if (typeof d.data === 'string') html = d.data;\n  else if (typeof d.body === 'string') html = d.body;\n  else html = JSON.stringify(d);\n\n  // Nettoyage HTML\n  html = html.replace(/<script[\\s\\S]*?<\\/script>/gi, '');\n  html = html.replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  html = html.replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, '');\n  html = html.replace(/<nav[\\s\\S]*?<\\/nav>/gi, '');\n  html = html.replace(/<footer[\\s\\S]*?<\\/footer>/gi, '');\n  html = html.replace(/<header[\\s\\S]*?<\\/header>/gi, '');\n  html = html.replace(/<aside[\\s\\S]*?<\\/aside>/gi, '');\n  html = html.replace(/<form[\\s\\S]*?<\\/form>/gi, '');\n\n  var text = html.replace(/<[^>]+>/g, ' ');\n  text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');\n  text = text.replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/&nbsp;/g, ' ');\n  text = text.replace(/&#[0-9]+;/g, ' ').replace(/&[a-z]+;/gi, ' ');\n  text = text.replace(/\\s+/g, ' ').trim();\n\n  // Limite totale : ~15 000 chars (~8 blocs) pour ne pas surcharger Notion\n  var MAX_TOTAL = 15000;\n  var CHUNK = 1900;  // limite Notion par bloc de texte\n  text = text.substring(0, MAX_TOTAL);\n\n  // Découpe le texte en chunks de 1900 chars\n  var chunks = [];\n  for (var j = 0; j < text.length; j += CHUNK) {\n    var chunk = text.substring(j, j + CHUNK).trim();\n    if (chunk) chunks.push(chunk);\n  }\n  if (chunks.length === 0) chunks = ['Contenu non disponible'];\n\n  // Construit les blocs Notion\n  var children = [\n    {\n      object: 'block', type: 'heading_2',\n      heading_2: { rich_text: [{ type: 'text', text: { content: \"Contenu de l'article\" } }] }\n    }\n  ];\n\n  // Un bloc paragraphe par chunk\n  for (var k = 0; k < chunks.length; k++) {\n    children.push({\n      object: 'block', type: 'paragraph',\n      paragraph: { rich_text: [{ type: 'text', text: { content: chunks[k] } }] }\n    });\n  }\n\n  // Bookmark vers l'article original\n  children.push({ object: 'block', type: 'bookmark', bookmark: { url: link } });\n\n  var notionBody = JSON.stringify({ children: children });\n\n  results.push({\n    json: {\n      pageId: pageId,\n      link: link,\n      blocks: chunks.length,\n      notionBody: notionBody\n    }\n  });\n}\nreturn results;"
         },
         "id": "b52b6baa-a419-4f07-8fda-226daf299f6a",
         "name": "Extrait contenu1",
@@ -766,7 +766,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "83ef8e13-ae5b-4c92-8cdd-5a9a58f1d1ef",
+  "activeVersionId": "f3a36019-5f08-49b2-9b00-7eb8bc4baec2",
   "connections": {
     "Parse Google XML": {
       "main": [
@@ -797,13 +797,7 @@
     },
     "Déclencheur horaire1": {
       "main": [
-        [
-          {
-            "node": "Config sources1",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Config sources1": {
@@ -950,7 +944,13 @@
     },
     "When clicking ‘Execute workflow’": {
       "main": [
-        []
+        [
+          {
+            "node": "Config sources1",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Filtre doublons1": {
@@ -1102,8 +1102,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1,
       "position": [
-        704,
-        240
+        592,
+        224
       ],
       "id": "ce3c01b0-c73e-49bd-860e-7a7805d85846"
     },
@@ -1453,13 +1453,13 @@
         "specifyBody": "string",
         "body": "={{ JSON.stringify({url: $json.link, waitFor: 3000, gotoOptions: {waitUntil: 'networkidle2', timeout: 30000}}) }}",
         "options": {
-          "timeout": 45000,
           "response": {
             "response": {
               "neverError": true,
               "responseFormat": "text"
             }
-          }
+          },
+          "timeout": 45000
         }
       },
       "id": "9b8533f4-fb60-4bc2-82dc-f04828f9398e",
@@ -1473,7 +1473,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var items = $input.all();\nvar originals = $('Filtre Haute1').all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var orig = originals[i] ? originals[i].json : {};\n  var pageId = orig.pageId || '';\n  var link = orig.link || '';\n\n  // Browserless /content -> HTML dans $json.data (responseFormat: text)\n  var html = '';\n  var d = items[i].json;\n  if (typeof d === 'string') html = d;\n  else if (typeof d.data === 'string') html = d.data;\n  else if (typeof d.body === 'string') html = d.body;\n  else html = JSON.stringify(d);\n\n  // Nettoie HTML\n  html = html.replace(/<script[\\s\\S]*?<\\/script>/gi, '');\n  html = html.replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  html = html.replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, '');\n  html = html.replace(/<nav[\\s\\S]*?<\\/nav>/gi, '');\n  html = html.replace(/<footer[\\s\\S]*?<\\/footer>/gi, '');\n  html = html.replace(/<header[\\s\\S]*?<\\/header>/gi, '');\n  html = html.replace(/<aside[\\s\\S]*?<\\/aside>/gi, '');\n  html = html.replace(/<form[\\s\\S]*?<\\/form>/gi, '');\n\n  var text = html.replace(/<[^>]+>/g, ' ');\n  text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');\n  text = text.replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/&nbsp;/g, ' ');\n  text = text.replace(/&#[0-9]+;/g, ' ').replace(/&[a-z]+;/gi, ' ');\n  text = text.replace(/\\s+/g, ' ').trim();\n\n  var excerpt = text.substring(0, 1900) || 'Contenu non disponible';\n\n  var notionBody = JSON.stringify({\n    children: [\n      { object: 'block', type: 'heading_2',\n        heading_2: { rich_text: [{ type: 'text', text: { content: \"Contenu de l'article\" } }] } },\n      { object: 'block', type: 'paragraph',\n        paragraph: { rich_text: [{ type: 'text', text: { content: excerpt } }] } },\n      { object: 'block', type: 'bookmark', bookmark: { url: link } }\n    ]\n  });\n\n  results.push({ json: { pageId: pageId, link: link, excerpt: excerpt, notionBody: notionBody } });\n}\nreturn results;"
+        "jsCode": "var items = $input.all();\nvar originals = $('Filtre Haute1').all();\nvar results = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var orig = originals[i] ? originals[i].json : {};\n  var pageId = orig.pageId || '';\n  var link = orig.link || '';\n\n  // Browserless /content -> HTML dans $json.data\n  var html = '';\n  var d = items[i].json;\n  if (typeof d === 'string') html = d;\n  else if (typeof d.data === 'string') html = d.data;\n  else if (typeof d.body === 'string') html = d.body;\n  else html = JSON.stringify(d);\n\n  // Nettoyage HTML\n  html = html.replace(/<script[\\s\\S]*?<\\/script>/gi, '');\n  html = html.replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  html = html.replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, '');\n  html = html.replace(/<nav[\\s\\S]*?<\\/nav>/gi, '');\n  html = html.replace(/<footer[\\s\\S]*?<\\/footer>/gi, '');\n  html = html.replace(/<header[\\s\\S]*?<\\/header>/gi, '');\n  html = html.replace(/<aside[\\s\\S]*?<\\/aside>/gi, '');\n  html = html.replace(/<form[\\s\\S]*?<\\/form>/gi, '');\n\n  var text = html.replace(/<[^>]+>/g, ' ');\n  text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');\n  text = text.replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/&nbsp;/g, ' ');\n  text = text.replace(/&#[0-9]+;/g, ' ').replace(/&[a-z]+;/gi, ' ');\n  text = text.replace(/\\s+/g, ' ').trim();\n\n  // Limite totale : ~15 000 chars (~8 blocs) pour ne pas surcharger Notion\n  var MAX_TOTAL = 15000;\n  var CHUNK = 1900;  // limite Notion par bloc de texte\n  text = text.substring(0, MAX_TOTAL);\n\n  // Découpe le texte en chunks de 1900 chars\n  var chunks = [];\n  for (var j = 0; j < text.length; j += CHUNK) {\n    var chunk = text.substring(j, j + CHUNK).trim();\n    if (chunk) chunks.push(chunk);\n  }\n  if (chunks.length === 0) chunks = ['Contenu non disponible'];\n\n  // Construit les blocs Notion\n  var children = [\n    {\n      object: 'block', type: 'heading_2',\n      heading_2: { rich_text: [{ type: 'text', text: { content: \"Contenu de l'article\" } }] }\n    }\n  ];\n\n  // Un bloc paragraphe par chunk\n  for (var k = 0; k < chunks.length; k++) {\n    children.push({\n      object: 'block', type: 'paragraph',\n      paragraph: { rich_text: [{ type: 'text', text: { content: chunks[k] } }] }\n    });\n  }\n\n  // Bookmark vers l'article original\n  children.push({ object: 'block', type: 'bookmark', bookmark: { url: link } });\n\n  var notionBody = JSON.stringify({ children: children });\n\n  results.push({\n    json: {\n      pageId: pageId,\n      link: link,\n      blocks: chunks.length,\n      notionBody: notionBody\n    }\n  });\n}\nreturn results;"
       },
       "id": "b52b6baa-a419-4f07-8fda-226daf299f6a",
       "name": "Extrait contenu1",
@@ -1566,12 +1566,19 @@
         "https://news.google.com/rss/articles/CBMiugFBVV95cUxPdEJrcVE1TGQxNTg4X3lMQ3ZXVzF2SGhGSmZLeWdaNWhtQ3pqUF9Kdm9XTF8zZDdJSHRZNWx5SEEwV1lkbHdHMGpSMmx1OVgwLVBOcmlYZFVvWWY3bDZCYWxYcVo2T3FBN0MwY1lxUmt5SlFEQlI0dm9SakpkRk1vd0psRkNQb01TU2lrYmN6VWlBejczMmVWVWIzT0xTaG9XSzVMRTVmRUc0bkpBbklsbnl6Z1F4Zmh6alE?oc=5": 1772536292885,
         "https://news.google.com/rss/articles/CBMisgFBVV95cUxPb09qTEpGdHdPYkMxR0NUWUtqNWd6b215bmZnVDExTVpGMm40VHdyZzJ6d2hQblR6b2JTX09NQVV1bjRLOFVQUVJZb2UzTERROHNONFFHR2YyVmhkZjNPMGlEcWkxZ3EyMk9GRHd4SUhnTkpoUHhMZFZNZjZ4UkhCWWFpZlBNWHQ1QmtNcFhvRnMxVW4tSXcxNmtaN18tMXNxV0p5dFM0UldJNHZMa2dnUG1n?oc=5": 1772536292885,
         "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQVFRkSzJxRGpPV20yNW96eVRnLWw5SGxYV3ZYOTlVS1YyNzR0TlRFSGU5Y2V4RW9EcERMMndQS2JGcHhaQVhrZ0RzQXA4VTlHOG9RQ2ozemdHSWpXcFhaU2hBZFFJZUhlRmhPb21ORHljMjdPbDBmOHRWdjByUVFxY1M2cDJVaklCT1lxY215R0dtVU52bTJxcjYwU1k4c0prczZJXzg5b0dUNzZ2MVpoQkNodDl3VTVYcV9kZGdlbHhPRS1oUEFpd1lhc2ZST0dMZG94Y2Z2Zk9KN2VhR0t5MTVLdw?oc=5": 1772536292885,
-        "https://news.google.com/rss/articles/CBMiwgFBVV95cUxOeXFOOTliendaSVRrS2RqVzBJbG1KNWxvUXdGMTFRRDViWjMyMElLWnNRSDI5eXYyTV9zeWhjMDNadkhlS0pZTjRxdXRRdEcyZGVyakNRUkZZYkZUMjNOZ3NVQW1faFFJbW9sR3NLQ1RiMzh1eWpJWmcwUTRWeWFiTG5oNG1hektuWFFLOXYtdVBFRl9xbGpYd0pYMHpRYV9kQmFwWjk4X21FZ3BMR05OMEVlSERINUZOUWU1QTM1U1E5Zw?oc=5": 1772536292885
+        "https://news.google.com/rss/articles/CBMiwgFBVV95cUxOeXFOOTliendaSVRrS2RqVzBJbG1KNWxvUXdGMTFRRDViWjMyMElLWnNRSDI5eXYyTV9zeWhjMDNadkhlS0pZTjRxdXRRdEcyZGVyakNRUkZZYkZUMjNOZ3NVQW1faFFJbW9sR3NLQ1RiMzh1eWpJWmcwUTRWeWFiTG5oNG1hektuWFFLOXYtdVBFRl9xbGpYd0pYMHpRYV9kQmFwWjk4X21FZ3BMR05OMEVlSERINUZOUWU1QTM1U1E5Zw?oc=5": 1772536292885,
+        "https://news.google.com/rss/articles/CBMi-wFBVV95cUxNby1JcjEzdjlieFZvbnFzY2xtdTFWeFVCTXA1T0NxamhGVHdzRG1vdGZaTmJWYVo0c005al9SeWNaamtualoxRDhyV09IbFFjV3QyQlY0Qi1wZTJRbnhJS1hzcTVPVW9DSmlsSDd3X01jUG84a1Bka3lhY1FldllSU0d6MlZRenVReEZyMllFTWdqWlRVTWMwQ05iVGNIQmt3djNrU3VqOWthOTM3dXJCTGItUHViSmRIVFlzOUtWTmlwMzFjSF9LVXl5d3RJcjVnbU1oYk01WUtvY29fQkFPQi1OWWlZdFN2S2Q5eVg0c2NtdlFDU3hMSVVNTQ?oc=5": 1772622587030,
+        "https://news.google.com/rss/articles/CBMihAJBVV95cUxPbjVPOWdfZFpUQ2tzUkxua1I1X05VZUZMeWt2dENZV3JVSjBzcmROSmtzeVhCVmRuc2l1YXhpYkRNaDFHQnQweEpFeFliZnBBaGJQUWZjM29lNElIaWpUYXY5aURoTldxaXAxTHNkTzloTDBvRW1Zall3dGRzWG9IOUFTdFhQVXVPLXh5SDc5UjNxTmlELUtwZ01zeV9XSEp4QkRTVm83MTR0Nml4VWJmcTBPeWVsR1g0cjdCY3BhbV9sX29QZnBjbTVkTGJuemJMeUZybFhVUUZiVDVScHZpTXU2TmN5Mkk0eXNtclpfRzU1VHFFMWlqWmpFM3hpaUJLM1c1Tw?oc=5": 1772622587030,
+        "https://news.google.com/rss/articles/CBMioAJBVV95cUxNbmpRMExhakN5N2dzczNUcDZzZ3IyMGdLdVdXZGtIOFVMWEw2aUZueURWWU5rNktOUEVucVhjcFZjWXMySWE4RUdZOEQ0S1NPUmRwYm1WdUxVZVd1eWZSVTNodENZaFZoa29yOTN0eGY1cUEwS1l5LXZGbHJBZ3F3NUhHS29sUTBPTGxxSjlsclM4SXlNVF9aSG5JS3pNY3BHd1NQbHJpMXYzcl9seDhRcUlfWHFqcWo2SnAwTmlZSFZPMHcyWlVpNTd4bTZvRXVlU0NNdkZpTldycFdxbUlPLTBsNmM2MGltOWZ6anpJby1ZR1VaLXkzV2R5SEw1M21TMlhqRktreVVEam5ncEJHZVFQU0FIYk94TUhMWWYyMGI?oc=5": 1772622587030,
+        "https://news.google.com/rss/articles/CBMikgJBVV95cUxNblVabTdWam1WS1pUV1VJQkR2VEV5Q1ZCcnQ0NnlTdFB6UzhzZmhxSkVCTUxKZl9qLXhtaHh1Ym5XN3dCN09ocVpmcUNjckQ4R1M5NHFJLUpLb2dvSTRwbWlfbnhvd0k0dzdKaG1QdkEydzZKLXBURWsyM2ZjYUtxbjdYQ3FxS28tbTN3dVkyUThnQ1RUem40WDlKTU5mNGFEaGpheEpObWZqZUhOTHoyZEJjV0hMZjJWWjRxakx6SWozR0g3MjdQWlFIMTk2LWFiN3pkeTJ4T0g1T3RFRUpqQVBYRmU5alVSV2tpaHdGZEdXQXNJR1RwVV94OW1nVE9tVGRLUkY3OURVempERUZIX0pn?oc=5": 1772622587030,
+        "https://news.google.com/rss/articles/CBMi-gFBVV95cUxQd0Nsc1JXZFJMNXZVSzZOYWpOZnlMcFlzN1hxeVowMDMxakhfQlhxcXVBbmpQMm56bUNWQV83Z3ZOUkZyUWJRYTlsb2stOG5QMElPNlY2bDZTZllJZTl1RmxDNnM1R0ZERHVxQXVTdTFmSU1EazRDVXhFQkNWQkU3ZkNlQWJ1OXhxZlEwTVNMOEpjcHYzS1ZzeFN2b0FtQ01vNFF1WVNLSjVxR1RiWWtyR0hHeGt5eEx3N0RnXzA5ODdtb3VQMGlOSmF6RmRVaFVBdHRCNEU3OXI3cXJ0Y0tDOXFUcHp0MnhUdU9TLXgzZWxwN2wxbzJSTlJR?oc=5": 1772622587030,
+        "https://news.google.com/rss/articles/CBMi4AFBVV95cUxOUVVqZThHT1g3M1NfaWpBcFZ1bU9hekFvdERzcXNOYlBjZllsOENab3BaZEhnNXJfRHAyN1lqSGo4MkZjZmpaUHNWZWZjb25mdlRrZWc3M2M1cDRpUC1LeUNnWUJYRWJYd1dqWmNJOEN5MlMyV0xGZnE3R1VybTBQOVNPMmMtaHBmZXhVelNXanFyWkFxSE1rYVUtTzk3UmMzdW1LNWl6VEVNYjRBQmJweHNNaElYZTd0dFQwcVJTbjhxSTNON21oa0hvQXJMcmdwX0tYR0VCNFZSWF9OU243Wg?oc=5": 1772622587030,
+        "https://news.google.com/rss/articles/CBMi4wFBVV95cUxNQXBOLWlTMS05ZjItalExUUZ2VGZhLWVYVVQzRkdxWmhSWkpDaDBNRHhzZDVVNThLYnJJLS0tb1hXenp5dmowVnhoUGM5a2hDWmlleE5NejdrbFRLNjBxU3B5SkdEOTdKZ2VmTkxZOU1BXzlfOHR2OUI5eVZlOTQ3Q05IaW1hM1BGRnk5ZmV0a2NHcnV5aVRqQ3VnaFZHaHRyV3hjeGg2cHkwU25JeENsR3ZOWXItNFlsS3RSU3BfaWVBbmhsYUlWRC1Vd0k2TV9uZnRlaUJlX28xLUR6aFp0eTc5SQ?oc=5": 1772622587030
       }
     }
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-03-03T11:12:39.255Z",
-  "versionId": "83ef8e13-ae5b-4c92-8cdd-5a9a58f1d1ef"
+  "updatedAt": "2026-03-03T16:39:42.130Z",
+  "versionId": "e53446ed-6544-4dc8-875c-bbc234cce72e"
 }
