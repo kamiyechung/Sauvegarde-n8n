@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-03-03T16:31:25.339Z",
-    "createdAt": "2026-03-03T16:31:25.339Z",
-    "versionId": "f3a36019-5f08-49b2-9b00-7eb8bc4baec2",
+    "updatedAt": "2026-03-04T15:56:24.603Z",
+    "createdAt": "2026-03-04T15:56:24.603Z",
+    "versionId": "ea131c2b-d4a5-4304-bdf6-d70ae4ff278c",
     "workflowId": "yxqD-Z_1vdh0EOFdlDrpo",
     "nodes": [
       {
@@ -80,8 +80,8 @@
         "type": "n8n-nodes-base.scheduleTrigger",
         "typeVersion": 1,
         "position": [
-          704,
-          240
+          592,
+          224
         ],
         "id": "ce3c01b0-c73e-49bd-860e-7a7805d85846"
       },
@@ -334,7 +334,7 @@
             "propertyValues": [
               {
                 "key": "Date publication|date",
-                "date": "={{ $json.pubDate }}"
+                "date": "={{ $json.pubDate ? new Date($json.pubDate).toISOString() : null }}"
               },
               {
                 "key": "Résumé|rich_text",
@@ -346,7 +346,7 @@
               },
               {
                 "key": "URL|url",
-                "urlValue": "={{ $json.link }}"
+                "urlValue": "={{ $json.link || null }}"
               },
               {
                 "key": "Source|select",
@@ -431,13 +431,13 @@
           "specifyBody": "string",
           "body": "={{ JSON.stringify({url: $json.link, waitFor: 3000, gotoOptions: {waitUntil: 'networkidle2', timeout: 30000}}) }}",
           "options": {
-            "timeout": 45000,
             "response": {
               "response": {
                 "neverError": true,
                 "responseFormat": "text"
               }
-            }
+            },
+            "timeout": 45000
           }
         },
         "id": "9b8533f4-fb60-4bc2-82dc-f04828f9398e",
@@ -538,13 +538,7 @@
       },
       "Déclencheur horaire1": {
         "main": [
-          [
-            {
-              "node": "Config sources1",
-              "type": "main",
-              "index": 0
-            }
-          ]
+          []
         ]
       },
       "Config sources1": {
@@ -691,7 +685,13 @@
       },
       "When clicking ‘Execute workflow’": {
         "main": [
-          []
+          [
+            {
+              "node": "Config sources1",
+              "type": "main",
+              "index": 0
+            }
+          ]
         ]
       },
       "Filtre doublons1": {
@@ -766,7 +766,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "f3a36019-5f08-49b2-9b00-7eb8bc4baec2",
+  "activeVersionId": "ea131c2b-d4a5-4304-bdf6-d70ae4ff278c",
   "connections": {
     "Parse Google XML": {
       "main": [
@@ -1356,7 +1356,7 @@
           "propertyValues": [
             {
               "key": "Date publication|date",
-              "date": "={{ $json.pubDate }}"
+              "date": "={{ $json.pubDate ? new Date($json.pubDate).toISOString() : null }}"
             },
             {
               "key": "Résumé|rich_text",
@@ -1368,7 +1368,7 @@
             },
             {
               "key": "URL|url",
-              "urlValue": "={{ $json.link }}"
+              "urlValue": "={{ $json.link || null }}"
             },
             {
               "key": "Source|select",
@@ -1553,7 +1553,7 @@
   "staticData": {
     "node:Déclencheur horaire1": {
       "recurrenceRules": [
-        6
+        12
       ]
     },
     "global": {
@@ -1579,6 +1579,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-03-03T16:39:42.130Z",
-  "versionId": "e53446ed-6544-4dc8-875c-bbc234cce72e"
+  "updatedAt": "2026-03-04T15:56:24.597Z",
+  "versionId": "ea131c2b-d4a5-4304-bdf6-d70ae4ff278c"
 }
