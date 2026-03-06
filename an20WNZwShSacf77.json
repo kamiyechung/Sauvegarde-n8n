@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-23T18:05:23.626Z",
-    "createdAt": "2026-02-23T18:05:23.626Z",
-    "versionId": "7ad024ab-daf0-4b4f-bf5f-3200e55c77ef",
+    "updatedAt": "2026-03-05T15:57:26.442Z",
+    "createdAt": "2026-03-05T15:57:26.442Z",
+    "versionId": "5311836b-347d-464c-9455-0d886c076589",
     "workflowId": "an20WNZwShSacf77",
     "nodes": [
       {
@@ -15,15 +15,15 @@
           250,
           300
         ],
+        "webhookId": "edl-secure-post",
         "parameters": {
           "httpMethod": "POST",
           "path": "edl-secure",
           "responseMode": "responseNode",
           "options": {
-            "allowedOrigins": "http://localhost:8765"
+            "allowedOrigins": "*"
           }
-        },
-        "webhookId": "429d815c-f099-42e2-b8ce-8de6ee2d4c20"
+        }
       },
       {
         "id": "code-sec-auth",
@@ -87,7 +87,7 @@
               "entries": [
                 {
                   "name": "Access-Control-Allow-Origin",
-                  "value": "http://localhost:8765"
+                  "value": "*"
                 }
               ]
             }
@@ -131,7 +131,7 @@
               "entries": [
                 {
                   "name": "Access-Control-Allow-Origin",
-                  "value": "http://localhost:8765"
+                  "value": "*"
                 }
               ]
             }
@@ -197,7 +197,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "7ad024ab-daf0-4b4f-bf5f-3200e55c77ef",
+  "activeVersionId": "5311836b-347d-464c-9455-0d886c076589",
   "connections": {
     "Webhook": {
       "main": [
@@ -266,15 +266,15 @@
         250,
         300
       ],
+      "webhookId": "edl-secure-post",
       "parameters": {
         "httpMethod": "POST",
         "path": "edl-secure",
         "responseMode": "responseNode",
         "options": {
-          "allowedOrigins": "http://localhost:8765"
+          "allowedOrigins": "*"
         }
-      },
-      "webhookId": "429d815c-f099-42e2-b8ce-8de6ee2d4c20"
+      }
     },
     {
       "id": "code-sec-auth",
@@ -338,7 +338,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": "http://localhost:8765"
+                "value": "*"
               }
             ]
           }
@@ -382,7 +382,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": "http://localhost:8765"
+                "value": "*"
               }
             ]
           }
@@ -413,6 +413,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-23T18:05:23.625Z",
-  "versionId": "7ad024ab-daf0-4b4f-bf5f-3200e55c77ef"
+  "updatedAt": "2026-03-05T18:14:38.079Z",
+  "versionId": "5311836b-347d-464c-9455-0d886c076589"
 }
