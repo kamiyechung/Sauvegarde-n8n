@@ -1553,7 +1553,7 @@
   "staticData": {
     "node:Déclencheur horaire1": {
       "recurrenceRules": [
-        12
+        6
       ]
     },
     "global": {
