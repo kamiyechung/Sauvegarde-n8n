@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-23T12:30:05.601Z",
-    "createdAt": "2026-02-23T12:30:05.601Z",
-    "versionId": "3d05d9a3-e2c7-4676-8177-b0a001be60f9",
+    "updatedAt": "2026-03-05T15:57:25.671Z",
+    "createdAt": "2026-03-05T15:57:25.671Z",
+    "versionId": "38338c2b-dfcf-4270-a041-3af4bb79a8b1",
     "workflowId": "VsLghKpkZUJ2O7Ek",
     "nodes": [
       {
@@ -18,7 +18,7 @@
         "parameters": {
           "httpMethod": "POST",
           "path": "edl-notion",
-          "responseMode": "responseNode",
+          "responseMode": "lastNode",
           "options": {}
         },
         "webhookId": "edl-notion-post"
@@ -33,7 +33,7 @@
           300
         ],
         "parameters": {
-          "jsCode": "const body = $input.first().json;\nconst notionId = body.meta?.locataireNotionId || '';\nreturn [{ json: { ...body, _locatairePageId: notionId || null } }];"
+          "jsCode": "// Si l'app a fourni le Notion page ID directement, on l'utilise\nconst body = $input.first().json;\nconst notionId = body.meta?.locataireNotionId || '';\n\nreturn [{ json: { ...body, _locatairePageId: notionId || null } }];"
         }
       },
       {
@@ -115,7 +115,7 @@
           300
         ],
         "parameters": {
-          "jsCode": "const body = $('Code - Résoudre locataire').first().json;\nlet locatairePageId = body._locatairePageId;\nif (!locatairePageId) {\n  const searchResults = $('Notion - Rechercher locataire').all();\n  if (!searchResults || searchResults.length === 0) {\n    throw new Error('Locataire introuvable dans Notion : ' + body.meta.locataire);\n  }\n  locatairePageId = searchResults[0].json.id;\n}\nreturn [{ json: { ...body, _locatairePageId: locatairePageId } }];"
+          "jsCode": "// Récupère le page ID locataire depuis la branche ID direct ou depuis la recherche Notion\nconst body = $('Code - Résoudre locataire').first().json;\n\nlet locatairePageId = body._locatairePageId;\n\n// Si pas d'ID direct, on le prend depuis le résultat de recherche\nif (!locatairePageId) {\n  const searchResults = $('Notion - Rechercher locataire').all();\n  if (!searchResults || searchResults.length === 0) {\n    throw new Error('Locataire introuvable dans Notion : ' + body.meta.locataire);\n  }\n  locatairePageId = searchResults[0].json.id;\n}\n\nreturn [{ json: { ...body, _locatairePageId: locatairePageId } }];"
         }
       },
       {
@@ -128,7 +128,7 @@
           300
         ],
         "parameters": {
-          "jsCode": "const payload = $input.first().json;\nconst { meta, pieces, cles, observations } = payload;\nconst ETAT = { TB: 'Très Bon', B: 'Bon', P: 'Passable', M: 'Mauvais', 'N/A': 'N/A' };\nconst ROOMS = { entree: 'Entrée', salon: 'Salon / Séjour', cuisine: 'Cuisine', wc_communs: 'WC communs', buanderie: 'Buanderie', chambre_1: 'Chambre 1', chambre_2: 'Chambre 2', chambre_3: 'Chambre 3', chambre_4: 'Chambre 4', chambre_5: 'Chambre 5', salle_eau_12: \"Salle d'eau (ch. 1 & 2)\", salle_bain_34: 'Salle de bain (ch. 3 & 4)', salle_eau_privee_5: \"Salle d'eau privée (ch. 5)\", wc_partages_12: 'WC partagés (ch. 1 & 2)', wc_partages_34: 'WC partagés (ch. 3 & 4)', wc_prives_5: 'WC privés (ch. 5)' };\nconst ELEMS = { sol: 'Sol', murs: 'Murs', plafond: 'Plafond', fenetres: 'Fenêtres', porte_s: 'Porte(s)', eclairage: 'Éclairage', prises_interrupteurs: 'Prises/Interrupteurs', projecteur: 'Projecteur', ecran: 'Écran', enceinte: 'Enceinte', plaques: 'Plaques', four: 'Four', hotte: 'Hotte', refrigerateur: 'Réfrigérateur', congelateur: 'Congélateur', lave_vaisselle: 'Lave-vaisselle', evier: 'Évier', machine_1: 'Machine 1', machine_2: 'Machine 2', seche_linge: 'Sèche-linge' };\nfunction t(c, b) { return { type: 'text', text: { content: String(c) }, annotations: b ? { bold: true } : {} }; }\nconst blocks = [];\nblocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Type : ' + (meta.type === 'entree' ? 'Entrée' : 'Sortie') + '  |  Chambre ' + meta.chambre + '  |  ' + meta.date)] } });\nfor (const [roomId, room] of Object.entries(pieces)) {\n  blocks.push({ type: 'heading_2', heading_2: { rich_text: [t(ROOMS[roomId] || roomId)] } });\n  const rows = [{ type: 'table_row', table_row: { cells: [[t('Élément', true)], [t('État', true)], [t('Commentaire', true)]] } }, ...Object.entries(room.elements || {}).map(([k, v]) => ({ type: 'table_row', table_row: { cells: [[t(ELEMS[k] || k)], [t(v.etat ? (ETAT[v.etat] || v.etat) : '—')], [t(v.commentaire || '')]] } }))];\n  blocks.push({ type: 'table', table: { table_width: 3, has_column_header: true, has_row_header: false, children: rows } });\n  if (room.photoUrls) for (const url of room.photoUrls) blocks.push({ type: 'image', image: { type: 'external', external: { url } } });\n}\nblocks.push({ type: 'divider', divider: {} });\nblocks.push({ type: 'heading_3', heading_3: { rich_text: [t('Récapitulatif')] } });\nblocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Nombre de clés remises : ' + cles)] } });\nif (observations) blocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Observations : ' + observations)] } });\nconst chunks = [];\nfor (let i = 0; i < blocks.length; i += 100) chunks.push(blocks.slice(i, i + 100));\nreturn [{ json: { chunks, totalBlocks: blocks.length, meta, locatairePageId: payload._locatairePageId } }];"
+          "jsCode": "const payload = $input.first().json;\nconst { meta, pieces, cles, observations } = payload;\n\nconst ETAT_LABELS = { TB: 'Très Bon', B: 'Bon', P: 'Passable', M: 'Mauvais', 'N/A': 'N/A' };\n\nconst ROOM_LABELS = {\n  entree: 'Entrée', salon: 'Salon / Séjour', cuisine: 'Cuisine',\n  wc_communs: 'WC communs', buanderie: 'Buanderie',\n  chambre_1: 'Chambre 1', chambre_2: 'Chambre 2', chambre_3: 'Chambre 3',\n  chambre_4: 'Chambre 4', chambre_5: 'Chambre 5',\n  salle_eau_12: \"Salle d'eau (ch. 1 & 2)\",\n  salle_bain_34: 'Salle de bain (ch. 3 & 4)',\n  salle_eau_privee_5: \"Salle d'eau privée (ch. 5)\",\n  wc_partages_12: 'WC partagés (ch. 1 & 2)',\n  wc_partages_34: 'WC partagés (ch. 3 & 4)',\n  wc_prives_5: 'WC privés (ch. 5)'\n};\n\nconst ELEM_LABELS = {\n  sol: 'Sol', murs: 'Murs', plafond: 'Plafond', fenetres: 'Fenêtres',\n  porte_s: 'Porte(s)', eclairage: 'Éclairage', prises_interrupteurs: 'Prises/Interrupteurs',\n  projecteur: 'Projecteur', ecran: 'Écran', enceinte: 'Enceinte',\n  plaques: 'Plaques', four: 'Four', hotte: 'Hotte', refrigerateur: 'Réfrigérateur',\n  congelateur: 'Congélateur', lave_vaisselle: 'Lave-vaisselle', evier: 'Évier',\n  machine_1: 'Machine 1', machine_2: 'Machine 2', seche_linge: 'Sèche-linge'\n};\n\nfunction text(content, bold = false) {\n  return { type: 'text', text: { content: String(content) }, annotations: bold ? { bold: true } : {} };\n}\n\nconst blocks = [];\n\n// En-tête résumé\nblocks.push({\n  type: 'paragraph',\n  paragraph: { rich_text: [\n    text(`Type : ${meta.type === 'entree' ? 'Entrée' : 'Sortie'}  |  Chambre ${meta.chambre}  |  ${meta.date}`)\n  ]}\n});\n\n// Une section par pièce\nfor (const [roomId, room] of Object.entries(pieces)) {\n  const roomLabel = ROOM_LABELS[roomId] || roomId;\n\n  blocks.push({\n    type: 'heading_2',\n    heading_2: { rich_text: [text(roomLabel)] }\n  });\n\n  // Tableau 3 colonnes\n  const tableRows = [\n    {\n      type: 'table_row',\n      table_row: { cells: [[text('Élément', true)], [text('État', true)], [text('Commentaire', true)]] }\n    },\n    ...Object.entries(room.elements || {}).map(([elemKey, val]) => ({\n      type: 'table_row',\n      table_row: { cells: [\n        [text(ELEM_LABELS[elemKey] || elemKey)],\n        [text(val.etat ? (ETAT_LABELS[val.etat] || val.etat) : '—')],\n        [text(val.commentaire || '')]\n      ]}\n    }))\n  ];\n\n  blocks.push({\n    type: 'table',\n    table: {\n      table_width: 3,\n      has_column_header: true,\n      has_row_header: false,\n      children: tableRows\n    }\n  });\n\n  // Photos (URLs Drive)\n  if (room.photoUrls && room.photoUrls.length > 0) {\n    for (const url of room.photoUrls) {\n      blocks.push({\n        type: 'image',\n        image: { type: 'external', external: { url } }\n      });\n    }\n  }\n}\n\n// Récapitulatif\nblocks.push({ type: 'divider', divider: {} });\nblocks.push({ type: 'heading_3', heading_3: { rich_text: [text('Récapitulatif')] } });\nblocks.push({\n  type: 'paragraph',\n  paragraph: { rich_text: [text(`Nombre de clés remises : ${cles}`)] }\n});\nif (observations) {\n  blocks.push({\n    type: 'paragraph',\n    paragraph: { rich_text: [text(`Observations : ${observations}`)] }\n  });\n}\n\n// Découper en chunks de 100 (limite API Notion)\nconst chunks = [];\nfor (let i = 0; i < blocks.length; i += 100) {\n  chunks.push(blocks.slice(i, i + 100));\n}\n\nreturn [{ json: { chunks, totalBlocks: blocks.length, meta, locatairePageId: payload._locatairePageId } }];"
         }
       },
       {
@@ -202,7 +202,7 @@
           200
         ],
         "parameters": {
-          "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst chunks = $('Code - Construire blocs').first().json.chunks;\nconst notionKey = $credentials?.notionApi?.apiKey || '';\nfor (let i = 1; i < chunks.length; i++) {\n  await $http.request({ method: 'PATCH', url: 'https://api.notion.com/v1/blocks/' + pageId + '/children', headers: { 'Authorization': 'Bearer ' + notionKey, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' }, body: JSON.stringify({ children: chunks[i] }) });\n}\nconst pageUrl = 'https://notion.so/' + pageId.replace(/-/g, '');\nreturn [{ json: { pageId, pageUrl } }];"
+          "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst chunks = $('Code - Construire blocs').first().json.chunks;\nconst notionKey = $credentials?.notionApi?.apiKey || '';\n\nfor (let i = 1; i < chunks.length; i++) {\n  await $http.request({\n    method: 'PATCH',\n    url: `https://api.notion.com/v1/blocks/${pageId}/children`,\n    headers: {\n      'Authorization': `Bearer ${notionKey}`,\n      'Notion-Version': '2022-06-28',\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify({ children: chunks[i] })\n  });\n}\n\nconst pageUrl = `https://notion.so/${pageId.replace(/-/g, '')}`;\nreturn [{ json: { pageId, pageUrl } }];"
         }
       },
       {
@@ -215,7 +215,7 @@
           400
         ],
         "parameters": {
-          "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst pageUrl = 'https://notion.so/' + pageId.replace(/-/g, '');\nreturn [{ json: { pageId, pageUrl } }];"
+          "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst pageUrl = `https://notion.so/${pageId.replace(/-/g, '')}`;\nreturn [{ json: { pageId, pageUrl } }];"
         }
       },
       {
@@ -365,7 +365,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "3d05d9a3-e2c7-4676-8177-b0a001be60f9",
+  "activeVersionId": "38338c2b-dfcf-4270-a041-3af4bb79a8b1",
   "connections": {
     "Webhook": {
       "main": [
@@ -510,7 +510,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "edl-notion",
-        "responseMode": "responseNode",
+        "responseMode": "lastNode",
         "options": {}
       },
       "webhookId": "edl-notion-post"
@@ -525,7 +525,7 @@
         300
       ],
       "parameters": {
-        "jsCode": "const body = $input.first().json;\nconst notionId = body.meta?.locataireNotionId || '';\nreturn [{ json: { ...body, _locatairePageId: notionId || null } }];"
+        "jsCode": "// Si l'app a fourni le Notion page ID directement, on l'utilise\nconst body = $input.first().json;\nconst notionId = body.meta?.locataireNotionId || '';\n\nreturn [{ json: { ...body, _locatairePageId: notionId || null } }];"
       }
     },
     {
@@ -607,7 +607,7 @@
         300
       ],
       "parameters": {
-        "jsCode": "const body = $('Code - Résoudre locataire').first().json;\nlet locatairePageId = body._locatairePageId;\nif (!locatairePageId) {\n  const searchResults = $('Notion - Rechercher locataire').all();\n  if (!searchResults || searchResults.length === 0) {\n    throw new Error('Locataire introuvable dans Notion : ' + body.meta.locataire);\n  }\n  locatairePageId = searchResults[0].json.id;\n}\nreturn [{ json: { ...body, _locatairePageId: locatairePageId } }];"
+        "jsCode": "// Récupère le page ID locataire depuis la branche ID direct ou depuis la recherche Notion\nconst body = $('Code - Résoudre locataire').first().json;\n\nlet locatairePageId = body._locatairePageId;\n\n// Si pas d'ID direct, on le prend depuis le résultat de recherche\nif (!locatairePageId) {\n  const searchResults = $('Notion - Rechercher locataire').all();\n  if (!searchResults || searchResults.length === 0) {\n    throw new Error('Locataire introuvable dans Notion : ' + body.meta.locataire);\n  }\n  locatairePageId = searchResults[0].json.id;\n}\n\nreturn [{ json: { ...body, _locatairePageId: locatairePageId } }];"
       }
     },
     {
@@ -620,7 +620,7 @@
         300
       ],
       "parameters": {
-        "jsCode": "const payload = $input.first().json;\nconst { meta, pieces, cles, observations } = payload;\nconst ETAT = { TB: 'Très Bon', B: 'Bon', P: 'Passable', M: 'Mauvais', 'N/A': 'N/A' };\nconst ROOMS = { entree: 'Entrée', salon: 'Salon / Séjour', cuisine: 'Cuisine', wc_communs: 'WC communs', buanderie: 'Buanderie', chambre_1: 'Chambre 1', chambre_2: 'Chambre 2', chambre_3: 'Chambre 3', chambre_4: 'Chambre 4', chambre_5: 'Chambre 5', salle_eau_12: \"Salle d'eau (ch. 1 & 2)\", salle_bain_34: 'Salle de bain (ch. 3 & 4)', salle_eau_privee_5: \"Salle d'eau privée (ch. 5)\", wc_partages_12: 'WC partagés (ch. 1 & 2)', wc_partages_34: 'WC partagés (ch. 3 & 4)', wc_prives_5: 'WC privés (ch. 5)' };\nconst ELEMS = { sol: 'Sol', murs: 'Murs', plafond: 'Plafond', fenetres: 'Fenêtres', porte_s: 'Porte(s)', eclairage: 'Éclairage', prises_interrupteurs: 'Prises/Interrupteurs', projecteur: 'Projecteur', ecran: 'Écran', enceinte: 'Enceinte', plaques: 'Plaques', four: 'Four', hotte: 'Hotte', refrigerateur: 'Réfrigérateur', congelateur: 'Congélateur', lave_vaisselle: 'Lave-vaisselle', evier: 'Évier', machine_1: 'Machine 1', machine_2: 'Machine 2', seche_linge: 'Sèche-linge' };\nfunction t(c, b) { return { type: 'text', text: { content: String(c) }, annotations: b ? { bold: true } : {} }; }\nconst blocks = [];\nblocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Type : ' + (meta.type === 'entree' ? 'Entrée' : 'Sortie') + '  |  Chambre ' + meta.chambre + '  |  ' + meta.date)] } });\nfor (const [roomId, room] of Object.entries(pieces)) {\n  blocks.push({ type: 'heading_2', heading_2: { rich_text: [t(ROOMS[roomId] || roomId)] } });\n  const rows = [{ type: 'table_row', table_row: { cells: [[t('Élément', true)], [t('État', true)], [t('Commentaire', true)]] } }, ...Object.entries(room.elements || {}).map(([k, v]) => ({ type: 'table_row', table_row: { cells: [[t(ELEMS[k] || k)], [t(v.etat ? (ETAT[v.etat] || v.etat) : '—')], [t(v.commentaire || '')]] } }))];\n  blocks.push({ type: 'table', table: { table_width: 3, has_column_header: true, has_row_header: false, children: rows } });\n  if (room.photoUrls) for (const url of room.photoUrls) blocks.push({ type: 'image', image: { type: 'external', external: { url } } });\n}\nblocks.push({ type: 'divider', divider: {} });\nblocks.push({ type: 'heading_3', heading_3: { rich_text: [t('Récapitulatif')] } });\nblocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Nombre de clés remises : ' + cles)] } });\nif (observations) blocks.push({ type: 'paragraph', paragraph: { rich_text: [t('Observations : ' + observations)] } });\nconst chunks = [];\nfor (let i = 0; i < blocks.length; i += 100) chunks.push(blocks.slice(i, i + 100));\nreturn [{ json: { chunks, totalBlocks: blocks.length, meta, locatairePageId: payload._locatairePageId } }];"
+        "jsCode": "const payload = $input.first().json;\nconst { meta, pieces, cles, observations } = payload;\n\nconst ETAT_LABELS = { TB: 'Très Bon', B: 'Bon', P: 'Passable', M: 'Mauvais', 'N/A': 'N/A' };\n\nconst ROOM_LABELS = {\n  entree: 'Entrée', salon: 'Salon / Séjour', cuisine: 'Cuisine',\n  wc_communs: 'WC communs', buanderie: 'Buanderie',\n  chambre_1: 'Chambre 1', chambre_2: 'Chambre 2', chambre_3: 'Chambre 3',\n  chambre_4: 'Chambre 4', chambre_5: 'Chambre 5',\n  salle_eau_12: \"Salle d'eau (ch. 1 & 2)\",\n  salle_bain_34: 'Salle de bain (ch. 3 & 4)',\n  salle_eau_privee_5: \"Salle d'eau privée (ch. 5)\",\n  wc_partages_12: 'WC partagés (ch. 1 & 2)',\n  wc_partages_34: 'WC partagés (ch. 3 & 4)',\n  wc_prives_5: 'WC privés (ch. 5)'\n};\n\nconst ELEM_LABELS = {\n  sol: 'Sol', murs: 'Murs', plafond: 'Plafond', fenetres: 'Fenêtres',\n  porte_s: 'Porte(s)', eclairage: 'Éclairage', prises_interrupteurs: 'Prises/Interrupteurs',\n  projecteur: 'Projecteur', ecran: 'Écran', enceinte: 'Enceinte',\n  plaques: 'Plaques', four: 'Four', hotte: 'Hotte', refrigerateur: 'Réfrigérateur',\n  congelateur: 'Congélateur', lave_vaisselle: 'Lave-vaisselle', evier: 'Évier',\n  machine_1: 'Machine 1', machine_2: 'Machine 2', seche_linge: 'Sèche-linge'\n};\n\nfunction text(content, bold = false) {\n  return { type: 'text', text: { content: String(content) }, annotations: bold ? { bold: true } : {} };\n}\n\nconst blocks = [];\n\n// En-tête résumé\nblocks.push({\n  type: 'paragraph',\n  paragraph: { rich_text: [\n    text(`Type : ${meta.type === 'entree' ? 'Entrée' : 'Sortie'}  |  Chambre ${meta.chambre}  |  ${meta.date}`)\n  ]}\n});\n\n// Une section par pièce\nfor (const [roomId, room] of Object.entries(pieces)) {\n  const roomLabel = ROOM_LABELS[roomId] || roomId;\n\n  blocks.push({\n    type: 'heading_2',\n    heading_2: { rich_text: [text(roomLabel)] }\n  });\n\n  // Tableau 3 colonnes\n  const tableRows = [\n    {\n      type: 'table_row',\n      table_row: { cells: [[text('Élément', true)], [text('État', true)], [text('Commentaire', true)]] }\n    },\n    ...Object.entries(room.elements || {}).map(([elemKey, val]) => ({\n      type: 'table_row',\n      table_row: { cells: [\n        [text(ELEM_LABELS[elemKey] || elemKey)],\n        [text(val.etat ? (ETAT_LABELS[val.etat] || val.etat) : '—')],\n        [text(val.commentaire || '')]\n      ]}\n    }))\n  ];\n\n  blocks.push({\n    type: 'table',\n    table: {\n      table_width: 3,\n      has_column_header: true,\n      has_row_header: false,\n      children: tableRows\n    }\n  });\n\n  // Photos (URLs Drive)\n  if (room.photoUrls && room.photoUrls.length > 0) {\n    for (const url of room.photoUrls) {\n      blocks.push({\n        type: 'image',\n        image: { type: 'external', external: { url } }\n      });\n    }\n  }\n}\n\n// Récapitulatif\nblocks.push({ type: 'divider', divider: {} });\nblocks.push({ type: 'heading_3', heading_3: { rich_text: [text('Récapitulatif')] } });\nblocks.push({\n  type: 'paragraph',\n  paragraph: { rich_text: [text(`Nombre de clés remises : ${cles}`)] }\n});\nif (observations) {\n  blocks.push({\n    type: 'paragraph',\n    paragraph: { rich_text: [text(`Observations : ${observations}`)] }\n  });\n}\n\n// Découper en chunks de 100 (limite API Notion)\nconst chunks = [];\nfor (let i = 0; i < blocks.length; i += 100) {\n  chunks.push(blocks.slice(i, i + 100));\n}\n\nreturn [{ json: { chunks, totalBlocks: blocks.length, meta, locatairePageId: payload._locatairePageId } }];"
       }
     },
     {
@@ -694,7 +694,7 @@
         200
       ],
       "parameters": {
-        "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst chunks = $('Code - Construire blocs').first().json.chunks;\nconst notionKey = $credentials?.notionApi?.apiKey || '';\nfor (let i = 1; i < chunks.length; i++) {\n  await $http.request({ method: 'PATCH', url: 'https://api.notion.com/v1/blocks/' + pageId + '/children', headers: { 'Authorization': 'Bearer ' + notionKey, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' }, body: JSON.stringify({ children: chunks[i] }) });\n}\nconst pageUrl = 'https://notion.so/' + pageId.replace(/-/g, '');\nreturn [{ json: { pageId, pageUrl } }];"
+        "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst chunks = $('Code - Construire blocs').first().json.chunks;\nconst notionKey = $credentials?.notionApi?.apiKey || '';\n\nfor (let i = 1; i < chunks.length; i++) {\n  await $http.request({\n    method: 'PATCH',\n    url: `https://api.notion.com/v1/blocks/${pageId}/children`,\n    headers: {\n      'Authorization': `Bearer ${notionKey}`,\n      'Notion-Version': '2022-06-28',\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify({ children: chunks[i] })\n  });\n}\n\nconst pageUrl = `https://notion.so/${pageId.replace(/-/g, '')}`;\nreturn [{ json: { pageId, pageUrl } }];"
       }
     },
     {
@@ -707,7 +707,7 @@
         400
       ],
       "parameters": {
-        "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst pageUrl = 'https://notion.so/' + pageId.replace(/-/g, '');\nreturn [{ json: { pageId, pageUrl } }];"
+        "jsCode": "const pageId = $('Notion - Créer page EDL').first().json.id;\nconst pageUrl = `https://notion.so/${pageId.replace(/-/g, '')}`;\nreturn [{ json: { pageId, pageUrl } }];"
       }
     },
     {
@@ -749,6 +749,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-23T12:30:05.599Z",
-  "versionId": "3d05d9a3-e2c7-4676-8177-b0a001be60f9"
+  "updatedAt": "2026-03-05T18:14:37.226Z",
+  "versionId": "38338c2b-dfcf-4270-a041-3af4bb79a8b1"
 }
