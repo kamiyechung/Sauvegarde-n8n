@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-23T18:05:23.215Z",
-    "createdAt": "2026-02-23T18:05:23.215Z",
-    "versionId": "251ba2ad-2446-4793-8496-a4f5882f2bc4",
+    "updatedAt": "2026-03-05T15:57:26.080Z",
+    "createdAt": "2026-03-05T15:57:26.080Z",
+    "versionId": "f97137f6-68b0-47b3-9b29-08da04e80ae5",
     "workflowId": "yX0GjtxhTSKdBVyE",
     "nodes": [
       {
@@ -15,15 +15,15 @@
           250,
           300
         ],
+        "webhookId": "edl-docuseal-post",
         "parameters": {
           "httpMethod": "POST",
           "path": "edl-docuseal",
           "responseMode": "responseNode",
           "options": {
-            "allowedOrigins": ""
+            "allowedOrigins": "*"
           }
-        },
-        "webhookId": "62d98637-306f-4e0d-8282-945eee771208"
+        }
       },
       {
         "id": "code-dcs-html",
@@ -139,7 +139,7 @@
               "entries": [
                 {
                   "name": "Access-Control-Allow-Origin",
-                  "value": ""
+                  "value": "*"
                 }
               ]
             }
@@ -220,7 +220,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "251ba2ad-2446-4793-8496-a4f5882f2bc4",
+  "activeVersionId": "f97137f6-68b0-47b3-9b29-08da04e80ae5",
   "connections": {
     "Webhook": {
       "main": [
@@ -304,15 +304,15 @@
         250,
         300
       ],
+      "webhookId": "edl-docuseal-post",
       "parameters": {
         "httpMethod": "POST",
         "path": "edl-docuseal",
         "responseMode": "responseNode",
         "options": {
-          "allowedOrigins": ""
+          "allowedOrigins": "*"
         }
-      },
-      "webhookId": "62d98637-306f-4e0d-8282-945eee771208"
+      }
     },
     {
       "id": "code-dcs-html",
@@ -428,7 +428,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": ""
+                "value": "*"
               }
             ]
           }
@@ -459,6 +459,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-23T18:05:23.213Z",
-  "versionId": "251ba2ad-2446-4793-8496-a4f5882f2bc4"
+  "updatedAt": "2026-03-05T18:14:37.668Z",
+  "versionId": "f97137f6-68b0-47b3-9b29-08da04e80ae5"
 }
