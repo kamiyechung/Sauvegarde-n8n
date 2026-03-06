@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-23T18:05:22.343Z",
-    "createdAt": "2026-02-23T18:05:22.343Z",
-    "versionId": "ddeda800-3151-4fec-b5f9-eee98929dab4",
+    "updatedAt": "2026-03-05T15:57:24.500Z",
+    "createdAt": "2026-03-05T15:57:24.500Z",
+    "versionId": "fc2ac215-1353-4756-999d-1263447e2d26",
     "workflowId": "Nbfecry6KboThbp8",
     "nodes": [
       {
@@ -15,15 +15,15 @@
           250,
           300
         ],
+        "webhookId": "edl-locataires-get",
         "parameters": {
           "httpMethod": "GET",
           "path": "edl-locataires",
           "responseMode": "responseNode",
           "options": {
-            "allowedOrigins": "http://localhost:8765"
+            "allowedOrigins": "*"
           }
-        },
-        "webhookId": "157f465f-7068-42cb-95ac-f26dce13d47f"
+        }
       },
       {
         "id": "code-loc-token",
@@ -35,7 +35,7 @@
           300
         ],
         "parameters": {
-          "jsCode": "const EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst inp = $input.first().json;\nconst t = (inp.query && inp.query.t) ? inp.query.t : inp.t;\nreturn [{ json: { _tokenOk: t === EXT_TOKEN } }];"
+          "jsCode": "const EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst inp = $input.first().json;\n// GET webhook : query params dans .query ou à la racine selon n8n version\nconst t = (inp.query && inp.query.t) ? inp.query.t : inp.t;\nreturn [{ json: { _tokenOk: t === EXT_TOKEN } }];"
         }
       },
       {
@@ -80,14 +80,14 @@
         ],
         "parameters": {
           "respondWith": "json",
-          "responseBody": "={{ JSON.stringify({ success: false, error: 'Non autorisé' }) }}",
+          "responseBody": "={ \"success\": false, \"error\": \"Non autorisé\" }",
           "options": {
             "responseCode": 401,
             "responseHeaders": {
               "entries": [
                 {
                   "name": "Access-Control-Allow-Origin",
-                  "value": "http://localhost:8765"
+                  "value": "*"
                 }
               ]
             }
@@ -237,7 +237,7 @@
               "entries": [
                 {
                   "name": "Access-Control-Allow-Origin",
-                  "value": "http://localhost:8765"
+                  "value": "*"
                 },
                 {
                   "name": "Content-Type",
@@ -362,7 +362,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "ddeda800-3151-4fec-b5f9-eee98929dab4",
+  "activeVersionId": "fc2ac215-1353-4756-999d-1263447e2d26",
   "connections": {
     "Webhook": {
       "main": [
@@ -486,15 +486,15 @@
         250,
         300
       ],
+      "webhookId": "edl-locataires-get",
       "parameters": {
         "httpMethod": "GET",
         "path": "edl-locataires",
         "responseMode": "responseNode",
         "options": {
-          "allowedOrigins": "http://localhost:8765"
+          "allowedOrigins": "*"
         }
-      },
-      "webhookId": "157f465f-7068-42cb-95ac-f26dce13d47f"
+      }
     },
     {
       "id": "code-loc-token",
@@ -506,7 +506,7 @@
         300
       ],
       "parameters": {
-        "jsCode": "const EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst inp = $input.first().json;\nconst t = (inp.query && inp.query.t) ? inp.query.t : inp.t;\nreturn [{ json: { _tokenOk: t === EXT_TOKEN } }];"
+        "jsCode": "const EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst inp = $input.first().json;\n// GET webhook : query params dans .query ou à la racine selon n8n version\nconst t = (inp.query && inp.query.t) ? inp.query.t : inp.t;\nreturn [{ json: { _tokenOk: t === EXT_TOKEN } }];"
       }
     },
     {
@@ -551,14 +551,14 @@
       ],
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ success: false, error: 'Non autorisé' }) }}",
+        "responseBody": "={ \"success\": false, \"error\": \"Non autorisé\" }",
         "options": {
           "responseCode": 401,
           "responseHeaders": {
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": "http://localhost:8765"
+                "value": "*"
               }
             ]
           }
@@ -708,7 +708,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": "http://localhost:8765"
+                "value": "*"
               },
               {
                 "name": "Content-Type",
@@ -743,6 +743,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-23T18:05:22.341Z",
-  "versionId": "ddeda800-3151-4fec-b5f9-eee98929dab4"
+  "updatedAt": "2026-03-05T18:14:35.897Z",
+  "versionId": "fc2ac215-1353-4756-999d-1263447e2d26"
 }
