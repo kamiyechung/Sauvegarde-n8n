@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-23T18:05:23.979Z",
-    "createdAt": "2026-02-23T18:05:23.979Z",
-    "versionId": "b3bba792-2f9d-4933-9507-e6e0ab01442a",
+    "updatedAt": "2026-03-05T16:00:51.534Z",
+    "createdAt": "2026-03-05T16:00:51.534Z",
+    "versionId": "ee3d110a-6906-48f6-9948-3bf00233b9da",
     "workflowId": "FBAZlkXmEVtRDaZy",
     "nodes": [
       {
@@ -15,6 +15,7 @@
           250,
           300
         ],
+        "webhookId": "edl-tests-get",
         "parameters": {
           "httpMethod": "GET",
           "path": "edl-tests",
@@ -22,8 +23,7 @@
           "options": {
             "allowedOrigins": "*"
           }
-        },
-        "webhookId": "0721eae7-9a74-461b-ba06-67885f3eb73d"
+        }
       },
       {
         "id": "code-test-run",
@@ -35,7 +35,7 @@
           300
         ],
         "parameters": {
-          "jsCode": "const BASE = 'https://n8n.checkintrust.com/webhook';\nconst EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst DOCUSEAL_TOKEN = 'FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu';\n\nconst results = [];\n\nasync function t(name, fn) {\n  try {\n    await fn();\n    results.push({ test: name, status: 'PASS' });\n  } catch (e) {\n    results.push({ test: name, status: 'FAIL', error: e.message });\n  }\n}\n\nasync function http(opts) {\n  try {\n    return await this.helpers.httpRequest(opts);\n  } catch (e) {\n    if (e.statusCode) return { _statusCode: e.statusCode };\n    throw e;\n  }\n}\nconst h = http.bind(this);\n\n// T1: Agent 0 — token valide\nawait t('Agent 0 — Token valide → liste', async () => {\n  const data = await h({ method: 'GET', url: `${BASE}/edl-locataires?t=${EXT_TOKEN}` });\n  if (!Array.isArray(data)) throw new Error('Pas un tableau');\n  if (data.length === 0) throw new Error('Liste vide');\n});\n\n// T2: Agent 0 — sans token\nawait t('Agent 0 — Token manquant → 401', async () => {\n  const r = await h({ method: 'GET', url: `${BASE}/edl-locataires`, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T3: Agent 6 — token invalide\nawait t('Agent 6 — Token invalide → 401', async () => {\n  const r = await h({ method: 'POST', url: `${BASE}/edl-secure`, body: { _token: 'BAD', meta: {}, pieces: {} }, headers: { 'Content-Type': 'application/json' }, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T4: Agent 6 — schéma invalide\nawait t('Agent 6 — Schéma invalide → 401', async () => {\n  const r = await h({ method: 'POST', url: `${BASE}/edl-secure`, body: { _token: EXT_TOKEN, meta: { type: 'INVALIDE', chambre: 999 }, pieces: {} }, headers: { 'Content-Type': 'application/json' }, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T5: DocuSeal — API accessible\nawait t('DocuSeal — API accessible', async () => {\n  const data = await h({ method: 'GET', url: 'https://docuseal.checkintrust.com/api/templates?limit=1', headers: { 'X-Auth-Token': DOCUSEAL_TOKEN } });\n  if (!data) throw new Error('Réponse vide');\n});\n\nconst passed = results.filter(r => r.status === 'PASS').length;\nconst total = results.length;\nreturn [{ json: { summary: `${passed}/${total} tests passés`, passed, total, allPassed: passed === total, results, timestamp: new Date().toISOString() } }];"
+          "jsCode": "const BASE = 'https://n8n.checkintrust.com/webhook';\nconst EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst DOCUSEAL_TOKEN = 'FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu';\nconst helpers = this.helpers;\n\nconst results = [];\n\nasync function test(name, fn) {\n  try {\n    await fn();\n    results.push({ test: name, status: 'PASS' });\n  } catch (e) {\n    results.push({ test: name, status: 'FAIL', error: e.message });\n  }\n}\n\n// Helper : GET avec récupération du statusCode sans throw sur 4xx\nasync function safeGet(url, extraHeaders) {\n  try {\n    const r = await helpers.httpRequest({ method: 'GET', url, headers: extraHeaders || {}, returnFullResponse: true });\n    return { statusCode: r.statusCode || 200, body: r.body };\n  } catch (e) {\n    const code = e.statusCode || parseInt((e.message || '').match(/\\b(\\d{3})\\b/)?.[1]) || 0;\n    return { statusCode: code, error: e.message };\n  }\n}\n\n// Helper : POST avec récupération du statusCode sans throw sur 4xx\nasync function safePost(url, body) {\n  try {\n    const r = await helpers.httpRequest({\n      method: 'POST', url,\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify(body),\n      returnFullResponse: true\n    });\n    return { statusCode: r.statusCode || 200, body: r.body };\n  } catch (e) {\n    const code = e.statusCode || parseInt((e.message || '').match(/\\b(\\d{3})\\b/)?.[1]) || 0;\n    return { statusCode: code, error: e.message };\n  }\n}\n\n// T1: Agent 0 — accessible avec token valide\nawait test('Agent 0 — Token valide → liste retournée', async () => {\n  const r = await safeGet(`${BASE}/edl-locataires?t=${EXT_TOKEN}`);\n  if (r.statusCode !== 200) throw new Error(`HTTP ${r.statusCode}`);\n  const data = Array.isArray(r.body) ? r.body : JSON.parse(r.body);\n  if (!Array.isArray(data)) throw new Error('Format invalide : tableau attendu');\n  if (data.length === 0) throw new Error('Liste vide — vérifier Notion');\n});\n\n// T2: Agent 0 — rejet sans token\nawait test('Agent 0 — Token manquant → 401', async () => {\n  const r = await safeGet(`${BASE}/edl-locataires`);\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T3: Agent 6 — rejet token invalide\nawait test('Agent 6 — Token invalide → 401', async () => {\n  const r = await safePost(`${BASE}/edl-secure`, { _token: 'MAUVAIS_TOKEN', meta: {}, pieces: {} });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T4: Agent 6 — rejet schéma invalide (token ok mais schéma ko)\nawait test('Agent 6 — Schéma invalide → 401', async () => {\n  const r = await safePost(`${BASE}/edl-secure`, { _token: EXT_TOKEN, meta: { type: 'INVALIDE', chambre: 999 }, pieces: {} });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T5: DocuSeal — API accessible\nawait test('DocuSeal — API accessible', async () => {\n  const r = await safeGet('https://docuseal.checkintrust.com/api/templates?limit=1', { 'X-Auth-Token': DOCUSEAL_TOKEN });\n  if (r.statusCode !== 200) throw new Error(r.error || `HTTP ${r.statusCode}`);\n});\n\nconst passed = results.filter(r => r.status === 'PASS').length;\nconst total = results.length;\nreturn [{ json: {\n  summary: `${passed}/${total} tests passés`,\n  passed, total,\n  allPassed: passed === total,\n  results,\n  timestamp: new Date().toISOString()\n} }];"
         }
       },
       {
@@ -96,7 +96,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "b3bba792-2f9d-4933-9507-e6e0ab01442a",
+  "activeVersionId": "ee3d110a-6906-48f6-9948-3bf00233b9da",
   "connections": {
     "Webhook": {
       "main": [
@@ -136,6 +136,7 @@
         250,
         300
       ],
+      "webhookId": "edl-tests-get",
       "parameters": {
         "httpMethod": "GET",
         "path": "edl-tests",
@@ -143,8 +144,7 @@
         "options": {
           "allowedOrigins": "*"
         }
-      },
-      "webhookId": "0721eae7-9a74-461b-ba06-67885f3eb73d"
+      }
     },
     {
       "id": "code-test-run",
@@ -156,7 +156,7 @@
         300
       ],
       "parameters": {
-        "jsCode": "const BASE = 'https://n8n.checkintrust.com/webhook';\nconst EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst DOCUSEAL_TOKEN = 'FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu';\n\nconst results = [];\n\nasync function t(name, fn) {\n  try {\n    await fn();\n    results.push({ test: name, status: 'PASS' });\n  } catch (e) {\n    results.push({ test: name, status: 'FAIL', error: e.message });\n  }\n}\n\nasync function http(opts) {\n  try {\n    return await this.helpers.httpRequest(opts);\n  } catch (e) {\n    if (e.statusCode) return { _statusCode: e.statusCode };\n    throw e;\n  }\n}\nconst h = http.bind(this);\n\n// T1: Agent 0 — token valide\nawait t('Agent 0 — Token valide → liste', async () => {\n  const data = await h({ method: 'GET', url: `${BASE}/edl-locataires?t=${EXT_TOKEN}` });\n  if (!Array.isArray(data)) throw new Error('Pas un tableau');\n  if (data.length === 0) throw new Error('Liste vide');\n});\n\n// T2: Agent 0 — sans token\nawait t('Agent 0 — Token manquant → 401', async () => {\n  const r = await h({ method: 'GET', url: `${BASE}/edl-locataires`, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T3: Agent 6 — token invalide\nawait t('Agent 6 — Token invalide → 401', async () => {\n  const r = await h({ method: 'POST', url: `${BASE}/edl-secure`, body: { _token: 'BAD', meta: {}, pieces: {} }, headers: { 'Content-Type': 'application/json' }, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T4: Agent 6 — schéma invalide\nawait t('Agent 6 — Schéma invalide → 401', async () => {\n  const r = await h({ method: 'POST', url: `${BASE}/edl-secure`, body: { _token: EXT_TOKEN, meta: { type: 'INVALIDE', chambre: 999 }, pieces: {} }, headers: { 'Content-Type': 'application/json' }, ignoreHttpStatusErrors: true, returnFullResponse: true });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T5: DocuSeal — API accessible\nawait t('DocuSeal — API accessible', async () => {\n  const data = await h({ method: 'GET', url: 'https://docuseal.checkintrust.com/api/templates?limit=1', headers: { 'X-Auth-Token': DOCUSEAL_TOKEN } });\n  if (!data) throw new Error('Réponse vide');\n});\n\nconst passed = results.filter(r => r.status === 'PASS').length;\nconst total = results.length;\nreturn [{ json: { summary: `${passed}/${total} tests passés`, passed, total, allPassed: passed === total, results, timestamp: new Date().toISOString() } }];"
+        "jsCode": "const BASE = 'https://n8n.checkintrust.com/webhook';\nconst EXT_TOKEN = 'edl_wh_7Kx2mPn9sRtL';\nconst DOCUSEAL_TOKEN = 'FtrjsZSaBdPdeZBTdhxbRTTXUMwV5gh6WFNqbBCbZTu';\nconst helpers = this.helpers;\n\nconst results = [];\n\nasync function test(name, fn) {\n  try {\n    await fn();\n    results.push({ test: name, status: 'PASS' });\n  } catch (e) {\n    results.push({ test: name, status: 'FAIL', error: e.message });\n  }\n}\n\n// Helper : GET avec récupération du statusCode sans throw sur 4xx\nasync function safeGet(url, extraHeaders) {\n  try {\n    const r = await helpers.httpRequest({ method: 'GET', url, headers: extraHeaders || {}, returnFullResponse: true });\n    return { statusCode: r.statusCode || 200, body: r.body };\n  } catch (e) {\n    const code = e.statusCode || parseInt((e.message || '').match(/\\b(\\d{3})\\b/)?.[1]) || 0;\n    return { statusCode: code, error: e.message };\n  }\n}\n\n// Helper : POST avec récupération du statusCode sans throw sur 4xx\nasync function safePost(url, body) {\n  try {\n    const r = await helpers.httpRequest({\n      method: 'POST', url,\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify(body),\n      returnFullResponse: true\n    });\n    return { statusCode: r.statusCode || 200, body: r.body };\n  } catch (e) {\n    const code = e.statusCode || parseInt((e.message || '').match(/\\b(\\d{3})\\b/)?.[1]) || 0;\n    return { statusCode: code, error: e.message };\n  }\n}\n\n// T1: Agent 0 — accessible avec token valide\nawait test('Agent 0 — Token valide → liste retournée', async () => {\n  const r = await safeGet(`${BASE}/edl-locataires?t=${EXT_TOKEN}`);\n  if (r.statusCode !== 200) throw new Error(`HTTP ${r.statusCode}`);\n  const data = Array.isArray(r.body) ? r.body : JSON.parse(r.body);\n  if (!Array.isArray(data)) throw new Error('Format invalide : tableau attendu');\n  if (data.length === 0) throw new Error('Liste vide — vérifier Notion');\n});\n\n// T2: Agent 0 — rejet sans token\nawait test('Agent 0 — Token manquant → 401', async () => {\n  const r = await safeGet(`${BASE}/edl-locataires`);\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T3: Agent 6 — rejet token invalide\nawait test('Agent 6 — Token invalide → 401', async () => {\n  const r = await safePost(`${BASE}/edl-secure`, { _token: 'MAUVAIS_TOKEN', meta: {}, pieces: {} });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T4: Agent 6 — rejet schéma invalide (token ok mais schéma ko)\nawait test('Agent 6 — Schéma invalide → 401', async () => {\n  const r = await safePost(`${BASE}/edl-secure`, { _token: EXT_TOKEN, meta: { type: 'INVALIDE', chambre: 999 }, pieces: {} });\n  if (r.statusCode !== 401) throw new Error(`Attendu 401, reçu ${r.statusCode}`);\n});\n\n// T5: DocuSeal — API accessible\nawait test('DocuSeal — API accessible', async () => {\n  const r = await safeGet('https://docuseal.checkintrust.com/api/templates?limit=1', { 'X-Auth-Token': DOCUSEAL_TOKEN });\n  if (r.statusCode !== 200) throw new Error(r.error || `HTTP ${r.statusCode}`);\n});\n\nconst passed = results.filter(r => r.status === 'PASS').length;\nconst total = results.length;\nreturn [{ json: {\n  summary: `${passed}/${total} tests passés`,\n  passed, total,\n  allPassed: passed === total,\n  results,\n  timestamp: new Date().toISOString()\n} }];"
       }
     },
     {
@@ -211,6 +211,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-23T18:05:23.977Z",
-  "versionId": "b3bba792-2f9d-4933-9507-e6e0ab01442a"
+  "updatedAt": "2026-03-05T18:14:38.453Z",
+  "versionId": "ee3d110a-6906-48f6-9948-3bf00233b9da"
 }
