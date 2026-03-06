@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-23T18:05:22.798Z",
-    "createdAt": "2026-02-23T18:05:22.798Z",
-    "versionId": "57e1e165-30f4-4f2e-a811-419732c67063",
+    "updatedAt": "2026-03-05T15:57:24.891Z",
+    "createdAt": "2026-03-05T15:57:24.891Z",
+    "versionId": "f5771849-163d-4c8a-b589-11da80da3016",
     "workflowId": "axAkcOVeMEO1fHdz",
     "nodes": [
       {
@@ -15,15 +15,15 @@
           250,
           300
         ],
+        "webhookId": "etat-des-lieux-post",
         "parameters": {
           "httpMethod": "POST",
           "path": "etat-des-lieux",
           "responseMode": "responseNode",
           "options": {
-            "allowedOrigins": ""
+            "allowedOrigins": "*"
           }
-        },
-        "webhookId": "95931796-1d99-4245-b0df-eecf4b245340"
+        }
       },
       {
         "id": "code-orch-val",
@@ -186,7 +186,7 @@
               "entries": [
                 {
                   "name": "Access-Control-Allow-Origin",
-                  "value": ""
+                  "value": "*"
                 }
               ]
             }
@@ -224,7 +224,7 @@
               "entries": [
                 {
                   "name": "Access-Control-Allow-Origin",
-                  "value": ""
+                  "value": "*"
                 }
               ]
             }
@@ -356,7 +356,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "57e1e165-30f4-4f2e-a811-419732c67063",
+  "activeVersionId": "f5771849-163d-4c8a-b589-11da80da3016",
   "connections": {
     "Webhook": {
       "main": [
@@ -491,15 +491,15 @@
         250,
         300
       ],
+      "webhookId": "etat-des-lieux-post",
       "parameters": {
         "httpMethod": "POST",
         "path": "etat-des-lieux",
         "responseMode": "responseNode",
         "options": {
-          "allowedOrigins": ""
+          "allowedOrigins": "*"
         }
-      },
-      "webhookId": "95931796-1d99-4245-b0df-eecf4b245340"
+      }
     },
     {
       "id": "code-orch-val",
@@ -662,7 +662,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": ""
+                "value": "*"
               }
             ]
           }
@@ -700,7 +700,7 @@
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
-                "value": ""
+                "value": "*"
               }
             ]
           }
@@ -731,6 +731,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-23T18:05:22.797Z",
-  "versionId": "57e1e165-30f4-4f2e-a811-419732c67063"
+  "updatedAt": "2026-03-05T18:14:36.398Z",
+  "versionId": "f5771849-163d-4c8a-b589-11da80da3016"
 }
