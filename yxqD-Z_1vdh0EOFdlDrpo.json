@@ -1264,8 +1264,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [
-        3664,
-        240
+        3728,
+        160
       ],
       "id": "0345cca8-6bb4-4a6e-bc55-03b55561bd37",
       "name": "AI Agent1"
@@ -1579,6 +1579,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-03-04T15:56:24.597Z",
-  "versionId": "ea131c2b-d4a5-4304-bdf6-d70ae4ff278c"
+  "updatedAt": "2026-03-09T10:42:54.316Z",
+  "versionId": "c0b5cb00-fdfd-4d9b-b39f-1550433b8e70"
 }
