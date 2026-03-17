@@ -1113,19 +1113,19 @@
           "assignments": [
             {
               "name": "requetes_google",
-              "value": "=[\"foodtech France\", \"nutrition\", \"frenchtech\"]",
+              "value": "=[\"foodtech startup France\", \"meal planning app startup\", \"nutrition intelligence artificielle\", \"levée fonds foodtech agritech\", \"réglementation alimentation France 2025\", \"concurrent meal planner application\"]",
               "type": "array",
               "id": "cdee7f6f-dc98-4769-bd85-f3f6093bfe0d"
             },
             {
               "name": "requetes_hn",
-              "value": "=[ \"nutrition app\"]",
+              "value": "=[\"meal planning\", \"foodtech\", \"nutrition startup\"]",
               "type": "array",
               "id": "19ed25cd-abb1-432b-8626-0e97c5d89c33"
             },
             {
               "name": "subreddits",
-              "value": "=[\"nutrition\", \"foodtech\", \"FrenchTech\"]",
+              "value": "=[\"FrenchTech\", \"startups\", \"Entrepreneur\"]",
               "type": "array",
               "id": "5d87fd6f-b609-4323-9082-3af680628108"
             }
@@ -1579,6 +1579,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-03-09T10:42:54.316Z",
-  "versionId": "c0b5cb00-fdfd-4d9b-b39f-1550433b8e70"
+  "updatedAt": "2026-03-16T19:22:34.462Z",
+  "versionId": "7931b093-0711-4eca-bfee-72796ee94d55"
 }
