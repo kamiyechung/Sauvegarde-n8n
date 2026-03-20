@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-01-16T10:39:29.540Z",
-    "createdAt": "2026-01-16T10:39:29.540Z",
-    "versionId": "071684ca-423c-4a41-8689-22763053abff",
+    "updatedAt": "2026-03-19T11:53:42.097Z",
+    "createdAt": "2026-03-19T11:53:42.097Z",
+    "versionId": "6b747e3f-b34b-4802-b845-23f99d7e0ecc",
     "workflowId": "JsCsREdMwfdiRCeY",
     "nodes": [
       {
@@ -16,17 +16,19 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
         "typeVersion": 1,
         "position": [
-          1152,
-          672
+          1136,
+          864
         ],
         "id": "73066ddc-07d9-4b0a-8ef2-a3677b0939c4",
         "name": "Ollama Chat Model",
+        "retryOnFail": true,
         "credentials": {
           "ollamaApi": {
             "id": "C2ejebWhR6zEoNIL",
             "name": "Ollama account"
           }
-        }
+        },
+        "onError": "stopWorkflow"
       },
       {
         "parameters": {
@@ -178,8 +180,8 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
         "typeVersion": 1,
         "position": [
-          2752,
-          800
+          2224,
+          880
         ],
         "id": "37518777-1590-4288-aeed-339c8fd39dc2",
         "name": "Ollama Chat Model1",
@@ -250,7 +252,7 @@
         "id": "30f682ad-28a0-44f8-a819-3a559c1beb7d",
         "name": "AI Agent - Résumé",
         "retryOnFail": true,
-        "onError": "continueRegularOutput"
+        "onError": "stopWorkflow"
       },
       {
         "parameters": {
@@ -483,12 +485,12 @@
         ]
       }
     },
-    "authors": "system migration",
+    "authors": "Camille Huguet",
     "name": null,
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "071684ca-423c-4a41-8689-22763053abff",
+  "activeVersionId": "6b747e3f-b34b-4802-b845-23f99d7e0ecc",
   "connections": {
     "Ollama Chat Model": {
       "ai_languageModel": [
@@ -696,7 +698,7 @@
           "name": "Ollama account"
         }
       },
-      "onError": "continueErrorOutput"
+      "onError": "stopWorkflow"
     },
     {
       "parameters": {
@@ -920,7 +922,7 @@
       "id": "30f682ad-28a0-44f8-a819-3a559c1beb7d",
       "name": "AI Agent - Résumé",
       "retryOnFail": true,
-      "onError": "continueRegularOutput"
+      "onError": "stopWorkflow"
     },
     {
       "parameters": {
@@ -984,7 +986,8 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": true
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
   },
   "shared": [
     {
@@ -1015,6 +1018,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-02-25T09:41:58.663Z",
-  "versionId": "73c37758-356f-40e6-8ad3-e894c7a22aac"
+  "updatedAt": "2026-03-19T11:53:42.093Z",
+  "versionId": "6b747e3f-b34b-4802-b845-23f99d7e0ecc"
 }
