@@ -1527,7 +1527,9 @@
       ]
     },
     "global": {
-      "processedUrls": {}
+      "processedUrls": {
+        "https://news.google.com/rss/articles/CBMivgFBVV95cUxQYUpjOG1hVEJ4Y1RKeG9XWjlCWGdheElkTkVSVTZLaUE3dHZYallMU1JWTmM2bnAxZWp4U3JIWDM3c3VicVE1Vm1vRHYzS2hDYkxQVlEydjdKUGRyb2VUMWROSG5hN0pxelc5OEltWEIxUjc3em1BUUdPVF9EWG8yWkRSTzFaYWpEV2ptYjVfSFJJMzVBZllwbTVzaWU3QWVxYVd3TDBDNkg3Z05RZ2RmcGstRnVVemFUemhUVHh3?oc=5": 1774087295429
+      }
     }
   },
   "tags": [],
