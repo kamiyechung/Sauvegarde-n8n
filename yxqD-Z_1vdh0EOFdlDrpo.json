@@ -869,7 +869,7 @@
       "main": [
         [
           {
-            "node": "Filtre qualité1",
+            "node": "Code in JavaScript",
             "type": "main",
             "index": 0
           }
@@ -878,13 +878,7 @@
     },
     "Filtre qualité1": {
       "main": [
-        [
-          {
-            "node": "Filtre doublons1",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "AI Agent1": {
@@ -1018,6 +1012,17 @@
           }
         ]
       ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Filtre doublons1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2026-02-09T18:02:49.106Z",
@@ -1076,7 +1081,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        3664,
+        3872,
         464
       ],
       "id": "8458a5ea-4840-47b7-9935-fb948cda541d",
@@ -1237,34 +1242,34 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3216,
-        240
+        3056,
+        256
       ],
       "id": "6972d0a3-987c-4f4e-b02e-fd4bca182831"
     },
     {
       "parameters": {
-        "jsCode": "var items = $input.all();\nvar results = [];\nvar now = new Date();\nvar oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);\n\nfor (var i = 0; i < items.length; i++) {\n  var title = (items[i].json.title || '').trim();\n  var link = (items[i].json.link || '').trim();\n  var pubDate = items[i].json.pubDate || items[i].json.isoDate || items[i].json.date || '';\n  var articleDate = pubDate ? new Date(pubDate) : null;\n\n  if (title && link && !items[i].json._empty && articleDate && articleDate >= oneDayAgo) {\n    results.push(items[i]);\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
+        "jsCode": "var items = $input.all();\nvar results = [];\nvar seenLinks = new Set();\n\nvar now = new Date();\nvar twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);\n\nfor (var i = 0; i < items.length; i++) {\n  var json = items[i].json;\n\n  var title = (json.title || '').trim();\n  var link = (json.link || '').trim();\n  var pubDate = json.pubDate || json.isoDate || json.date || '';\n\n  var articleDate = pubDate ? new Date(pubDate) : null;\n  if (articleDate && isNaN(articleDate.getTime())) {\n    articleDate = null;\n  }\n\n  if (\n    title &&\n    link &&\n    !json._empty &&\n    articleDate &&\n    articleDate >= twoDaysAgo &&\n    !seenLinks.has(link)\n  ) {\n    seenLinks.add(link);\n    results.push(items[i]);\n  }\n}\n\nreturn results.length > 0\n  ? results\n  : [{ json: { _empty: true } }];"
       },
       "name": "Filtre qualité1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3440,
-        240
+        3552,
+        224
       ],
       "id": "5357e5c3-7344-4ee0-bdad-7493f8f54353"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Analyse cet article et réponds UNIQUEMENT avec un JSON valide (sans markdown, sans balises).\nRéponds TOUJOURS en français.\n\nTitre : {{$json.title}}\nDescription : {{$json.description}}\nSource : {{$json.source}}\n\nRéponds au format :\n{\"resume\": \"résumé en 2-3 phrases en français\", \"tags\": [\"tag1\", \"tag2\"], \"priorite\": \"Haute|Moyenne|Basse\"}\n\nTags possibles : IA, Meal Planning, Startup, Tech, Marketing\n\nPriorité :\n- Haute : concurrent, innovation majeure, réglementation\n- Moyenne : tendance intéressante\n- Basse : info générale",
+        "text": "=Analyse cet article et réponds UNIQUEMENT avec un JSON valide (sans markdown, sans balises).\nRéponds TOUJOURS en français.\n\nTitre : {{ $('Fusion sources1').item.json.title }}\nDescription : \nSource : {{$json.source}}\n\nRéponds au format :\n{\"resume\": \"résumé en 2-3 phrases en français\", \"tags\": [\"tag1\", \"tag2\"], \"priorite\": \"Haute|Moyenne|Basse\"}\n\nTags possibles : IA, Meal Planning, Startup, Tech, Marketing\n\nPriorité :\n- Haute : concurrent, innovation majeure, réglementation\n- Moyenne : tendance intéressante\n- Basse : info générale",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [
-        3728,
+        3936,
         160
       ],
       "id": "0345cca8-6bb4-4a6e-bc55-03b55561bd37",
@@ -1278,7 +1283,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4016,
+        4224,
         240
       ],
       "id": "ca16d761-ec0e-453a-a704-64c52e9e4740"
@@ -1320,7 +1325,7 @@
           "cachedResultName": "Veille technologique",
           "cachedResultUrl": "https://www.notion.so/45dc981f6f794868bf4b52171716f080"
         },
-        "title": "={{ $('Parse Google XML').item.json.title }}",
+        "title": "={{ $json.title }}",
         "simple": false,
         "propertiesUi": {
           "propertyValues": [
@@ -1355,7 +1360,7 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        4192,
+        4400,
         240
       ],
       "id": "70d88f93-b0a5-4c01-86b3-e9f8482a8d36",
@@ -1376,8 +1381,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3552,
-        240
+        3712,
+        304
       ]
     },
     {
@@ -1389,7 +1394,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4400,
+        4608,
         240
       ]
     },
@@ -1402,7 +1407,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4608,
+        4816,
         240
       ]
     },
@@ -1437,7 +1442,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        4816,
+        5024,
         400
       ]
     },
@@ -1450,7 +1455,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5024,
+        5232,
         400
       ]
     },
@@ -1489,7 +1494,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        5232,
+        5440,
         400
       ],
       "credentials": {
@@ -1498,6 +1503,19 @@
           "name": "Notion account"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.all();\n\nfunction decodeHtml(str = '') {\n  return String(str)\n    .replace(/&nbsp;/g, ' ')\n    .replace(/&lt;/g, '<')\n    .replace(/&gt;/g, '>')\n    .replace(/&amp;/g, '&')\n    .replace(/&quot;/g, '\"')\n    .replace(/&#39;/g, \"'\")\n    .replace(/&#x27;/g, \"'\")\n    .replace(/&#x2F;/g, '/');\n}\n\nfunction stripHtml(str = '') {\n  return decodeHtml(str)\n    .replace(/<a\\b[^>]*>(.*?)<\\/a>/gi, '$1')\n    .replace(/<font\\b[^>]*>(.*?)<\\/font>/gi, '$1')\n    .replace(/<[^>]*>/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction toDateOnly(value) {\n  if (!value) return new Date().toISOString().split('T')[0];\n  const d = new Date(value);\n  if (isNaN(d.getTime())) return new Date().toISOString().split('T')[0];\n  return d.toISOString().split('T')[0];\n}\n\nlet data = [];\n\n// Cas 1 : chaque item est déjà un article\nif (input.every(item => item.json && item.json.title && item.json.link)) {\n  data = input.map(item => item.json);\n}\n// Cas 2 : un seul item contient un tableau\nelse if (input.length === 1 && Array.isArray(input[0].json)) {\n  data = input[0].json;\n}\nelse if (input.length === 1 && Array.isArray(input[0].json.data)) {\n  data = input[0].json.data;\n}\nelse if (input.length === 1 && typeof input[0].json.data === 'string') {\n  try {\n    data = JSON.parse(input[0].json.data);\n  } catch {\n    data = [];\n  }\n}\n\nreturn data\n  .filter(item => item && item.title && item.link)\n  .map(item => {\n    const cleanDescription = stripHtml(item.description || '');\n    const cleanSource = stripHtml(item.source || '');\n\n    return {\n      json: {\n        title: stripHtml(item.title || 'Sans titre'),\n        link: item.link || '',\n        source: cleanSource,\n        pubDate: toDateOnly(item.pubDate),\n        description: cleanDescription,\n        // IMPORTANT : on reconstruit resume depuis description\n        resume: cleanDescription ? cleanDescription.slice(0, 300) : '',\n        tags: Array.isArray(item.tags) ? item.tags : [],\n        priorite: item.priorite || 'Moyenne',\n        points: item.points ?? null\n      }\n    };\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3264,
+        256
+      ],
+      "id": "1d269161-5795-40d6-9096-56abc5717b3a",
+      "name": "Code in JavaScript"
     }
   ],
   "origin": "n8n",
@@ -1527,11 +1545,13 @@
       ]
     },
     "global": {
-      "processedUrls": {}
+      "processedUrls": {
+        "https://news.google.com/rss/articles/CBMiogFBVV95cUxNejNENGVobzdPQXZreUdCTW93NXotdWZEM1JraURSSnRqT0RVNkt1TkVaR0dETVYyNDBENnczOW9XX1RmX19oNll0b2F5V21kZDBhUEw5ZHlVR0dMQnM1TmN1X2pMbW4yeGJ4dVQ0ZG92b1llR3lwODFWYlFEcElySTJyMWo3cGt6VDJjdWZvQlZlNjBVZFZGRVV6TTBkS0FaZ2c?oc=5": 1774951302379
+      }
     }
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-03-19T13:35:09.934Z",
-  "versionId": "8e45e5ed-8011-40cf-972d-82e807bdd863"
+  "updatedAt": "2026-03-30T20:47:46.326Z",
+  "versionId": "9fd5e87b-6738-4a88-ab34-6d38cd8cec62"
 }
