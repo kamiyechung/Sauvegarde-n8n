@@ -886,7 +886,7 @@
       "main": [
         [
           {
-            "node": "Merge lien_drive",
+            "node": "If",
             "type": "main",
             "index": 0
           }
@@ -894,17 +894,6 @@
       ]
     },
     "Set lien_drive (existant)": {
-      "main": [
-        [
-          {
-            "node": "Merge lien_drive",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Merge lien_drive": {
       "main": [
         [
           {
@@ -1101,17 +1090,6 @@
         ]
       ]
     },
-    "Notion Trigger - Nouveau formulaire1": {
-      "main": [
-        [
-          {
-            "node": "Calculer IRL du trimestre",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Filter1": {
       "main": [
         [
@@ -1126,6 +1104,17 @@
     "Get a database page1": {
       "main": [
         []
+      ]
+    },
+    "Notion Trigger - Nouveau formulaire": {
+      "main": [
+        [
+          {
+            "node": "Calculer IRL du trimestre",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -1197,21 +1186,6 @@
     },
     {
       "parameters": {
-        "mode": "combine",
-        "combineBy": "combineAll",
-        "options": {}
-      },
-      "id": "f484350c-54f4-4472-971b-b106bfa21738",
-      "name": "Merge lien_drive",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3,
-      "position": [
-        768,
-        1536
-      ]
-    },
-    {
-      "parameters": {
         "functionCode": "// Récupérer la date depuis le Trigger Notion (formulaire de création de bail)\nconst triggerData = $('Notion Trigger - Nouveau formulaire').item.json;\nconst dateObj = triggerData['Date de début de location'];\nconst dateDebutStr = dateObj?.start;\n\n// Vérifier que la date existe\nif (!dateDebutStr) {\n  throw new Error(`Date de début non trouvée dans le trigger. Propriétés : ${JSON.stringify(Object.keys(triggerData))}`);\n}\n\nconst dateDebut = new Date(dateDebutStr);\n\n// Vérifier que la date est valide\nif (isNaN(dateDebut.getTime())) {\n  throw new Error(`Date invalide : ${dateDebutStr}`);\n}\n\nconst mois = dateDebut.getMonth() + 1;\nconst annee = dateDebut.getFullYear();\n\nlet trimestre;\nif (mois >= 1 && mois <= 3) trimestre = `T4 ${annee - 1}`;\nelse if (mois >= 4 && mois <= 6) trimestre = `T1 ${annee}`;\nelse if (mois >= 7 && mois <= 9) trimestre = `T2 ${annee}`;\nelse trimestre = `T3 ${annee}`;\n\n// Calcul date de renouvellement (1 an après date début)\nconst dateRenouvellement = new Date(dateDebut);\ndateRenouvellement.setFullYear(dateRenouvellement.getFullYear() + 1);\n\nconst jour = dateRenouvellement.getDate().toString().padStart(2, '0');\nconst moisNom = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][dateRenouvellement.getMonth()];\nconst anneeRenouv = dateRenouvellement.getFullYear();\nconst dateRevision = `${jour} ${moisNom} ${anneeRenouv}`;\n\n// Calcul date du jour pour la signature\nconst aujourdhui = new Date();\nconst jourAujourdhui = aujourdhui.getDate().toString().padStart(2, '0');\nconst moisAujourdhui = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][aujourdhui.getMonth()];\nconst anneeAujourdhui = aujourdhui.getFullYear();\nconst dateSignature = `${jourAujourdhui} ${moisAujourdhui} ${anneeAujourdhui}`;\n\n// Calcul loyer total\nconst montantLoyer = parseFloat(triggerData['Montant du loyer hors-charge'] || 0);\nconst montantCharges = parseFloat(triggerData['Montant des charges'] || 0);\nconst montantLoyerTotal = montantLoyer + montantCharges;\n\n// Calcul premier versement (caution + loyer prorata)\nconst jourDebut = dateDebut.getDate();\nconst caution = montantLoyer; // 1 mois HC\nlet loyerPremierMois;\nlet detailPremierVersement;\n\nif (jourDebut <= 15) {\n  loyerPremierMois = montantLoyerTotal;\n  detailPremierVersement = `${caution}€ de caution + ${loyerPremierMois}€ de loyer (mois complet)`;\n} else {\n  loyerPremierMois = montantLoyerTotal / 2;\n  detailPremierVersement = `${caution}€ de caution + ${loyerPremierMois}€ de loyer (demi-mois)`;\n}\n\nconst montantPremierVersement = caution + loyerPremierMois;\n\nreturn {\n  json: {\n    ...$json,\n    reference_irl: trimestre,\n    date_revision: dateRevision,\n    date_signature: dateSignature,\n    montant_loyer: montantLoyer,\n    montant_charges: montantCharges,\n    montant_loyer_total: montantLoyerTotal,\n    depot_garantie: caution,\n    montant_premier_versement: montantPremierVersement,\n    detail_premier_versement: detailPremierVersement\n  }\n};"
       },
       "id": "bd79e89e-b8d4-4183-94ee-2e1631674c4b",
@@ -1244,13 +1218,13 @@
           "value": "20f02d84a064808b815acf29c8680feb",
           "mode": "id"
         },
-        "title": "={{ $('Notion Trigger - Nouveau formulaire1').item.json['Nom et Prénom'] }}",
+        "title": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
         "simple": false,
         "propertiesUi": {
           "propertyValues": [
             {
               "key": "Address|rich_text",
-              "textContent": "22 rue Marie Duboccage 76100 Ro"
+              "textContent": "22 rue Marie Duboccage 76100 Rouen"
             },
             {
               "key": "Ajout Assurance|select",
@@ -1258,7 +1232,7 @@
             },
             {
               "key": "Email|rich_text",
-              "textContent": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Email }}"
+              "textContent": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Email }}"
             },
             {
               "key": "Etat des lieux d'entrée|select",
@@ -1274,7 +1248,7 @@
             },
             {
               "key": "Téléphone|rich_text",
-              "textContent": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Phone }}"
+              "textContent": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Phone }}"
             },
             {
               "key": "Lien de stockage des documents|url",
@@ -1367,12 +1341,12 @@
             {
               "action": "replaceAll",
               "text": "nom_locataire",
-              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire1').item.json['Nom et Prénom'] }}"
+              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}"
             },
             {
               "action": "replaceAll",
               "text": "email_locataire",
-              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Email }}"
+              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Email }}"
             },
             {
               "action": "replaceAll",
@@ -1387,7 +1361,7 @@
             {
               "action": "replaceAll",
               "text": "date_debut",
-              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire1').item.json['Date de début de location'].start }}"
+              "replaceText": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Date de début de location'].start }}"
             },
             {
               "action": "replaceAll",
@@ -1553,8 +1527,8 @@
         },
         "folderId": {
           "__rl": true,
-          "value": "={{ $('Merge lien_drive').item.json.folder_id }}",
-          "mode": "id"
+          "value": "={{ $('Set lien_drive (nouveau)').item.json.lien_drive }}",
+          "mode": "url"
         },
         "options": {}
       },
@@ -1610,7 +1584,7 @@
           "conditions": [
             {
               "id": "c08552a8-8178-4aef-9695-d66e1c27938c",
-              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire1').item.json['Bail anglais'] }}",
+              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Bail anglais'] }}",
               "rightValue": true,
               "operator": {
                 "type": "boolean",
@@ -1639,7 +1613,7 @@
           "value": "=1c3yVtjHZykGUZFhuhCSUkDmr0RLjLls70HKnqAZhfU8",
           "mode": "id"
         },
-        "name": "=Lease {{ $('Notion Trigger - Nouveau formulaire1').item.json['Nom et Prénom'] }}",
+        "name": "=Lease {{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
         "sameFolder": false,
         "driveId": {
           "__rl": true,
@@ -1673,10 +1647,10 @@
         "operation": "copy",
         "fileId": {
           "__rl": true,
-          "value": "=https://drive.google.com/file/d/1a95TUC_2faNlZySZ5-iSO4VmtJQf2lSE5n87tVAQtFI/view",
-          "mode": "url"
+          "value": "=1a95TUC_2faNlZySZ5-iSO4VmtJQf2lSE5n87tVAQtFI",
+          "mode": "id"
         },
-        "name": "={{ $('Calculer toutes les variables').item.json.nom_fichier }}",
+        "name": "=Bail {{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
         "options": {}
       },
       "id": "1e0b2989-9db7-4e36-82b8-f00ef6e5b958",
@@ -1706,7 +1680,7 @@
           "conditions": [
             {
               "id": "a7841e37-c59e-41db-a2b9-283d32a0de6b",
-              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Couple }}",
+              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Couple }}",
               "rightValue": "oui",
               "operator": {
                 "type": "boolean",
@@ -1737,7 +1711,7 @@
           "value": "=1aREkKtb2MnVMEP0pjjRalZK_dFC7EkP9LvhJoIU8yLM",
           "mode": "id"
         },
-        "name": "=Bail {{ $('Notion Trigger - Nouveau formulaire1').item.json['Nom et Prénom'] }}",
+        "name": "=Bail {{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
         "options": {}
       },
       "id": "c290b41c-1565-4550-ba84-9b9a9446d8e9",
@@ -1766,6 +1740,16 @@
         },
         "returnAll": true,
         "simple": false,
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Email|rich_text",
+              "condition": "equals",
+              "richTextValue": "={{ $json.Email }}"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "648232c7-d8eb-4c8e-97d0-423dfcf78d93",
@@ -1776,6 +1760,7 @@
         -576,
         1536
       ],
+      "alwaysOutputData": true,
       "credentials": {
         "notionApi": {
           "id": "rV7Q43daAHzHJJVH",
@@ -1794,12 +1779,11 @@
           },
           "conditions": [
             {
-              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.property_email }}",
-              "rightValue": {},
+              "leftValue": "={{$input.all().length}}",
+              "rightValue": 0,
               "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
+                "type": "number",
+                "operation": "gt"
               },
               "id": "2b55e69b-a2fc-44bd-a794-677389b47989"
             }
@@ -1833,32 +1817,6 @@
     },
     {
       "parameters": {
-        "pollTimes": {
-          "item": [
-            {
-              "mode": "everyMinute"
-            }
-          ]
-        },
-        "databaseId": "2fb02d84a06480128570c75a6efb4429"
-      },
-      "id": "29a14ea6-fc7a-4f39-852f-0b3941bc3324",
-      "name": "Notion Trigger - Nouveau formulaire1",
-      "type": "n8n-nodes-base.notionTrigger",
-      "typeVersion": 1,
-      "position": [
-        -1248,
-        1536
-      ],
-      "credentials": {
-        "notionApi": {
-          "id": "rV7Q43daAHzHJJVH",
-          "name": "Notion account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
@@ -1869,7 +1827,7 @@
           "conditions": [
             {
               "id": "740059c2-9ad1-453e-b90d-fabecc5b5344",
-              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire1').item.json.Email }}",
+              "leftValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json.Email }}",
               "rightValue": "={{ $('Vérifier email dans Parties1').item.json.properties.Email.rich_text[0].text.content }}",
               "operator": {
                 "type": "string",
@@ -1914,6 +1872,32 @@
           "name": "Notion account"
         }
       }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "databaseId": "2fb02d84a06480128570c75a6efb4429"
+      },
+      "id": "29a14ea6-fc7a-4f39-852f-0b3941bc3324",
+      "name": "Notion Trigger - Nouveau formulaire",
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1248,
+        1536
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
     }
   ],
   "origin": "n8n",
@@ -1937,11 +1921,14 @@
   ],
   "staticData": {
     "node:Notion Trigger - Nouveau formulaire": {
-      "lastTimeChecked": "2026-03-10T19:17:00.000Z"
+      "lastTimeChecked": "2026-03-30T19:16:00.000Z",
+      "possibleDuplicates": [
+        "33302d84-a064-8171-8f70-c86595584a96"
+      ]
     }
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-02-18T09:32:42.185Z",
-  "versionId": "17ed02fd-2be3-4508-b392-9b6394d6ae19"
+  "updatedAt": "2026-03-30T19:38:44.665Z",
+  "versionId": "ffc61862-068c-427f-abe2-924f0cc85744"
 }
