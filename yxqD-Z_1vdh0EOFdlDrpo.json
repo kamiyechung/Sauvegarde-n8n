@@ -765,7 +765,7 @@
       "main": [
         [
           {
-            "node": "Fusion sources1",
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -788,11 +788,6 @@
         [
           {
             "node": "Split Google queries1",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Split HN queries1",
             "type": "main",
             "index": 0
           }
@@ -878,7 +873,13 @@
     },
     "Filtre qualité1": {
       "main": [
-        []
+        [
+          {
+            "node": "Filtre doublons1",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "AI Agent1": {
@@ -940,7 +941,7 @@
       "main": [
         [
           {
-            "node": "Marque traité1",
+            "node": "Scrape article1",
             "type": "main",
             "index": 0
           }
@@ -960,13 +961,7 @@
     },
     "Filtre Haute1": {
       "main": [
-        [
-          {
-            "node": "Scrape article1",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Scrape article1": {
@@ -1017,7 +1012,30 @@
       "main": [
         [
           {
-            "node": "Filtre doublons1",
+            "node": "Filtre qualité1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Fusion sources1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ajoute contenu Notion1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -1249,21 +1267,21 @@
     },
     {
       "parameters": {
-        "jsCode": "var items = $input.all();\nvar results = [];\nvar seenLinks = new Set();\n\nvar now = new Date();\nvar twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);\n\nfor (var i = 0; i < items.length; i++) {\n  var json = items[i].json;\n\n  var title = (json.title || '').trim();\n  var link = (json.link || '').trim();\n  var pubDate = json.pubDate || json.isoDate || json.date || '';\n\n  var articleDate = pubDate ? new Date(pubDate) : null;\n  if (articleDate && isNaN(articleDate.getTime())) {\n    articleDate = null;\n  }\n\n  if (\n    title &&\n    link &&\n    !json._empty &&\n    articleDate &&\n    articleDate >= twoDaysAgo &&\n    !seenLinks.has(link)\n  ) {\n    seenLinks.add(link);\n    results.push(items[i]);\n  }\n}\n\nreturn results.length > 0\n  ? results\n  : [{ json: { _empty: true } }];"
+        "jsCode": "var items = $input.all();\nvar results = [];\nvar seenKeys = new Set();\n\nvar now = new Date();\nvar threeDaysAgo = new Date(now.getTime() - 72 * 60 * 60 * 1000);\n\nfor (var i = 0; i < items.length; i++) {\n  var json = items[i].json || {};\n\n  var title = (json.title || '').trim();\n  var link = (json.link || '').trim();\n  var source = (json.source || '').trim();\n  var pubDate = json.pubDate || json.isoDate || json.date || '';\n\n  var articleDate = pubDate ? new Date(pubDate) : null;\n  if (articleDate && isNaN(articleDate.getTime())) {\n    articleDate = null;\n  }\n\n  var dedupeKey = link || (title.toLowerCase() + '|' + source.toLowerCase());\n\n  var hasRequiredFields = title && source;\n  var isRecentEnough = articleDate && articleDate >= threeDaysAgo;\n\n  if (\n    hasRequiredFields &&\n    !json._empty &&\n    dedupeKey &&\n    !seenKeys.has(dedupeKey) &&\n    isRecentEnough\n  ) {\n    seenKeys.add(dedupeKey);\n    results.push(items[i]);\n  }\n}\n\nreturn results.length > 0\n  ? results\n  : [{ json: { _empty: true } }];"
       },
       "name": "Filtre qualité1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         3552,
-        224
+        80
       ],
       "id": "5357e5c3-7344-4ee0-bdad-7493f8f54353"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Analyse cet article et réponds UNIQUEMENT avec un JSON valide (sans markdown, sans balises).\nRéponds TOUJOURS en français.\n\nTitre : {{ $('Fusion sources1').item.json.title }}\nDescription : \nSource : {{$json.source}}\n\nRéponds au format :\n{\"resume\": \"résumé en 2-3 phrases en français\", \"tags\": [\"tag1\", \"tag2\"], \"priorite\": \"Haute|Moyenne|Basse\"}\n\nTags possibles : IA, Meal Planning, Startup, Tech, Marketing\n\nPriorité :\n- Haute : concurrent, innovation majeure, réglementation\n- Moyenne : tendance intéressante\n- Basse : info générale",
+        "text": "=Analyse cet article et réponds UNIQUEMENT avec un JSON valide (sans markdown, sans balises).\nRéponds TOUJOURS en français.\n\nTitre : {{ $('Fusion sources1').item.json.title || '' }}\nDescription : {{ $('Fusion sources1').item.json.description || '' }}\nSource : {{ $('Fusion sources1').item.json.source || $json.source || '' }}\nLien : {{ $('Fusion sources1').item.json.link || '' }}\n\nConsignes :\n\nRésume fidèlement le contenu\nN'invente aucune information\nSi le contenu est vide ou insuffisant, réponds avec un résumé très court et une priorité \"Basse\"\nNe mets AUCUN texte hors JSON\n\nRéponds STRICTEMENT au format suivant :\n{\"titre\": \"titre de l'article\", \"source\": \"nom de la source\", \"resume\": \"résumé en 2-3 phrases en français\", \"tags\": [\"tag1\", \"tag2\"], \"priorite\": \"Haute|Moyenne|Basse\"}\n\nTags possibles : IA, Meal Planning, Startup, Tech, Marketing\n\nPriorité :\n\nHaute : concurrent direct, innovation majeure, réglementation impactante\nMoyenne : tendance intéressante ou signal faible\nBasse : information générale ou peu exploitable",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -1352,6 +1370,10 @@
             {
               "key": "Priorité|select",
               "selectValue": "={{ $json.priorite }}"
+            },
+            {
+              "key": "URL|url",
+              "urlValue": "={{ $json.link }}"
             }
           ]
         },
@@ -1394,8 +1416,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4608,
-        240
+        4672,
+        144
       ]
     },
     {
@@ -1407,14 +1429,14 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4816,
-        240
+        4832,
+        208
       ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "http://browserless:3000/content",
+        "url": "http://127.0.0.1:3001/content",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -1425,8 +1447,8 @@
           ]
         },
         "sendBody": true,
-        "specifyBody": "string",
-        "body": "={{ JSON.stringify({url: $json.link, waitFor: 3000, gotoOptions: {waitUntil: 'networkidle2', timeout: 30000}}) }}",
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json.properties.URL.url }}\"\n}",
         "options": {
           "response": {
             "response": {
@@ -1444,7 +1466,9 @@
       "position": [
         5024,
         400
-      ]
+      ],
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -1516,6 +1540,19 @@
       ],
       "id": "1d269161-5795-40d6-9096-56abc5717b3a",
       "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1808,
+        -16
+      ],
+      "id": "d92535f5-f75e-46dd-9315-b6e2ccf32958",
+      "name": "Loop Over Items"
     }
   ],
   "origin": "n8n",
@@ -1546,12 +1583,12 @@
     },
     "global": {
       "processedUrls": {
-        "https://news.google.com/rss/articles/CBMiogFBVV95cUxNejNENGVobzdPQXZreUdCTW93NXotdWZEM1JraURSSnRqT0RVNkt1TkVaR0dETVYyNDBENnczOW9XX1RmX19oNll0b2F5V21kZDBhUEw5ZHlVR0dMQnM1TmN1X2pMbW4yeGJ4dVQ0ZG92b1llR3lwODFWYlFEcElySTJyMWo3cGt6VDJjdWZvQlZlNjBVZFZGRVV6TTBkS0FaZ2c?oc=5": 1774951302379
+        "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOYTRlSjJWOU15cWdRanFaYlpHYTJNUnBtekNpY1N5bDBPSndlQWRoRkRfbmdkLWRkRTFiR0lnRTdDeUlMTEpNeGlQZkVNdXJJeUFXakFGY1Q2NWVIVEN6UzJTekhZbURVaDgzR3V5WHVsekozWXkxODlyZHZyOUJManJMRkxnMk91WWZJM0ZXZDViSFBOOEdkMU1RYXVXTVZyRFAtOF91MEdhdXRFcWNjTGRHaFhQM1ExQ3BRNUtDOF8?oc=5": 1775037684821
       }
     }
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-03-30T20:47:46.326Z",
-  "versionId": "9fd5e87b-6738-4a88-ab34-6d38cd8cec62"
+  "updatedAt": "2026-04-01T09:06:37.380Z",
+  "versionId": "fb083b3a-5558-47d7-b872-2e0c2ff97b4a"
 }
