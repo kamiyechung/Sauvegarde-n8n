@@ -765,7 +765,7 @@
       "main": [
         [
           {
-            "node": "Loop Over Items",
+            "node": "Split Reddit subs1",
             "type": "main",
             "index": 0
           }
@@ -788,6 +788,11 @@
         [
           {
             "node": "Split Google queries1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split HN queries1",
             "type": "main",
             "index": 0
           }
@@ -1019,23 +1024,16 @@
         ]
       ]
     },
-    "Loop Over Items": {
+    "Ajoute contenu Notion1": {
       "main": [
-        [],
+        []
+      ]
+    },
+    "Parse Reddit XML": {
+      "main": [
         [
           {
             "node": "Fusion sources1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ajoute contenu Notion1": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -1233,7 +1231,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        2176,
+        2144,
         432
       ],
       "id": "3b00557f-45d4-463b-b8ea-a4c7f302f1d3"
@@ -1540,19 +1538,6 @@
       ],
       "id": "1d269161-5795-40d6-9096-56abc5717b3a",
       "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        1808,
-        -16
-      ],
-      "id": "d92535f5-f75e-46dd-9315-b6e2ccf32958",
-      "name": "Loop Over Items"
     }
   ],
   "origin": "n8n",
@@ -1583,12 +1568,12 @@
     },
     "global": {
       "processedUrls": {
-        "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOYTRlSjJWOU15cWdRanFaYlpHYTJNUnBtekNpY1N5bDBPSndlQWRoRkRfbmdkLWRkRTFiR0lnRTdDeUlMTEpNeGlQZkVNdXJJeUFXakFGY1Q2NWVIVEN6UzJTekhZbURVaDgzR3V5WHVsekozWXkxODlyZHZyOUJManJMRkxnMk91WWZJM0ZXZDViSFBOOEdkMU1RYXVXTVZyRFAtOF91MEdhdXRFcWNjTGRHaFhQM1ExQ3BRNUtDOF8?oc=5": 1775037684821
+        "https://news.google.com/rss/articles/CBMilwFBVV95cUxPMkdrQ0hmdGtxMEhRRTg0Unc5SGhQLWZYeUF0dTYtejdUMVB5azRpRFJ6T1NPcHozYklYX2o3YTN2MDNxUjhvUEozTmM5aHlJRGwyWUxMREVIT0tSUnVPbXFxY0pZUU1CdFdBeTladE1fYnVieXNITGdLaFpzVHNnbW5Uc1QwNThqUDRUeU8tbkFMbXc4dmdN?oc=5": 1775124091410
       }
     }
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-04-01T09:06:37.380Z",
-  "versionId": "fb083b3a-5558-47d7-b872-2e0c2ff97b4a"
+  "updatedAt": "2026-04-01T12:37:49.018Z",
+  "versionId": "8cad8542-20e6-4105-b087-bcc6941094c8"
 }
