@@ -1116,6 +1116,17 @@
           }
         ]
       ]
+    },
+    "Supprimer le doc temporaire": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2026-02-02T16:16:12.534Z",
@@ -1898,6 +1909,64 @@
           "name": "Notion account"
         }
       }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "20102d84-a064-80f3-9e55-c3721c4e1440",
+          "mode": "list",
+          "cachedResultName": "Baux",
+          "cachedResultUrl": "https://www.notion.so/20102d84a06480f39e55c3721c4e1440"
+        },
+        "title": "=Bail  {{ $('Notion Trigger - Nouveau formulaire').item.json['Nom et Prénom'] }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Date de début|date",
+              "includeTime": "=",
+              "date": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Date de début de location'].start }}"
+            },
+            {
+              "key": "Dépôt de garantie|number",
+              "numberValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Montant du loyer hors-charge'] }}"
+            },
+            {
+              "key": "Montant du loyer HC|number",
+              "numberValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Montant du loyer hors-charge'] }}"
+            },
+            {
+              "key": "Montant des charges|number",
+              "numberValue": "={{ $('Notion Trigger - Nouveau formulaire').item.json['Montant des charges'] }}"
+            },
+            {
+              "key": "lien du bail|rich_text",
+              "textContent": "={{ $('Uploader PDF dans le dossier').item.json.webContentLink }}"
+            },
+            {
+              "key": "Etat|select",
+              "selectValue": "Actif"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2544,
+        1536
+      ],
+      "id": "597e0c7e-d40b-4006-81a2-e4105a07b175",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "rV7Q43daAHzHJJVH",
+          "name": "Notion account"
+        }
+      }
     }
   ],
   "origin": "n8n",
@@ -1929,6 +1998,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2026-03-30T19:38:44.665Z",
-  "versionId": "ffc61862-068c-427f-abe2-924f0cc85744"
+  "updatedAt": "2026-04-01T19:28:42.741Z",
+  "versionId": "ef704acb-e58a-4806-b140-13333c2c8eb0"
 }
